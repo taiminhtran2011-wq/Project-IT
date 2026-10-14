@@ -565,18 +565,18 @@
 </head>
 <body>
 
-<!-- Modal Xin Quyền GPS Thực Tế -->
-<div class="modal-backdrop" id="locationModal" role="dialog" aria-modal="true">
+<!-- Modal Hỏi & Xác nhận Quyền Lấy Vị Trí GPS Thật -->
+<div class="modal-backdrop" id="locationModal" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
   <div class="modal-dialog" style="text-align: center;">
     <div style="width:60px;height:60px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:14px;">
       <i class="fa-solid fa-location-crosshairs"></i>
     </div>
-    <h2>Xác thực vị trí GPS thật của bạn</h2>
-    <p>Hệ thống sử dụng trực tiếp cảm biến GPS từ trình duyệt/thiết bị của bạn (Độ chính xác cao, không dùng vị trí giả lập) để tìm bệnh viện và bãi đỗ xe gần bạn nhất.</p>
+    <h2 id="locationModalTitle">Cho phép lấy vị trí của bạn?</h2>
+    <p id="locationModalDesc">Trang web cần lấy vị trí GPS hiện tại của thiết bị để tìm bệnh viện và bãi đỗ xe gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy tọa độ thực tế.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-secondary" type="button" onclick="closeLocationPrompt()" style="flex:1">Để sau</button>
+      <button class="btn btn-secondary" type="button" onclick="closeLocationPrompt()" style="flex:1">Hủy</button>
       <button class="btn btn-primary" type="button" onclick="confirmLocationPermission()" style="flex:1">
-        <i class="fa-solid fa-check"></i> Cho phép GPS
+        <i class="fa-solid fa-check"></i> Đồng ý lấy vị trí
       </button>
     </div>
   </div>
@@ -640,11 +640,11 @@
 
     <div class="gps-bar" title="Trạng thái định vị GPS thực tế từ thiết bị">
       <span class="gps-dot" id="gpsDot"></span>
-      <span class="gps-text" id="locationStatus">Chưa lấy vị trí GPS thực tế</span>
+      <span class="gps-text" id="locationStatus">📍 Chưa lấy vị trí</span>
     </div>
 
     <div class="nav-actions">
-      <button class="icon-btn" onclick="requestLocation('auto', true)" title="Làm mới vị trí GPS thật ngay lập tức">
+      <button class="icon-btn" onclick="openLocationPrompt('locate')" title="Hỏi và cập nhật vị trí GPS thật">
         <i class="fa-solid fa-location-crosshairs"></i> Lấy GPS thật
       </button>
       <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Đổi giao diện Sáng/Tối">
@@ -674,7 +674,7 @@
     <section id="hospitalSection" class="section active">
       <div class="card">
         <div class="card-header">
-          <h2><i class="fa-solid fa-stethoscope" style="color:var(--primary)"></i> Tìm bệnh viện quanh vị trí thật</h2>
+          <h2><i class="fa-solid fa-stethoscope" style="color:var(--primary)"></i> Tìm bệnh viện gần nhất</h2>
         </div>
 
         <div class="filter-grid">
@@ -699,7 +699,7 @@
         </div>
 
         <div class="field" style="margin-bottom:14px;">
-          <label for="hospitalRadius">Bán kính quét từ vị trí thật của bạn</label>
+          <label for="hospitalRadius">Bán kính quét từ vị trí của bạn</label>
           <select id="hospitalRadius" onchange="if(userLocation) searchHospitals()">
             <option value="3">Trong bán kính 3 km</option>
             <option value="5">Trong bán kính 5 km</option>
@@ -710,22 +710,22 @@
 
         <div class="controls">
           <button class="btn btn-primary" onclick="getLocationAndSearch('hospital')">
-            <i class="fa-solid fa-satellite-dish"></i> Quét bệnh viện quanh tôi
+            <i class="fa-solid fa-location-dot"></i> Tìm bệnh viện gần tôi
           </button>
           <button class="btn btn-secondary" onclick="searchHospitals()">
-            <i class="fa-solid fa-rotate"></i> Quét lại
+            <i class="fa-solid fa-rotate"></i> Tìm lại
           </button>
         </div>
 
         <div class="loader" id="hospitalLoader">
-          <i class="fa-solid fa-circle-notch fa-spin"></i> Đang quét dữ liệu bệnh viện quanh tọa độ GPS của bạn...
+          <i class="fa-solid fa-circle-notch fa-spin"></i> Đang tìm bệnh viện quanh vị trí của bạn...
         </div>
 
         <div id="hospitalResults" class="results-list">
           <div class="empty">
             <i class="fa-solid fa-location-dot"></i>
-            <b>Chưa có tọa độ GPS thực tế</b><br>
-            Hãy bấm <b>"Quét bệnh viện quanh tôi"</b> và cho phép trình duyệt truy cập vị trí thật của thiết bị.
+            <b>Chưa lấy vị trí</b><br>
+            Hãy bấm <b>"Tìm bệnh viện gần tôi"</b> và xác nhận cho phép sử dụng vị trí để bắt đầu.
           </div>
         </div>
       </div>
@@ -735,18 +735,18 @@
     <section id="parkingSection" class="section">
       <div class="card">
         <div class="card-header">
-          <h2><i class="fa-solid fa-car-side" style="color:var(--secondary)"></i> Tìm bãi đỗ xe & Trạm sạc</h2>
+          <h2><i class="fa-solid fa-car-side" style="color:var(--secondary)"></i> Bãi đậu xe gần nhất</h2>
         </div>
 
         <div id="parkingContextBanner" style="display:none;background:var(--primary-light);color:var(--primary);padding:10px 12px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px;align-items:center;justify-content:space-between;gap:8px;">
           <span id="parkingContextText"></span>
-          <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="resetParkingToUserGPS()">Quay về GPS của tôi</button>
+          <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="getLocationAndSearch('parking')">Về vị trí của tôi</button>
         </div>
 
         <div class="filter-grid">
           <div class="field">
-            <label for="vehicle">Phương tiện của bạn</label>
-            <select id="vehicle" onchange="if(userLocation) searchParking()">
+            <label for="vehicle">Loại xe</label>
+            <select id="vehicle" onchange="if(userLocation || customParkingCenter) searchParking()">
               <option value="car">🚗 Ô tô</option>
               <option value="motorcycle">🏍️ Xe máy</option>
               <option value="electric">⚡ Xe điện (Trạm sạc)</option>
@@ -755,7 +755,7 @@
           </div>
           <div class="field">
             <label for="parkingRadius">Bán kính tìm kiếm</label>
-            <select id="parkingRadius" onchange="if(userLocation) searchParking()">
+            <select id="parkingRadius" onchange="if(userLocation || customParkingCenter) searchParking()">
               <option value="2">Bán kính 2 km</option>
               <option value="5" selected>Bán kính 5 km</option>
               <option value="10">Bán kính 10 km</option>
@@ -765,7 +765,7 @@
 
         <div class="controls">
           <button class="btn btn-primary" onclick="getLocationAndSearch('parking')">
-            <i class="fa-solid fa-location-crosshairs"></i> Tìm bãi đỗ gần tôi
+            <i class="fa-solid fa-location-crosshairs"></i> Tìm bãi gần tôi
           </button>
           <button class="btn btn-secondary" onclick="searchParking()">
             <i class="fa-solid fa-rotate"></i> Tìm lại
@@ -773,14 +773,14 @@
         </div>
 
         <div class="loader" id="parkingLoader">
-          <i class="fa-solid fa-circle-notch fa-spin"></i> Đang tìm bãi đỗ xe quanh vị trí thực tế...
+          <i class="fa-solid fa-circle-notch fa-spin"></i> Đang tìm bãi đỗ xe gần vị trí của bạn...
         </div>
 
         <div id="parkingResults" class="results-list">
           <div class="empty">
             <i class="fa-solid fa-square-parking"></i>
-            <b>Chưa có vị trí GPS thực tế</b><br>
-            Hãy bấm <b>"Tìm bãi đỗ gần tôi"</b> để lấy tọa độ thật từ thiết bị của bạn.
+            <b>Chưa có vị trí</b><br>
+            Hãy bấm <b>“Tìm bãi gần tôi”</b> để xác nhận quyền vị trí và tìm bãi đỗ xe gần nhất.
           </div>
         </div>
       </div>
@@ -790,7 +790,7 @@
     <section id="appointmentsSection" class="section">
       <div class="card">
         <div class="card-header">
-          <h2><i class="fa-solid fa-clipboard-Check" style="color:var(--primary)"></i> Phiếu khám đã đặt</h2>
+          <h2><i class="fa-solid fa-clipboard-check" style="color:var(--primary)"></i> Phiếu khám đã đặt</h2>
         </div>
         <div id="appointmentsList" class="results-list"></div>
       </div>
@@ -803,10 +803,10 @@
       <div class="map-toolbar">
         <div class="map-toolbar-left">
           <button class="btn btn-primary" style="padding:8px 14px;font-size:13px;" onclick="locateMe()">
-            <i class="fa-solid fa-crosshairs"></i> Định vị GPS thật của tôi
+            <i class="fa-solid fa-crosshairs"></i> Vị trí của tôi
           </button>
           <button class="btn btn-secondary" id="trackBtn" style="padding:8px 14px;font-size:13px;" onclick="toggleTracking()">
-            <i class="fa-solid fa-satellite"></i> Theo dõi GPS liên tục (Live)
+            <i class="fa-solid fa-satellite"></i> Theo dõi vị trí
           </button>
         </div>
         <span style="font-size:12px;font-weight:700;color:var(--text-muted);" id="accuracyBadge">
@@ -818,11 +818,11 @@
 
       <div class="map-footer">
         <div class="legend">
-          <span class="legend-item"><span class="dot" style="background:#0284c7"></span> Vị trí thật của bạn</span>
+          <span class="legend-item"><span class="dot" style="background:#0284c7"></span> Vị trí của bạn</span>
           <span class="legend-item"><span class="dot" style="background:#ef4444"></span> Bệnh viện</span>
           <span class="legend-item"><span class="dot" style="background:#0d9488"></span> Bãi đỗ xe / Trạm sạc</span>
         </div>
-        <span>Bản đồ số VIETMAP GL & OpenStreetMap</span>
+        <span>Bản đồ VIETMAP GL & OpenStreetMap</span>
       </div>
     </div>
   </div>
@@ -831,11 +831,10 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // VIETMAP API Key từ code gốc của bạn
   const VIETMAP_API_KEY = "fd87b92b8c9b1a7848dd81147205540504a99b37cf661f41";
 
-  let userLocation = null; // Chỉ lưu vị trí GPS thực tế từ navigator.geolocation
-  let customParkingCenter = null; // Dùng khi bấm "Tìm bãi đỗ quanh bệnh viện X"
+  let userLocation = null;
+  let customParkingCenter = null;
   let map = null;
   let userMarker = null;
   let markers = [];
@@ -867,11 +866,12 @@
       : '<i class="fa-solid fa-moon"></i>';
   }
 
-  // Khởi tạo bản đồ VIETMAP
+  // Khởi tạo VIETMAP nhưng KHÔNG tự xin vị trí khi mở trang
   function initMap() {
     const mapEl = document.getElementById("map");
-    if (!VIETMAP_API_KEY) {
+    if (!VIETMAP_API_KEY || VIETMAP_API_KEY === "a") {
       mapEl.innerHTML = `<div style="padding:30px;text-align:center;">Chưa cấu hình VIETMAP_API_KEY</div>`;
+      setStatus("⚠️ Chưa cấu hình VIETMAP Tilemap Key", "error");
       return;
     }
 
@@ -879,19 +879,10 @@
       container: "map",
       style: `https://maps.vietmap.vn/maps/styles/tm/style.json?apikey=${encodeURIComponent(VIETMAP_API_KEY)}`,
       center: [106.660, 10.762],
-      zoom: 5
+      zoom: 6
     });
 
     map.addControl(new vietmapgl.NavigationControl(), "top-right");
-
-    // Khi mở trang, tự động kiểm tra nếu trình duyệt đã cấp quyền GPS trước đó thì lấy luôn vị trí thật
-    if (navigator.permissions && navigator.permissions.query) {
-      navigator.permissions.query({ name: "geolocation" }).then(result => {
-        if (result.state === "granted") {
-          requestLocation("hospital", true);
-        }
-      }).catch(() => {});
-    }
   }
 
   function setStatus(text, state = "idle") {
@@ -899,46 +890,64 @@
     gpsDot.className = "gps-dot" + (state === "active" ? " active" : state === "error" ? " error" : "");
   }
 
+  // Luôn mở hộp thoại hỏi xác nhận vị trí với thông điệp rõ ràng theo từng nút
   function openLocationPrompt(action) {
-    // Nếu đã có vị trí thật rồi hoặc muốn lấy trực tiếp
     pendingLocationAction = action || "locate";
+    const titleEl = document.getElementById("locationModalTitle");
+    const descEl = document.getElementById("locationModalDesc");
+
+    if (action === "parking") {
+      titleEl.textContent = "Cho phép lấy vị trí để tìm bãi đỗ xe?";
+      descEl.textContent = "Hệ thống cần truy cập vị trí GPS hiện tại của bạn để tìm các bãi đỗ xe và trạm sạc gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy vị trí thực tế.";
+    } else if (action === "hospital") {
+      titleEl.textContent = "Cho phép lấy vị trí để tìm bệnh viện?";
+      descEl.textContent = "Hệ thống cần truy cập vị trí GPS hiện tại của bạn để tìm các bệnh viện và cơ sở y tế gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy vị trí thực tế.";
+    } else {
+      titleEl.textContent = "Cho phép lấy vị trí của bạn?";
+      descEl.textContent = "Trang web cần vị trí GPS hiện tại của thiết bị để hiển thị vị trí của bạn trên bản đồ VIETMAP.";
+    }
+
     document.getElementById("locationModal").classList.add("show");
   }
 
   function closeLocationPrompt() {
     pendingLocationAction = null;
     document.getElementById("locationModal").classList.remove("show");
+    if (!userLocation) {
+      setStatus("📍 Chưa lấy vị trí", "idle");
+    }
   }
 
   function confirmLocationPermission() {
     const action = pendingLocationAction || "locate";
     document.getElementById("locationModal").classList.remove("show");
     pendingLocationAction = null;
-    requestLocation(action, true);
+    requestLocation(action);
   }
 
+  // Khi bấm "Tìm bệnh viện gần tôi" hoặc "Tìm bãi gần tôi" -> LUÔN hỏi và lấy vị trí mới
   function getLocationAndSearch(type) {
-    if (userLocation) {
-      // Làm mới tọa độ GPS thật mỗi lần bấm
-      requestLocation(type, true);
-    } else {
-      openLocationPrompt(type);
+    if (type === "parking") {
+      // Nếu đang xem bãi đỗ quanh bệnh viện thì xóa chế độ đó để lấy đúng vị trí người dùng
+      customParkingCenter = null;
+      document.getElementById("parkingContextBanner").style.display = "none";
     }
+    openLocationPrompt(type);
   }
 
   function locateMe() {
-    requestLocation("locate", true);
+    openLocationPrompt("locate");
   }
 
-  // Hàm lấy vị trí GPS THẬT 100% từ phần cứng thiết bị / trình duyệt
-  function requestLocation(action, forceFresh = true) {
+  // Thực hiện gọi API Geolocation của trình duyệt để lấy vị trí thật
+  function requestLocation(action) {
     if (!navigator.geolocation) {
-      setStatus("Trình duyệt không hỗ trợ định vị GPS", "error");
-      showToast("Thiết bị hoặc trình duyệt của bạn không hỗ trợ định vị GPS.");
+      setStatus("❌ Thiết bị/trình duyệt không hỗ trợ GPS", "error");
+      showToast("Thiết bị hoặc trình duyệt không hỗ trợ định vị GPS.");
       return;
     }
 
-    setStatus("Đang lấy tọa độ GPS thực tế từ thiết bị...", "idle");
+    setStatus("📍 Đang xin quyền và lấy vị trí GPS...", "idle");
 
     navigator.geolocation.getCurrentPosition(
       async position => {
@@ -947,32 +956,34 @@
           ? action
           : (document.getElementById("hospitalSection").classList.contains("active") ? "hospital" : "parking");
 
-        if (action !== "locate") {
-          if (type === "hospital") searchHospitals();
-          else searchParking();
+        if (action === "hospital") {
+          searchHospitals();
+        } else if (action === "parking") {
+          customParkingCenter = null;
+          document.getElementById("parkingContextBanner").style.display = "none";
+          searchParking();
         } else {
-          showToast("Đã cập nhật vị trí GPS thật của bạn!");
+          showToast("Đã lấy vị trí GPS hiện tại của bạn!");
         }
       },
       error => {
         const messages = {
-          1: "Bạn đã từ chối quyền vị trí. Hãy bật quyền Location trên trình duyệt.",
-          2: "Không thu được tín hiệu GPS thực tế từ thiết bị.",
-          3: "Quá thời gian chờ tín hiệu GPS. Vui lòng thử lại."
+          1: "❌ Bạn đã từ chối quyền truy cập vị trí.",
+          2: "❌ Không xác định được vị trí GPS.",
+          3: "❌ GPS phản hồi quá lâu. Hãy thử lại."
         };
-        const msg = messages[error.code] || "Không lấy được vị trí GPS thực tế.";
+        const msg = messages[error.code] || "❌ Không lấy được vị trí";
         setStatus(msg, "error");
         showToast(msg);
       },
       {
-        enableHighAccuracy: true, // Bắt buộc độ chính xác cao nhất
-        timeout: 20000,
-        maximumAge: forceFresh ? 0 : 10000 // maximumAge: 0 buộc trình duyệt lấy vị trí thật mới nhất, không dùng cache cũ
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0 // Luôn lấy vị trí thật mới nhất
       }
     );
   }
 
-  // Dịch tọa độ GPS thật ra địa chỉ đường phố thực tế (Nominatim OSM)
   async function reverseGeocodeRealLocation(lat, lon) {
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=vi`);
@@ -993,11 +1004,14 @@
 
     const acc = Math.round(userLocation.accuracy);
     accuracyBadge.textContent = `Sai số GPS: ±${acc} m`;
-    setStatus(`GPS thật: ${userLocation.lat.toFixed(5)}, ${userLocation.lon.toFixed(5)} (±${acc}m)`, "active");
+    setStatus(
+      `📍 Vị trí hiện tại: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)} (±${acc} m)`,
+      "active"
+    );
 
     if (map) {
       const pos = [userLocation.lon, userLocation.lat];
-      map.flyTo({ center: pos, zoom: 15, essential: true });
+      map.flyTo({ center: pos, zoom: 16, essential: true });
 
       if (!userMarker) {
         const el = document.createElement("div");
@@ -1005,7 +1019,7 @@
         userMarker = new vietmapgl.Marker({ element: el })
           .setLngLat(pos)
           .setPopup(new vietmapgl.Popup({ offset: 18 }).setHTML(
-            `<b>📍 Vị trí thật của bạn</b><br>Tọa độ: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)}<br>Độ chính xác: ±${acc}m`
+            `<b>📍 Vị trí hiện tại của bạn</b><br>Tọa độ: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)}<br>Sai số: ±${acc} m`
           ))
           .addTo(map);
       } else {
@@ -1013,34 +1027,33 @@
       }
     }
 
-    // Lấy tên đường/phường thật hiển thị lên thanh trạng thái
     const address = await reverseGeocodeRealLocation(userLocation.lat, userLocation.lon);
     if (address) {
-      setStatus(`📍 ${address} (±${acc}m)`, "active");
+      setStatus(`📍 ${address} (±${acc} m)`, "active");
     }
   }
 
   function toggleTracking() {
     const btn = document.getElementById("trackBtn");
     if (!navigator.geolocation) {
-      showToast("Thiết bị không hỗ trợ GPS");
+      setStatus("❌ Thiết bị/trình duyệt không hỗ trợ GPS", "error");
       return;
     }
 
     if (watchId !== null) {
       navigator.geolocation.clearWatch(watchId);
       watchId = null;
-      btn.innerHTML = `<i class="fa-solid fa-satellite"></i> Theo dõi GPS liên tục (Live)`;
-      showToast("Đã tắt chế độ theo dõi GPS liên tục.");
+      btn.innerHTML = `<i class="fa-solid fa-satellite"></i> Theo dõi vị trí`;
+      showToast("Đã dừng theo dõi vị trí liên tục.");
       return;
     }
 
-    btn.innerHTML = `<i class="fa-solid fa-circle-stop" style="color:#ef4444"></i> Đang theo dõi GPS thật...`;
-    showToast("Đang bật theo dõi GPS thực tế theo thời gian thực...");
+    setStatus("🔄 Đang theo dõi vị trí GPS...", "active");
+    btn.innerHTML = `<i class="fa-solid fa-circle-stop" style="color:#ef4444"></i> Dừng theo dõi`;
 
     watchId = navigator.geolocation.watchPosition(
       position => updateUserLocation(position),
-      () => setStatus("Mất tín hiệu theo dõi GPS liên tục", "error"),
+      () => setStatus("❌ Không thể tiếp tục theo dõi GPS", "error"),
       {
         enableHighAccuracy: true,
         maximumAge: 0,
@@ -1089,7 +1102,7 @@
         console.warn("Overpass endpoint failed:", endpoint, e);
       }
     }
-    throw new Error("Không thể kết nối máy chủ bản đồ Overpass.");
+    throw new Error("Không thể kết nối dữ liệu bản đồ.");
   }
 
   function normalizeElements(elements, refLat, refLon) {
@@ -1104,16 +1117,15 @@
         lat,
         lon,
         tags,
-        name: tags.name || tags["name:vi"] || "Điểm đỗ xe / Cơ sở chưa đặt tên",
+        name: tags.name || tags["name:vi"] || "Không có tên",
         distance: distanceKm(refLat, refLon, lat, lon)
       };
     }).filter(Boolean);
   }
 
-  // Tìm kiếm Bệnh viện quanh vị trí thật
   async function searchHospitals() {
     if (!userLocation) {
-      openLocationPrompt("hospital");
+      getLocationAndSearch("hospital");
       return;
     }
 
@@ -1138,24 +1150,23 @@
       const hospitals = normalizeElements(data.elements, userLocation.lat, userLocation.lon)
         .filter(x => x.tags.name || x.tags["name:vi"])
         .sort((a, b) => a.distance - b.distance)
-        .slice(0, 15);
+        .slice(0, 12);
 
       lastHospitals = hospitals;
       renderHospitals(hospitals);
       showOnMap(hospitals, "hospital");
     } catch (e) {
       document.getElementById("hospitalResults").innerHTML =
-        `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>Không lấy được dữ liệu bệnh viện. Vui lòng bấm Quét lại.</div>`;
+        `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>⚠️ Không lấy được dữ liệu bệnh viện. Hãy thử lại.</div>`;
     } finally {
       document.getElementById("hospitalLoader").style.display = "none";
     }
   }
 
-  // Tìm kiếm Bãi đỗ xe quanh vị trí thật (hoặc quanh bệnh viện được chọn)
   async function searchParking() {
     const center = customParkingCenter || userLocation;
     if (!center) {
-      openLocationPrompt("parking");
+      getLocationAndSearch("parking");
       return;
     }
 
@@ -1180,21 +1191,21 @@
     try {
       const data = await overpass(query);
       let places = normalizeElements(data.elements, center.lat, center.lon)
-        .filter(x => x.tags.name || x.tags.amenity === "parking" || x.tags.amenity === "charging_station");
+        .filter(x => x.name || x.tags.amenity === "parking" || x.tags.amenity === "charging_station");
 
       places = places.map(p => ({
         ...p,
-        name: p.tags.name || (p.tags.amenity === "charging_station" ? "Trạm sạc xe điện" : "Bãi đỗ xe công cộng"),
+        name: (p.tags.name || p.tags["name:vi"]) || (p.tags.amenity === "charging_station" ? "Trạm sạc xe điện" : "Bãi đỗ xe"),
         score: parkingScore(p, vehicle)
       }))
       .sort((a, b) => (a.distance + a.score) - (b.distance + b.score))
-      .slice(0, 15);
+      .slice(0, 12);
 
       renderParking(places, vehicle);
       showOnMap(places, "parking");
     } catch (e) {
       document.getElementById("parkingResults").innerHTML =
-        `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>Không lấy được dữ liệu bãi đỗ. Hãy thử lại.</div>`;
+        `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>⚠️ Không lấy được dữ liệu bãi đỗ. Hãy thử lại.</div>`;
     } finally {
       document.getElementById("parkingLoader").style.display = "none";
     }
@@ -1203,6 +1214,7 @@
   function parkingScore(p, vehicle) {
     const t = p.tags || {};
     let score = 0;
+
     if (vehicle === "motorcycle") {
       if (t.motorcycle === "yes" || t["parking:motorcycle"] === "yes") score -= 2;
       if (t.motorcycle === "no") score += 5;
@@ -1218,50 +1230,49 @@
     if (vehicle === "electric") {
       if (t.amenity === "charging_station") score -= 4;
       if (t["motorcar:charging"] === "yes") score -= 3;
+      if (t["capacity:charging"] || t["socket:type2"] === "yes") score -= 2;
     }
+
     return score;
   }
 
   function renderHospitals(items) {
     const box = document.getElementById("hospitalResults");
     if (!items.length) {
-      box.innerHTML = `<div class="empty"><i class="fa-solid fa-hospital"></i>Không tìm thấy bệnh viện nào trong bán kính đã chọn quanh vị trí thật của bạn. Hãy tăng bán kính lên 15 km.</div>`;
+      box.innerHTML = `<div class="empty"><i class="fa-solid fa-hospital"></i>Không tìm thấy bệnh viện trong phạm vi tìm kiếm.</div>`;
       return;
     }
 
     const specialty = document.getElementById("specialty").value;
-    const date = document.getElementById("date").value || "Hôm nay";
+    const date = document.getElementById("date").value || "chưa chọn";
+    const times = ["08:00", "08:30", "09:00", "09:30", "10:00"];
 
     box.innerHTML = items.map((h, i) => {
-      const addr = h.tags["addr:full"] || [h.tags["addr:housenumber"], h.tags["addr:street"], h.tags["addr:district"]].filter(Boolean).join(" ") || "Nhấn để xem vị trí trên bản đồ VIETMAP";
-      const phone = h.tags.phone || h.tags["contact:phone"] || "";
-      const emergency = h.tags.emergency === "yes" ? `<span class="badge" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-truck-medical"></i> Cấp cứu 24/7</span>` : "";
-      const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lon}&destination=${h.lat},${h.lon}`;
+      const time = times[i % times.length];
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + " " + h.lat + "," + h.lon)}`;
 
       return `
         <div class="result-card" onclick="focusMarker(${i}, ${h.lat}, ${h.lon})">
           <div class="result-top">
             <h3>${escapeHtml(h.name)}</h3>
-            <span class="distance-pill"><i class="fa-solid fa-location-arrow"></i> ${h.distance.toFixed(2)} km</span>
+            <span class="distance-pill">📍 ${h.distance.toFixed(2)} km</span>
           </div>
           <div class="badges">
+            <span class="badge">🏥 Bệnh viện</span>
             <span class="badge"><i class="fa-solid fa-user-doctor"></i> ${escapeHtml(specialty)}</span>
-            ${emergency}
           </div>
           <div class="meta">
-            <i class="fa-solid fa-map-pin"></i> ${escapeHtml(addr)}<br>
-            ${phone ? `<i class="fa-solid fa-phone"></i> <b>${escapeHtml(phone)}</b><br>` : ""}
-            <i class="fa-regular fa-calendar"></i> Ngày khám: <b>${escapeHtml(date)}</b>
+            Giờ khám gần nhất: <b>${time}</b> | Ngày: <b>${escapeHtml(date)}</b>
           </div>
           <div class="card-actions" onclick="event.stopPropagation()">
             <button class="btn btn-primary" onclick="openBookingModal(${i})">
-              <i class="fa-solid fa-calendar-plus"></i> Đặt lịch khám
+              <i class="fa-solid fa-calendar-check"></i> Đặt lịch khám
             </button>
             <button class="btn btn-secondary" onclick="findParkingNearHospital(${h.lat}, ${h.lon}, '${escapeJs(h.name)}')">
               <i class="fa-solid fa-square-parking"></i> Bãi đỗ quanh viện
             </button>
-            <a class="btn btn-teal" href="${directionsUrl}" target="_blank" rel="noopener">
-              <i class="fa-solid fa-diamond-turn-right"></i> Chỉ đường
+            <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener">
+              <i class="fa-solid fa-map-location-dot"></i> Google Maps
             </a>
           </div>
         </div>
@@ -1272,7 +1283,7 @@
   function renderParking(items, vehicle) {
     const box = document.getElementById("parkingResults");
     if (!items.length) {
-      box.innerHTML = `<div class="empty"><i class="fa-solid fa-square-parking"></i>Không tìm thấy bãi đỗ xe phù hợp trong bán kính này. Hãy thử tăng bán kính lên 10 km.</div>`;
+      box.innerHTML = `<div class="empty"><i class="fa-solid fa-square-parking"></i>Không tìm thấy bãi đỗ phù hợp trong phạm vi tìm kiếm.</div>`;
       return;
     }
 
@@ -1285,30 +1296,29 @@
 
     box.innerHTML = items.map((p, i) => {
       const t = p.tags || {};
-      const isCharging = t.amenity === "charging_station";
-      const typeLabel = isCharging ? "⚡ Trạm sạc điện" : "🅿️ Bãi đỗ xe";
-      const originQuery = userLocation ? `&origin=${userLocation.lat},${userLocation.lon}` : "";
-      const mapsUrl = `https://www.google.com/maps/dir/?api=1${originQuery}&destination=${p.lat},${p.lon}`;
+      const type = t.amenity === "charging_station" ? "Trạm sạc" : "Bãi đỗ xe";
+      const originParam = userLocation ? `&origin=${userLocation.lat},${userLocation.lon}` : "";
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${p.lat},${p.lon}`;
 
       return `
         <div class="result-card" onclick="focusMarker(${i}, ${p.lat}, ${p.lon})">
           <div class="result-top">
             <h3>${escapeHtml(p.name)}</h3>
-            <span class="distance-pill">${p.distance.toFixed(2)} km</span>
+            <span class="distance-pill">📍 ${p.distance.toFixed(2)} km</span>
           </div>
           <div class="badges">
             <span class="badge">${vehicleName}</span>
-            <span class="badge">${typeLabel}</span>
+            <span class="badge">${escapeHtml(type)}</span>
           </div>
           <div class="meta">
-            ${t.capacity ? `Sức chứa: <b>${escapeHtml(t.capacity)} chỗ</b><br>` : ""}
-            ${t.fee ? `Thu phí: <b>${escapeHtml(t.fee === 'yes' ? 'Có thu phí' : t.fee)}</b><br>` : ""}
+            ${t.capacity ? `Sức chứa: <b>${escapeHtml(t.capacity)}</b><br>` : ""}
+            ${t.fee ? `Phí: <b>${escapeHtml(t.fee)}</b><br>` : ""}
             ${t.opening_hours ? `Giờ mở cửa: <b>${escapeHtml(t.opening_hours)}</b><br>` : ""}
             Tọa độ: ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}
           </div>
           <div class="card-actions" onclick="event.stopPropagation()">
             <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener">
-              <i class="fa-solid fa-route"></i> Dẫn đường từ vị trí thật
+              🧭 Chỉ đường
             </a>
           </div>
         </div>
@@ -1322,32 +1332,36 @@
 
     const coords = [];
     if (userLocation) {
-      coords.push([userLocation.lon, userLocation.lat]);
+      const userPos = [userLocation.lon, userLocation.lat];
+      coords.push(userPos);
+      if (userMarker) {
+        userMarker.setLngLat(userPos);
+      }
     }
 
     items.forEach((p) => {
       const color = type === "hospital" ? "#ef4444" : "#0d9488";
       const popup = new vietmapgl.Popup({ offset: 25 }).setHTML(
-        `<div style="min-width:190px;color:#0f172a">
+        `<div style="min-width:200px;color:#0f172a">
           <b>${escapeHtml(p.name)}</b><br>
-          <span>${type === "hospital" ? "🏥 Bệnh viện" : "🅿️ Bãi đỗ xe / Trạm sạc"}</span><br>
-          <span>📍 Cách bạn: <b>${p.distance.toFixed(2)} km</b></span>
+          ${type === "hospital" ? "🏥 Bệnh viện" : "🅿️ Bãi đỗ xe"}<br>
+          📍 ${p.distance.toFixed(2)} km
         </div>`
       );
       const marker = new vietmapgl.Marker({ color })
         .setLngLat([p.lon, p.lat])
         .setPopup(popup)
         .addTo(map);
-
       markers.push(marker);
       coords.push([p.lon, p.lat]);
     });
 
     if (coords.length > 1) {
       const bounds = coords.reduce((b, c) => b.extend(c), new vietmapgl.LngLatBounds(coords[0], coords[0]));
-      map.fitBounds(bounds, { padding: 65, maxZoom: 16 });
+      map.fitBounds(bounds, { padding: 60, maxZoom: 16 });
     } else if (coords.length === 1) {
-      map.flyTo({ center: coords[0], zoom: 15 });
+      map.setCenter(coords[0]);
+      map.setZoom(16);
     }
   }
 
@@ -1359,28 +1373,20 @@
     }
   }
 
-  // Tìm bãi đỗ xe xung quanh 1 bệnh viện cụ thể
   function findParkingNearHospital(lat, lon, hospitalName) {
     customParkingCenter = { lat, lon, name: hospitalName };
     document.querySelector('[data-target="parkingSection"]').click();
     const banner = document.getElementById("parkingContextBanner");
-    document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> Đang tìm bãi đỗ quanh: <b>${escapeHtml(hospitalName)}</b>`;
+    document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> Bãi đỗ quanh: <b>${escapeHtml(hospitalName)}</b>`;
     banner.style.display = "flex";
     searchParking();
   }
 
-  function resetParkingToUserGPS() {
-    customParkingCenter = null;
-    document.getElementById("parkingContextBanner").style.display = "none";
-    searchParking();
-  }
-
-  // Đặt lịch khám & lưu lịch hẹn
   function openBookingModal(index) {
     const h = lastHospitals[index];
     if (!h) return;
     selectedHospitalForBooking = h;
-    document.getElementById("bookingHospitalName").textContent = `${h.name} (${h.distance.toFixed(2)} km từ vị trí của bạn)`;
+    document.getElementById("bookingHospitalName").textContent = `${h.name} (${h.distance.toFixed(2)} km)`;
     document.getElementById("bookingModal").classList.add("show");
   }
 
@@ -1416,7 +1422,7 @@
 
     closeBookingModal();
     renderAppointments();
-    showToast(`Đặt lịch thành công! Mã phiếu khám: #${code}`);
+    showToast(`Đặt lịch thành công! Mã phiếu: #${code}`);
     document.querySelector('[data-target="appointmentsSection"]').click();
   }
 
@@ -1426,7 +1432,7 @@
     const box = document.getElementById("appointmentsList");
 
     if (!bookings.length) {
-      box.innerHTML = `<div class="empty"><i class="fa-solid fa-ticket"></i>Bạn chưa có phiếu đặt lịch khám nào.</div>`;
+      box.innerHTML = `<div class="empty"><i class="fa-solid fa-ticket"></i>Chưa có lịch hẹn nào.</div>`;
       return;
     }
 
@@ -1437,8 +1443,8 @@
           <span class="distance-pill">#${escapeHtml(b.code)}</span>
         </div>
         <div class="badges">
-          <span class="badge"><i class="fa-solid fa-stethoscope"></i> ${escapeHtml(b.specialty)}</span>
-          <span class="badge"><i class="fa-solid fa-clock"></i> ${escapeHtml(b.slot)} | ${escapeHtml(b.date)}</span>
+          <span class="badge">${escapeHtml(b.specialty)}</span>
+          <span class="badge">${escapeHtml(b.slot)} | ${escapeHtml(b.date)}</span>
         </div>
         <div class="meta">
           Bệnh nhân: <b>${escapeHtml(b.patientName)}</b> (${escapeHtml(b.patientPhone)})<br>
@@ -1446,10 +1452,10 @@
         </div>
         <div class="card-actions">
           <button class="btn btn-secondary" onclick="findParkingNearHospital(${b.lat}, ${b.lon}, '${escapeJs(b.hospital)}')">
-            <i class="fa-solid fa-square-parking"></i> Tìm bãi đỗ quanh viện này
+            <i class="fa-solid fa-square-parking"></i> Tìm bãi đỗ quanh viện
           </button>
           <button class="btn btn-secondary" style="color:var(--danger)" onclick="deleteBooking(${idx})">
-            <i class="fa-solid fa-trash"></i> Hủy phiếu
+            <i class="fa-solid fa-trash"></i> Hủy
           </button>
         </div>
       </div>
@@ -1463,7 +1469,7 @@
     renderAppointments();
   }
 
-  // Chuyển Tabs
+  // Tabs
   document.querySelectorAll(".tab").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
@@ -1490,6 +1496,9 @@
   document.addEventListener("DOMContentLoaded", () => {
     initMap();
     renderAppointments();
+    document.getElementById("locationModal").addEventListener("click", event => {
+      if (event.target.id === "locationModal") closeLocationPrompt();
+    });
   });
 </script>
 </body>
