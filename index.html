@@ -1,1721 +1,786 @@
 <!DOCTYPE html>
-<html lang="vi" class="light">
+<html lang="vi" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Care & Parking Pro — Đặt lịch khám & Tìm bãi đỗ xe thông minh</title>
+  <title>Care & Parking Pro - Hệ thống Y tế & Đỗ xe Thông minh</title>
   
-  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <!-- Google Fonts & FontAwesome -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <!-- FontAwesome 6 Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
   <!-- VIETMAP GL JS -->
   <link rel="stylesheet" href="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.css" />
   <script src="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.js"></script>
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0284c7',
-              600: '#0369a1',
-              700: '#075985',
-            },
-            medical: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              500: '#0d9488',
-              600: '#0f766e',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-light: #e0f2fe;
+      --secondary: #0d9488;
+      --secondary-light: #ccfbf1;
+      --accent: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg-body: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 20px 40px -10px rgba(15, 23, 42, 0.14);
+      --radius-md: 12px;
+      --radius-lg: 18px;
     }
+
+    [data-theme="dark"] {
+      --primary: #38bdf8;
+      --primary-dark: #0284c7;
+      --primary-light: rgba(56, 189, 248, 0.15);
+      --secondary: #2dd4bf;
+      --secondary-light: rgba(45, 212, 191, 0.15);
+      --bg-body: #0b1120;
+      --bg-surface: #1e293b;
+      --bg-elevated: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; }
     body {
+      margin: 0;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      transition: background-color 0.25s ease, color 0.25s ease;
+      background: var(--bg-body);
+      color: var(--text-main);
+      transition: background 0.25s ease, color 0.25s ease;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    /* Top Navbar */
+    .navbar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
     }
-    ::-webkit-scrollbar-track {
-      background: transparent;
+    .nav-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
     }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.45);
-      border-radius: 9999px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(100, 116, 139, 0.7);
-    }
-
-    /* Skeleton Shimmer Animation */
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    .skeleton {
-      background: linear-gradient(90deg, rgba(226,232,240,0.6) 25%, rgba(241,245,249,0.95) 50%, rgba(226,232,240,0.6) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-    .dark .skeleton {
-      background: linear-gradient(90deg, rgba(30,41,59,0.7) 25%, rgba(51,65,85,0.9) 50%, rgba(30,41,59,0.7) 75%);
-      background-size: 200% 100%;
-    }
-
-    /* Custom Map Markers */
-    .user-gps-marker {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #2563eb;
-      border: 3px solid #ffffff;
-      box-shadow: 0 0 0 rgba(37, 99, 235, 0.6), 0 4px 10px rgba(0,0,0,0.3);
-      animation: pulse-gps 2s infinite;
-      cursor: pointer;
-    }
-    @keyframes pulse-gps {
-      0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.65); }
-      70% { box-shadow: 0 0 0 16px rgba(37, 99, 235, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
-    }
-
-    .custom-poi-marker {
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7, #0d9488);
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 700;
-      border: 2.5px solid #ffffff;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+      font-size: 20px;
+      box-shadow: 0 6px 16px rgba(2, 132, 199, 0.3);
+    }
+    .brand-text h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .brand-text p {
+      margin: 2px 0 0;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    /* GPS Status Bar */
+    .gps-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      max-width: 560px;
+    }
+    .gps-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--warning);
+      flex-shrink: 0;
+    }
+    .gps-dot.active {
+      background: var(--success);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+      animation: pulseDot 1.8s infinite;
+    }
+    .gps-dot.error {
+      background: var(--danger);
+    }
+    @keyframes pulseDot {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .gps-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .icon-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
-      position: relative;
+      font-weight: 600;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
     }
-    .custom-poi-marker:hover, .custom-poi-marker.active-marker {
-      transform: scale(1.2) translateY(-4px);
-      z-index: 30 !important;
-      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.4);
+    .icon-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
     }
-    .custom-poi-marker.hospital-marker {
-      background: linear-gradient(135deg, #e11d48, #be123c);
+
+    /* Main Workspace */
+    .workspace {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 520px 1fr;
+      gap: 22px;
+      align-items: start;
     }
-    .custom-poi-marker.parking-marker {
+
+    /* Left Panel */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Mode Switch Tabs */
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: var(--bg-surface);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      gap: 6px;
+    }
+    .tab {
+      border: 0;
+      padding: 11px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13.5px;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .tab.active {
+      background: linear-gradient(135deg, #0284c7, #0d9488);
+      color: white;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+    }
+
+    /* Panel Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+    .card-header h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Filters & Controls */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    select, input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    select:focus, input:focus {
+      border-color: var(--primary);
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13.5px;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary {
       background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: white;
+      flex: 1;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
     }
-    .custom-poi-marker.ev-marker {
-      background: linear-gradient(135deg, #059669, #047857);
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--primary-light);
+      color: var(--primary);
     }
-    .custom-poi-marker::after {
-      content: '';
-      position: absolute;
-      bottom: -7px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-width: 6px 5px 0;
-      border-style: solid;
-      border-color: #ffffff transparent transparent;
-    }
-
-    /* VIETMAP Popup Overrides */
-    .vietmapgl-popup-content {
-      border-radius: 16px !important;
-      padding: 14px 16px !important;
-      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18) !important;
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      font-family: 'Plus Jakarta Sans', sans-serif !important;
-    }
-    .vietmapgl-popup-close-button {
-      font-size: 18px !important;
-      padding: 4px 8px !important;
-      color: #64748b !important;
+    .btn-secondary:hover { opacity: 0.9; }
+    .btn-teal {
+      background: linear-gradient(135deg, #0d9488, #0f766e);
+      color: white;
     }
 
+    /* Results Scroll List */
+    .results-list {
+      max-height: 510px;
+      overflow-y: auto;
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .result-card {
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      border-radius: 14px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .result-card:hover, .result-card.selected {
+      border-color: var(--primary);
+      background: var(--bg-surface);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .result-card h3 {
+      margin: 0;
+      font-size: 15.5px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .distance-pill {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: var(--secondary-light);
+      color: var(--secondary);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+    .meta {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .card-actions .btn {
+      padding: 8px 12px;
+      font-size: 12.5px;
+      border-radius: 8px;
+    }
+
+    /* Right Sticky Map Panel */
+    .right-panel {
+      position: sticky;
+      top: 86px;
+    }
+    .map-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .map-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .map-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     #map {
       width: 100%;
-      height: 100%;
-      min-height: 460px;
-      border-radius: 16px;
+      height: 640px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #e2e8f0;
+      position: relative;
+    }
+    .map-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .legend {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* User Real GPS Marker on VIETMAP */
+    .user-gps-marker {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #0284c7;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 0 rgba(2, 132, 199, 0.6);
+      animation: gpsPulse 1.6s infinite;
+    }
+    @keyframes gpsPulse {
+      0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7); }
+      70% { box-shadow: 0 0 0 18px rgba(2, 132, 199, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+    }
+
+    /* Empty & Loader */
+    .empty {
+      color: var(--text-muted);
+      padding: 36px 16px;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+    }
+    .empty i {
+      font-size: 32px;
+      color: var(--primary);
+      margin-bottom: 10px;
+      display: block;
+    }
+    .loader {
+      display: none;
+      color: var(--primary);
+      font-weight: 700;
+      padding: 14px;
+      text-align: center;
+      background: var(--primary-light);
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 9999;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal-dialog {
+      width: min(460px, 100%);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-dialog h2 { margin: 0 0 8px; font-size: 20px; }
+    .modal-dialog p { color: var(--text-muted); line-height: 1.55; margin: 0 0 18px; font-size: 14px; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: #0f172a;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 10000;
+    }
+    .toast.show { display: flex; }
+
+    @media (max-width: 1024px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      .right-panel {
+        position: static;
+      }
+      #map { height: 460px; }
     }
   </style>
 </head>
+<body>
 
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
-
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 z-[10000] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
-
-  <!-- LOCATION PERMISSION MODAL (Giữ nguyên ID & nâng cấp giao diện Pro) -->
-  <div id="locationModal" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle"
-       class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[9999] transition-opacity">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl text-center transform transition-all">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500/15 to-teal-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
-        <i class="fa-solid fa-location-crosshairs"></i>
-      </div>
-      <h2 id="locationModalTitle" class="text-xl font-extrabold text-slate-900 dark:text-white mb-2">
-        Cho phép lấy vị trí của bạn?
-      </h2>
-      <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-5">
-        <b>Care & Parking Pro</b> cần vị trí GPS hiện tại của thiết bị để tìm chính xác các <b>bệnh viện, phòng khám</b> và <b>bãi đỗ xe / trạm sạc</b> gần bạn nhất trên bản đồ VIETMAP.
-      </p>
-
-      <!-- Chọn nhanh vị trí mẫu nếu người dùng dùng máy bàn không có GPS -->
-      <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3 mb-5 text-left border border-slate-200/70 dark:border-slate-700/60">
-        <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-wand-magic-sparkles text-teal-500"></i> Hoặc chọn nhanh tâm bản đồ mẫu:
-        </div>
-        <div class="grid grid-cols-3 gap-1.5">
-          <button type="button" onclick="usePresetLocation(10.7769, 106.7009, 'Quận 1, TP.HCM')"
-                  class="text-xs font-semibold py-2 px-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition">
-            📍 TP.HCM
-          </button>
-          <button type="button" onclick="usePresetLocation(21.0285, 105.8542, 'Hoàn Kiếm, Hà Nội')"
-                  class="text-xs font-semibold py-2 px-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition">
-            📍 Hà Nội
-          </button>
-          <button type="button" onclick="usePresetLocation(16.0544, 108.2022, 'Hải Châu, Đà Nẵng')"
-                  class="text-xs font-semibold py-2 px-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition">
-            📍 Đà Nẵng
-          </button>
-        </div>
-      </div>
-
-      <div class="flex gap-3">
-        <button type="button" onclick="closeLocationPrompt()"
-                class="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
-          Để sau
-        </button>
-        <button type="button" onclick="confirmLocationPermission()"
-                class="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white shadow-lg shadow-sky-600/25 transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-location-arrow"></i> Đồng ý GPS
-        </button>
-      </div>
+<!-- Modal Xin Quyền GPS Thực Tế -->
+<div class="modal-backdrop" id="locationModal" role="dialog" aria-modal="true">
+  <div class="modal-dialog" style="text-align: center;">
+    <div style="width:60px;height:60px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:14px;">
+      <i class="fa-solid fa-location-crosshairs"></i>
     </div>
-  </div>
-
-  <!-- QUICK APPOINTMENT BOOKING MODAL -->
-  <div id="bookingModal" role="dialog" aria-modal="true"
-       class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[9998]">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative max-h-[92vh] overflow-y-auto">
-      <button type="button" onclick="closeBookingModal()"
-              class="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition">
-        <i class="fa-solid fa-xmark"></i>
+    <h2>Xác thực vị trí GPS thật của bạn</h2>
+    <p>Hệ thống sử dụng trực tiếp cảm biến GPS từ trình duyệt/thiết bị của bạn (Độ chính xác cao, không dùng vị trí giả lập) để tìm bệnh viện và bãi đỗ xe gần bạn nhất.</p>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary" type="button" onclick="closeLocationPrompt()" style="flex:1">Để sau</button>
+      <button class="btn btn-primary" type="button" onclick="confirmLocationPermission()" style="flex:1">
+        <i class="fa-solid fa-check"></i> Cho phép GPS
       </button>
-
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl">
-          <i class="fa-solid fa-calendar-check"></i>
-        </div>
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">Phiếu đăng ký khám trực tuyến</span>
-          <h3 id="bookingHospitalName" class="text-lg font-extrabold text-slate-900 dark:text-white leading-snug">Bệnh viện</h3>
-        </div>
-      </div>
-
-      <form id="bookingForm" onsubmit="submitAppointmentBooking(event)" class="space-y-4">
-        <input type="hidden" id="bookingHospitalLat">
-        <input type="hidden" id="bookingHospitalLon">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div>
-            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Chuyên khoa khám</label>
-            <input type="text" id="bookingSpecialtyInput" readonly
-                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3.5 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Ngày khám</label>
-            <input type="date" id="bookingDateInput" required
-                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Chọn khung giờ khám còn trống</label>
-          <div id="timeSlotContainer" class="grid grid-cols-4 gap-2">
-            <!-- JS renders time slot pills -->
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div>
-            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Họ và tên bệnh nhân *</label>
-            <input type="text" id="patientName" required placeholder="Nguyễn Văn A"
-                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-sky-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Số điện thoại *</label>
-            <input type="tel" id="patientPhone" required placeholder="0901 234 567"
-                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-sky-500 outline-none">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Ghi chú triệu chứng / Nhu cầu gửi xe</label>
-          <div class="flex flex-wrap gap-2 mb-2">
-            <label class="inline-flex items-center gap-2 text-xs font-medium bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg cursor-pointer">
-              <input type="checkbox" id="needParkingCheck" checked class="rounded text-sky-600">
-              <span>🚗 Kèm giữ chỗ bãi đỗ xe gần cổng viện</span>
-            </label>
-            <label class="inline-flex items-center gap-2 text-xs font-medium bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg cursor-pointer">
-              <input type="checkbox" id="hasInsuranceCheck" class="rounded text-teal-600">
-              <span>💳 Có Bảo hiểm Y tế (BHYT)</span>
-            </label>
-          </div>
-          <textarea id="patientNote" rows="2" placeholder="Mô tả ngắn triệu chứng hoặc yêu cầu hỗ trợ..."
-                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm focus:ring-2 focus:ring-sky-500 outline-none"></textarea>
-        </div>
-
-        <div class="pt-2 flex flex-col sm:flex-row gap-2.5">
-          <a id="bookingGoogleMapsLink" href="#" target="_blank" rel="noopener"
-             class="py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center justify-center gap-2">
-            <i class="fa-brands fa-google text-sky-500"></i> Xem trên Google Maps
-          </a>
-          <button type="submit"
-                  class="flex-1 py-3 px-5 rounded-xl font-bold text-sm bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-500 hover:to-sky-500 text-white shadow-lg shadow-teal-600/25 transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-check-circle"></i> Xác nhận & Nhận mã khám
-          </button>
-        </div>
-      </form>
     </div>
   </div>
+</div>
 
-  <!-- MY APPOINTMENTS MODAL -->
-  <div id="myTicketsModal" role="dialog" aria-modal="true"
-       class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[9998]">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative max-h-[88vh] flex flex-col">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center">
-            <i class="fa-solid fa-ticket"></i>
-          </div>
-          <div>
-            <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Phiếu đặt lịch của tôi</h3>
-            <p class="text-xs text-slate-500">Lưu tự động trên trình duyệt thiết bị</p>
-          </div>
-        </div>
-        <button type="button" onclick="toggleMyTicketsModal(false)"
-                class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+<!-- Modal Đặt lịch khám -->
+<div class="modal-backdrop" id="bookingModal" role="dialog" aria-modal="true">
+  <div class="modal-dialog">
+    <h2><i class="fa-solid fa-calendar-check" style="color:var(--primary)"></i> Đặt lịch khám bệnh</h2>
+    <p id="bookingHospitalName" style="font-weight:700;color:var(--primary);margin-bottom:14px;"></p>
+    
+    <div class="field" style="margin-bottom:12px;">
+      <label>Họ và tên bệnh nhân</label>
+      <input type="text" id="patientName" placeholder="Nhập họ và tên...">
+    </div>
+    <div class="filter-grid">
+      <div class="field">
+        <label>Số điện thoại</label>
+        <input type="tel" id="patientPhone" placeholder="09xx xxx xxx">
       </div>
-      <div id="myTicketsList" class="py-4 space-y-3 overflow-y-auto flex-1"></div>
+      <div class="field">
+        <label>Khung giờ khám</label>
+        <select id="bookingTimeSlot">
+          <option value="07:30 - 08:30">07:30 - 08:30</option>
+          <option value="08:30 - 09:30">08:30 - 09:30</option>
+          <option value="09:30 - 10:30">09:30 - 10:30</option>
+          <option value="13:30 - 14:30">13:30 - 14:30</option>
+          <option value="15:00 - 16:00">15:00 - 16:00</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:16px;">
+      <label>Phương tiện đi kèm (Hỗ trợ gợi ý bãi đỗ)</label>
+      <select id="bookingVehicle">
+        <option value="Không kèm xe">Không cần gửi xe</option>
+        <option value="Ô tô cá nhân">🚗 Có đi Ô tô (Cần bãi đỗ ô tô)</option>
+        <option value="Xe máy">🏍️ Có đi Xe máy</option>
+        <option value="Xe điện">⚡ Có đi Xe điện (Cần trạm sạc)</option>
+      </select>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary" type="button" onclick="closeBookingModal()" style="flex:1">Hủy</button>
+      <button class="btn btn-primary" type="button" onclick="submitBooking()" style="flex:1">
+        <i class="fa-solid fa-paper-plane"></i> Xác nhận đặt lịch
+      </button>
     </div>
   </div>
+</div>
 
-  <!-- TOP HEADER & HERO BAR -->
-  <header class="sticky top-0 z-40 backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border-b border-slate-200/80 dark:border-slate-800">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <!-- Brand Logo -->
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-600 via-cyan-600 to-teal-500 flex items-center justify-center text-white shadow-lg shadow-sky-600/25">
-          <i class="fa-solid fa-staff-snake text-xl"></i>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-sky-800 to-teal-700 dark:from-white dark:via-sky-300 dark:to-teal-300 bg-clip-text text-transparent">
-              Care & Parking
-            </h1>
-            <span class="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/20">
-              PRO 2.0
-            </span>
-          </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-            Hệ thống định vị cơ sở y tế, đặt lịch khám & tìm bãi đỗ xe thông minh VIETMAP
-          </p>
-        </div>
+<!-- Thanh điều hướng -->
+<header class="navbar">
+  <div class="nav-wrap">
+    <div class="brand">
+      <div class="brand-icon"><i class="fa-solid fa-staff-snake"></i></div>
+      <div class="brand-text">
+        <h1>Care & Parking <span style="font-size:11px;background:var(--primary-light);color:var(--primary);padding:2px 7px;border-radius:99px;vertical-align:middle;">REAL GPS</span></h1>
+        <p>Định vị thực tế Bệnh viện & Bãi đỗ xe quanh bạn</p>
       </div>
+    </div>
 
-      <!-- Status Pill & Quick Actions -->
-      <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-        <!-- Live GPS Status Badge (Preserves #locationStatus ID) -->
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
-          <span id="gpsPulseDot" class="w-2 h-2 rounded-full bg-amber-500"></span>
-          <span id="locationStatus" class="truncate max-w-[200px] sm:max-w-[290px]">📍 Chưa lấy vị trí</span>
+    <div class="gps-bar" title="Trạng thái định vị GPS thực tế từ thiết bị">
+      <span class="gps-dot" id="gpsDot"></span>
+      <span class="gps-text" id="locationStatus">Chưa lấy vị trí GPS thực tế</span>
+    </div>
+
+    <div class="nav-actions">
+      <button class="icon-btn" onclick="requestLocation('auto', true)" title="Làm mới vị trí GPS thật ngay lập tức">
+        <i class="fa-solid fa-location-crosshairs"></i> Lấy GPS thật
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Đổi giao diện Sáng/Tối">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Không gian làm việc chính -->
+<main class="workspace">
+  <!-- CỘT TRÁI: ĐIỀU KHIỂN & KẾT QUẢ -->
+  <div class="left-panel">
+    <div class="tabs">
+      <button class="tab active" data-target="hospitalSection">
+        <i class="fa-solid fa-hospital"></i> Bệnh viện
+      </button>
+      <button class="tab" data-target="parkingSection">
+        <i class="fa-solid fa-square-parking"></i> Bãi đỗ xe
+      </button>
+      <button class="tab" data-target="appointmentsSection">
+        <i class="fa-solid fa-ticket"></i> Lịch hẹn (<span id="bookingCount">0</span>)
+      </button>
+    </div>
+
+    <!-- TAB 1: BỆNH VIỆN -->
+    <section id="hospitalSection" class="section active">
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-stethoscope" style="color:var(--primary)"></i> Tìm bệnh viện quanh vị trí thật</h2>
         </div>
 
-        <!-- Quick Demo City Selector -->
-        <div class="relative hidden md:block">
-          <select id="quickCitySelect" onchange="handleQuickCityChange(this.value)" aria-label="Chọn nhanh thành phố"
-                  class="text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-700 dark:text-slate-200 cursor-pointer hover:border-sky-500 transition outline-none">
-            <option value="">⚡ Khu vực mẫu nhanh...</option>
-            <option value="10.7769,106.7009,Quận 1 - TP.HCM">📍 Quận 1, TP. Hồ Chí Minh</option>
-            <option value="10.7553,106.6650,Khu Y tế Chợ Rẫy - Q.5">🏥 Cụm BV Chợ Rẫy / ĐH Y Dược</option>
-            <option value="21.0031,105.8407,Cụm BV Bạch Mai - Hà Nội">🏥 Cụm BV Bạch Mai, Hà Nội</option>
-            <option value="16.0680,108.2120,Trung tâm Đà Nẵng">📍 Hải Châu, Đà Nẵng</option>
+        <div class="filter-grid">
+          <div class="field">
+            <label for="specialty">Chuyên khoa khám</label>
+            <select id="specialty" onchange="if(lastHospitals.length) renderHospitals(lastHospitals)">
+              <option>Khám tổng quát</option>
+              <option>Nội khoa</option>
+              <option>Ngoại khoa</option>
+              <option>Nhi khoa</option>
+              <option>Tim mạch</option>
+              <option>Da liễu</option>
+              <option>Tai - Mũi - Họng</option>
+              <option>Răng - Hàm - Mặt</option>
+              <option>Mắt</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="date">Ngày khám dự kiến</label>
+            <input type="date" id="date" onchange="if(lastHospitals.length) renderHospitals(lastHospitals)">
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label for="hospitalRadius">Bán kính quét từ vị trí thật của bạn</label>
+          <select id="hospitalRadius" onchange="if(userLocation) searchHospitals()">
+            <option value="3">Trong bán kính 3 km</option>
+            <option value="5">Trong bán kính 5 km</option>
+            <option value="8" selected>Trong bán kính 8 km</option>
+            <option value="15">Trong bán kính 15 km</option>
           </select>
         </div>
 
-        <!-- My Appointments Button -->
-        <button type="button" onclick="toggleMyTicketsModal(true)"
-                class="relative px-3 py-2 rounded-xl text-xs font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 transition flex items-center gap-1.5">
-          <i class="fa-solid fa-calendar-check"></i>
-          <span class="hidden sm:inline">Lịch hẹn</span>
-          <span id="ticketCountBadge" class="px-1.5 py-0.2 rounded-full bg-teal-600 text-white text-[10px]">0</span>
-        </button>
-
-        <!-- Theme Toggle Button -->
-        <button type="button" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối"
-                class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition">
-          <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN WORKSPACE -->
-  <main class="max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-5 flex-1 flex flex-col gap-5">
-
-    <!-- Top Navigation Bar: Mode Tabs + Quick Stats -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
-      <!-- Tabs (Giữ nguyên class .tab và data-target để tương thích hoàn toàn) -->
-      <div class="tabs flex flex-wrap gap-2">
-        <button class="tab active flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all"
-                data-target="hospitalSection">
-          <i class="fa-solid fa-hospital-user"></i>
-          <span>Đặt lịch khám bệnh</span>
-          <span id="hospitalCountPill" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-white/20">0</span>
-        </button>
-        <button class="tab flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all"
-                data-target="parkingSection">
-          <i class="fa-solid fa-square-parking"></i>
-          <span>Tìm bãi đậu xe & Trạm sạc</span>
-          <span id="parkingCountPill" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-200/70 dark:bg-slate-700">0</span>
-        </button>
-      </div>
-
-      <!-- Global Search & Radius Filter -->
-      <div class="flex flex-wrap items-center gap-2.5">
-        <div class="relative flex-1 sm:w-64">
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <input type="text" id="keywordFilter" oninput="filterRenderedResults()"
-                 placeholder="Lọc theo tên bệnh viện, bãi xe..."
-                 class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-sky-500 outline-none transition">
-        </div>
-
-        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200/70 dark:border-slate-700">
-          <i class="fa-solid fa-compass-drafting text-sky-600 dark:text-sky-400 text-xs"></i>
-          <label for="searchRadius" class="text-xs font-bold text-slate-500 dark:text-slate-400">Bán kính:</label>
-          <select id="searchRadius" onchange="refreshCurrentSearch()"
-                  class="bg-transparent text-xs font-extrabold text-slate-800 dark:text-white outline-none cursor-pointer">
-            <option value="3">3 km</option>
-            <option value="5">5 km</option>
-            <option value="8" selected>8 km</option>
-            <option value="15">15 km</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- SPLIT SCREEN GRID: Left Panel (Active Section) + Right Panel (Unified Live VIETMAP) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start flex-1">
-
-      <!-- LEFT COLUMN (7/12): HOSPITAL OR PARKING SECTION -->
-      <div class="lg:col-span-7 flex flex-col gap-5">
-
-        <!-- ==================== PHẦN 1: BỆNH VIỆN & ĐẶT LỊCH ==================== -->
-        <section id="hospitalSection" class="section active space-y-5">
-          <!-- Cấu hình Đặt lịch khám Card -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div>
-                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <i class="fa-solid fa-stethoscope text-teal-600 dark:text-teal-400"></i>
-                  Thông tin khám & Tìm bệnh viện gần nhất
-                </h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">
-                  Chọn chuyên khoa và ngày khám trước, hệ thống sẽ gán vào phiếu đặt lịch nhanh tại từng cơ sở.
-                </p>
-              </div>
-              <div class="flex gap-2">
-                <button type="button" onclick="getLocationAndSearch('hospital')"
-                        class="px-3.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white shadow-md shadow-sky-600/20 transition flex items-center gap-2">
-                  <i class="fa-solid fa-location-crosshairs"></i> Tìm bệnh viện gần tôi
-                </button>
-                <button type="button" onclick="searchHospitals()" title="Tải lại danh sách"
-                        class="px-3 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center gap-1.5">
-                  <i class="fa-solid fa-rotate"></i> Làm mới
-                </button>
-              </div>
-            </div>
-
-            <!-- Specialty & Date Selectors -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-              <div>
-                <label for="specialty" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-                  <i class="fa-solid fa-user-doctor text-sky-600 mr-1"></i> Chuyên khoa cần khám
-                </label>
-                <select id="specialty" onchange="if(lastHospitals.length) renderHospitals(lastHospitals)"
-                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 outline-none">
-                  <option>Khám tổng quát</option>
-                  <option>Nội khoa</option>
-                  <option>Ngoại khoa</option>
-                  <option>Nhi khoa</option>
-                  <option>Tim mạch</option>
-                  <option>Da liễu</option>
-                  <option>Tai - Mũi - Họng</option>
-                  <option>Răng - Hàm - Mặt</option>
-                  <option>Mắt</option>
-                </select>
-              </div>
-
-              <div>
-                <label for="date" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
-                  <i class="fa-regular fa-calendar-days text-teal-600 mr-1"></i> Ngày dự kiến khám
-                </label>
-                <input type="date" id="date" onchange="if(lastHospitals.length) renderHospitals(lastHospitals)"
-                       class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 outline-none">
-              </div>
-            </div>
-          </div>
-
-          <!-- Danh sách kết quả Bệnh viện Card -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <i class="fa-solid fa-list-check text-sky-500"></i> Danh sách cơ sở y tế trong khu vực
-              </h3>
-              <span id="hospitalSubStatus" class="text-xs font-semibold text-slate-400">Chưa có dữ liệu</span>
-            </div>
-
-            <!-- Skeleton Loader -->
-            <div id="hospitalLoader" class="hidden space-y-3 py-2">
-              <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2.5">
-                <div class="h-5 w-2/3 rounded-lg skeleton"></div>
-                <div class="h-4 w-1/3 rounded-lg skeleton"></div>
-                <div class="h-9 w-full rounded-xl skeleton"></div>
-              </div>
-              <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2.5">
-                <div class="h-5 w-1/2 rounded-lg skeleton"></div>
-                <div class="h-4 w-1/4 rounded-lg skeleton"></div>
-                <div class="h-9 w-full rounded-xl skeleton"></div>
-              </div>
-            </div>
-
-            <!-- Results List -->
-            <div id="hospitalResults" class="space-y-3 max-h-[540px] overflow-y-auto pr-1">
-              <div class="text-center py-10 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700">
-                <div class="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto mb-3 text-2xl">
-                  <i class="fa-solid fa-hospital"></i>
-                </div>
-                <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-1">Chưa xác định vị trí tìm kiếm</h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4">
-                  Hãy bấm <b>"Tìm bệnh viện gần tôi"</b> để định vị GPS hoặc chọn nhanh một khu vực mẫu để trải nghiệm ngay.
-                </p>
-                <div class="flex flex-wrap justify-center gap-2">
-                  <button type="button" onclick="getLocationAndSearch('hospital')"
-                          class="px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white hover:bg-sky-500 transition">
-                    📍 Lấy GPS của tôi
-                  </button>
-                  <button type="button" onclick="usePresetLocation(10.7553, 106.6650, 'Cụm BV Chợ Rẫy - TP.HCM')"
-                          class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-sky-500 transition">
-                    ⚡ Xem thử khu vực TP.HCM
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ==================== PHẦN 2: BÃI ĐẬU XE & TRẠM SẠC ==================== -->
-        <section id="parkingSection" class="section hidden space-y-5">
-          <!-- Bộ lọc phương tiện & Tìm kiếm Card -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div>
-                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <i class="fa-solid fa-car-side text-sky-600 dark:text-sky-400"></i>
-                  Tìm bãi đỗ xe & Trạm sạc thông minh
-                </h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">
-                  Hệ thống chấm điểm ưu tiên theo loại phương tiện và khoảng cách thực tế.
-                </p>
-              </div>
-              <div class="flex gap-2">
-                <button type="button" onclick="getLocationAndSearch('parking')"
-                        class="px-3.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white shadow-md shadow-sky-600/20 transition flex items-center gap-2">
-                  <i class="fa-solid fa-location-crosshairs"></i> Tìm bãi gần tôi
-                </button>
-                <button type="button" onclick="searchParking()"
-                        class="px-3 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center gap-1.5">
-                  <i class="fa-solid fa-rotate"></i> Tìm lại
-                </button>
-              </div>
-            </div>
-
-            <!-- Vehicle Interactive Pills + Hidden/Synced Select (#vehicle) -->
-            <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
-              <label for="vehicle" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
-                Chọn loại phương tiện của bạn:
-              </label>
-              <!-- Giữ nguyên #vehicle select cho logic gốc, đồng bộ với nút bấm trực quan -->
-              <select id="vehicle" onchange="syncVehiclePills(this.value); searchParking();" class="hidden">
-                <option value="car">🚗 Ô tô</option>
-                <option value="motorcycle">🏍️ Xe máy</option>
-                <option value="electric">⚡ Xe điện</option>
-                <option value="bicycle">🚲 Xe đạp</option>
-              </select>
-
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="vehiclePillGroup">
-                <button type="button" data-vehicle="car" onclick="selectVehicleType('car')"
-                        class="vehicle-pill active-pill flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm border transition">
-                  <i class="fa-solid fa-car"></i> Ô tô
-                </button>
-                <button type="button" data-vehicle="motorcycle" onclick="selectVehicleType('motorcycle')"
-                        class="vehicle-pill flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm border transition">
-                  <i class="fa-solid fa-motorcycle"></i> Xe máy
-                </button>
-                <button type="button" data-vehicle="electric" onclick="selectVehicleType('electric')"
-                        class="vehicle-pill flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm border transition">
-                  <i class="fa-solid fa-charging-station"></i> Xe điện EV
-                </button>
-                <button type="button" data-vehicle="bicycle" onclick="selectVehicleType('bicycle')"
-                        class="vehicle-pill flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm border transition">
-                  <i class="fa-solid fa-bicycle"></i> Xe đạp
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Danh sách kết quả Bãi đỗ xe Card -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <i class="fa-solid fa-square-parking text-sky-500"></i> Bãi đỗ xe & Điểm sạc đề xuất
-              </h3>
-              <span id="parkingSubStatus" class="text-xs font-semibold text-slate-400">Chưa có dữ liệu</span>
-            </div>
-
-            <!-- Skeleton Loader -->
-            <div id="parkingLoader" class="hidden space-y-3 py-2">
-              <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2.5">
-                <div class="h-5 w-2/3 rounded-lg skeleton"></div>
-                <div class="h-4 w-1/3 rounded-lg skeleton"></div>
-                <div class="h-9 w-full rounded-xl skeleton"></div>
-              </div>
-              <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2.5">
-                <div class="h-5 w-1/2 rounded-lg skeleton"></div>
-                <div class="h-4 w-1/4 rounded-lg skeleton"></div>
-                <div class="h-9 w-full rounded-xl skeleton"></div>
-              </div>
-            </div>
-
-            <!-- Results List -->
-            <div id="parkingResults" class="space-y-3 max-h-[540px] overflow-y-auto pr-1">
-              <div class="text-center py-10 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700">
-                <div class="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto mb-3 text-2xl">
-                  <i class="fa-solid fa-square-parking"></i>
-                </div>
-                <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-1">Chưa có vị trí tìm bãi đỗ</h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4">
-                  Bấm <b>"Tìm bãi gần tôi"</b> hoặc chọn một bệnh viện ở tab bên cạnh để tìm bãi gửi xe ngay sát cổng viện.
-                </p>
-                <button type="button" onclick="getLocationAndSearch('parking')"
-                        class="px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white hover:bg-sky-500 transition">
-                  📍 Tìm bãi đỗ gần tôi
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-      </div>
-
-      <!-- RIGHT COLUMN (5/12): PERSISTENT INTERACTIVE VIETMAP PANEL -->
-      <div class="lg:col-span-5 lg:sticky lg:top-20">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col gap-3.5">
-          <!-- Map Header & Controls -->
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center">
-                <i class="fa-solid fa-map-location-dot"></i>
-              </div>
-              <div>
-                <h2 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white leading-none">
-                  Bản đồ số VIETMAP
-                </h2>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400">Hiển thị trực quan cả Bệnh viện & Bãi đỗ xe</span>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-1.5">
-              <button type="button" onclick="locateMe()"
-                      class="px-3 py-1.5 rounded-xl font-bold text-xs bg-sky-600 hover:bg-sky-500 text-white transition flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-crosshairs"></i> Vị trí của tôi
-              </button>
-              <button type="button" id="trackingBtn" onclick="startTracking()"
-                      class="px-3 py-1.5 rounded-xl font-bold text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center gap-1.5">
-                <i class="fa-solid fa-satellite-dish text-teal-500"></i> <span id="trackingBtnText">Theo dõi GPS</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Map Canvas Wrapper -->
-          <div class="relative w-full h-[460px] sm:h-[520px] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
-            <div id="map"></div>
-
-            <!-- Floating Map Legend -->
-            <div class="absolute bottom-3 left-3 z-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-2 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-lg flex items-center gap-3 text-[11px] font-bold">
-              <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-200">
-                <span class="w-3 h-3 rounded-full bg-blue-600 inline-block border border-white"></span> Bạn
-              </span>
-              <span class="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
-                <span class="w-3 h-3 rounded bg-rose-600 inline-block"></span> Bệnh viện
-              </span>
-              <span class="flex items-center gap-1.5 text-sky-600 dark:text-sky-400">
-                <span class="w-3 h-3 rounded bg-sky-600 inline-block"></span> Bãi đỗ
-              </span>
-              <span class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                <span class="w-3 h-3 rounded bg-emerald-600 inline-block"></span> Trạm sạc
-              </span>
-            </div>
-          </div>
-
-          <!-- Map Footer Helper -->
-          <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
-            <span>💡 Bấm vào từng thẻ kết quả bên trái để phóng to tới điểm đó.</span>
-            <button type="button" onclick="fitAllMarkers()" class="font-bold text-sky-600 dark:text-sky-400 hover:underline whitespace-nowrap ml-2">
-              Thu phóng toàn cảnh
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 px-4 sm:px-6 mt-8">
-    <div class="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
-      <div>
-        <b>Care & Parking Pro</b> — Nền tảng tra cứu cơ sở y tế & bãi đỗ xe thông minh tích hợp VIETMAP GL JS & OpenStreetMap.
-      </div>
-      <div class="flex items-center gap-4">
-        <span><i class="fa-solid fa-shield-heart text-teal-500 mr-1"></i> Bảo mật vị trí trên thiết bị</span>
-        <span><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Dữ liệu thời gian thực</span>
-      </div>
-    </div>
-  </footer>
-
-  <!-- VIETMAP API KEY CONFIGURATION -->
-  <script>
-    const VIETMAP_API_KEY = "fd87b92b8c9b1a7848dd81147205540504a99b37cf661f41";
-  </script>
-
-  <!-- APPLICATION LOGIC -->
-  <script>
-    let userLocation = null;
-    let map = null;
-    let userMarker = null;
-    let markers = [];
-    let watchId = null;
-    let pendingLocationAction = null;
-
-    // Lưu trữ kết quả để lọc nhanh và đồng bộ bản đồ
-    let lastHospitals = [];
-    let lastParking = [];
-    let currentBoundsCoords = [];
-    let selectedTimeSlot = "08:30";
-
-    const locationStatus = document.getElementById("locationStatus");
-    const gpsPulseDot = document.getElementById("gpsPulseDot");
-
-    function showToast(message, type = "info") {
-      const container = document.getElementById("toastContainer");
-      const toast = document.createElement("div");
-      const colors = {
-        info: "bg-slate-900 text-white dark:bg-white dark:text-slate-900",
-        success: "bg-teal-600 text-white",
-        warning: "bg-amber-500 text-white",
-        error: "bg-rose-600 text-white"
-      };
-      const icons = {
-        info: "fa-circle-info",
-        success: "fa-circle-check",
-        warning: "fa-triangle-exclamation",
-        error: "fa-circle-exclamation"
-      };
-
-      toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-semibold transform transition-all duration-300 translate-y-2 opacity-0 ${colors[type] || colors.info}`;
-      toast.innerHTML = `
-        <i class="fa-solid ${icons[type] || icons.info} text-base"></i>
-        <span class="flex-1">${escapeHtml(message)}</span>
-      `;
-      container.appendChild(toast);
-
-      requestAnimationFrame(() => {
-        toast.classList.remove("translate-y-2", "opacity-0");
-      });
-
-      setTimeout(() => {
-        toast.classList.add("opacity-0", "translate-y-2");
-        setTimeout(() => toast.remove(), 300);
-      }, 3600);
-    }
-
-    function toggleTheme() {
-      const htmlEl = document.documentElement;
-      const isDark = htmlEl.classList.toggle("dark");
-      const icon = document.getElementById("themeIcon");
-      icon.className = isDark ? "fa-solid fa-sun text-amber-400 text-sm" : "fa-solid fa-moon text-sm";
-      localStorage.setItem("cp_theme", isDark ? "dark" : "light");
-    }
-
-    function updateTabStyling() {
-      document.querySelectorAll(".tab").forEach(btn => {
-        if (btn.classList.contains("active")) {
-          btn.className = "tab active flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all bg-gradient-to-r from-sky-600 to-teal-600 text-white shadow-md shadow-sky-600/20";
-        } else {
-          btn.className = "tab flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm transition-all bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700";
-        }
-      });
-    }
-
-    function syncVehiclePills(selectedVal) {
-      document.querySelectorAll(".vehicle-pill").forEach(btn => {
-        const isMatch = btn.dataset.vehicle === selectedVal;
-        if (isMatch) {
-          btn.className = "vehicle-pill active-pill flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm border transition bg-sky-600 text-white border-sky-600 shadow-md shadow-sky-600/20";
-        } else {
-          btn.className = "vehicle-pill flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm border transition bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-sky-400";
-        }
-      });
-    }
-
-    function selectVehicleType(vehicleType) {
-      const selectEl = document.getElementById("vehicle");
-      selectEl.value = vehicleType;
-      syncVehiclePills(vehicleType);
-      if (userLocation) {
-        searchParking();
-      } else {
-        showToast("Đã chọn phương tiện. Hãy lấy vị trí để tìm bãi đỗ phù hợp!", "info");
-      }
-    }
-
-    function initMap() {
-      const mapEl = document.getElementById("map");
-      if (!VIETMAP_API_KEY || VIETMAP_API_KEY === "a") {
-        mapEl.innerHTML = `
-          <div class="p-8 text-center text-slate-500">
-            <b>VIETMAP chưa được cấu hình.</b><br>
-            Hãy tạo tài khoản VIETMAP miễn phí và dán <b>Tilemap Key</b> vào biến <code>VIETMAP_API_KEY</code>.
-          </div>`;
-        setStatus("⚠️ Chưa cấu hình VIETMAP Tilemap Key", "warning");
-        return;
-      }
-
-      try {
-        map = new vietmapgl.Map({
-          container: "map",
-          style: `https://maps.vietmap.vn/maps/styles/tm/style.json?apikey=${encodeURIComponent(VIETMAP_API_KEY)}`,
-          center: [106.680, 10.768],
-          zoom: 12
-        });
-        map.addControl(new vietmapgl.NavigationControl(), "top-right");
-      } catch (err) {
-        console.error("VIETMAP init error:", err);
-      }
-    }
-
-    function openLocationPrompt(action) {
-      pendingLocationAction = action || "locate";
-      const modal = document.getElementById("locationModal");
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    }
-
-    function closeLocationPrompt() {
-      pendingLocationAction = null;
-      const modal = document.getElementById("locationModal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
-
-    function confirmLocationPermission() {
-      const action = pendingLocationAction || "locate";
-      closeLocationPrompt();
-      requestLocation(action);
-    }
-
-    function getLocationAndSearch(type) {
-      openLocationPrompt(type);
-    }
-
-    function locateMe() {
-      openLocationPrompt("locate");
-    }
-
-    function handleQuickCityChange(val) {
-      if (!val) return;
-      const [latStr, lonStr, label] = val.split(",");
-      usePresetLocation(parseFloat(latStr), parseFloat(lonStr), label);
-    }
-
-    function usePresetLocation(lat, lon, labelName) {
-      closeLocationPrompt();
-      updateUserLocation({
-        coords: {
-          latitude: lat,
-          longitude: lon,
-          accuracy: 15
-        }
-      }, labelName);
-      showToast(`Đã chuyển tâm tìm kiếm tới: ${labelName}`, "success");
-      searchHospitals();
-      searchParking();
-    }
-
-    function requestLocation(action) {
-      if (!navigator.geolocation) {
-        setStatus("❌ Thiết bị không hỗ trợ GPS", "error");
-        showToast("Trình duyệt không hỗ trợ định vị GPS.", "error");
-        return;
-      }
-
-      setStatus("📍 Đang xin quyền và lấy vị trí GPS...", "loading");
-
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          updateUserLocation(position);
-          showToast("Đã định vị GPS thành công!", "success");
-
-          const activeHospital = !document.getElementById("hospitalSection").classList.contains("hidden");
-          const type = (action === "hospital" || action === "parking")
-            ? action
-            : (activeHospital ? "hospital" : "parking");
-
-          if (type === "hospital") {
-            searchHospitals();
-            searchParking(); // Tải đồng thời để có số liệu toàn diện
-          } else {
-            searchParking();
-          }
-        },
-        error => {
-          const messages = {
-            1: "❌ Bạn đã từ chối quyền vị trí. Có thể chọn khu vực mẫu trên thanh công cụ.",
-            2: "❌ Không xác định được vị trí GPS.",
-            3: "❌ GPS phản hồi quá lâu. Hãy thử lại."
-          };
-          const msg = messages[error.code] || "❌ Không lấy được vị trí";
-          setStatus(msg, "error");
-          showToast(msg, "warning");
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
-      );
-    }
-
-    function setStatus(text, state = "default") {
-      locationStatus.textContent = text;
-      if (!gpsPulseDot) return;
-      if (state === "active") {
-        gpsPulseDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping";
-      } else if (state === "error") {
-        gpsPulseDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-      } else {
-        gpsPulseDot.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
-      }
-    }
-
-    function updateUserLocation(position, customLabel = "") {
-      userLocation = {
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
-        accuracy: position.coords.accuracy || 20
-      };
-
-      const labelPrefix = customLabel ? `📍 ${customLabel}` : `📍 GPS`;
-      setStatus(
-        `${labelPrefix}: ${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)} (±${Math.round(userLocation.accuracy)}m)`,
-        "active"
-      );
-
-      if (!map || !window.vietmapgl) return;
-
-      const pos = [userLocation.lon, userLocation.lat];
-      map.flyTo({ center: pos, zoom: 15, speed: 1.4 });
-
-      if (!userMarker) {
-        const el = document.createElement("div");
-        el.className = "user-gps-marker";
-        userMarker = new vietmapgl.Marker({ element: el })
-          .setLngLat(pos)
-          .setPopup(new vietmapgl.Popup({ offset: 14 }).setHTML(`
-            <div class="text-xs font-bold text-slate-800">
-              📍 Vị trí hiện tại của bạn<br>
-              <span class="font-normal text-slate-500">Độ chính xác: ±${Math.round(userLocation.accuracy)} m</span>
-            </div>
-          `))
-          .addTo(map);
-      } else {
-        userMarker.setLngLat(pos);
-      }
-    }
-
-    function startTracking() {
-      if (!navigator.geolocation) {
-        setStatus("❌ Thiết bị không hỗ trợ GPS", "error");
-        return;
-      }
-
-      const btnText = document.getElementById("trackingBtnText");
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-        if (btnText) btnText.textContent = "Theo dõi GPS";
-        showToast("Đã tắt chế độ theo dõi vị trí liên tục.", "info");
-        return;
-      }
-
-      setStatus("🔄 Đang theo dõi vị trí GPS thời gian thực...", "active");
-      if (btnText) btnText.textContent = "Đang theo dõi...";
-      showToast("Đã bật chế độ bám sát GPS thời gian thực.", "success");
-
-      watchId = navigator.geolocation.watchPosition(
-        position => updateUserLocation(position),
-        () => {
-          setStatus("❌ Không thể tiếp tục theo dõi GPS", "error");
-          if (btnText) btnText.textContent = "Theo dõi GPS";
-        },
-        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
-      );
-    }
-
-    function clearMarkers() {
-      markers.forEach(m => m.marker.remove());
-      markers = [];
-    }
-
-    function distanceKm(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 +
-                Math.cos(lat1 * Math.PI / 180) *
-                Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon / 2) ** 2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    function aroundBox(lat, lon, km) {
-      const dLat = km / 111;
-      const dLon = km / (111 * Math.cos(lat * Math.PI / 180));
-      return `${lat - dLat},${lon - dLon},${lat + dLat},${lon + dLon}`;
-    }
-
-    async function overpass(query) {
-      const endpoints = [
-        "https://overpass-api.de/api/interpreter",
-        "https://overpass.kumi.systems/api/interpreter"
-      ];
-
-      for (const endpoint of endpoints) {
-        try {
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "data=" + encodeURIComponent(query)
-          });
-          if (!response.ok) continue;
-          return await response.json();
-        } catch (e) {
-          console.warn("Overpass endpoint failed:", endpoint, e);
-        }
-      }
-      throw new Error("Không thể kết nối dữ liệu bản đồ.");
-    }
-
-    function normalizeElements(elements) {
-      return elements.map(el => {
-        const lat = el.lat ?? el.center?.lat;
-        const lon = el.lon ?? el.center?.lon;
-        const tags = el.tags || {};
-        if (lat == null || lon == null) return null;
-
-        return {
-          id: el.id,
-          lat,
-          lon,
-          tags,
-          name: tags.name || tags["name:vi"] || (tags.amenity === "charging_station" ? "Trạm sạc xe điện" : (tags.amenity === "parking" ? "Bãi đỗ xe công cộng" : "Không có tên")),
-          distance: distanceKm(userLocation.lat, userLocation.lon, lat, lon)
-        };
-      }).filter(Boolean);
-    }
-
-    function refreshCurrentSearch() {
-      if (!userLocation) return;
-      searchHospitals();
-      searchParking();
-    }
-
-    async function searchHospitals() {
-      if (!userLocation) {
-        getLocationAndSearch("hospital");
-        return;
-      }
-
-      const radiusKm = parseFloat(document.getElementById("searchRadius")?.value || "8");
-      const box = aroundBox(userLocation.lat, userLocation.lon, radiusKm);
-      const loader = document.getElementById("hospitalLoader");
-      loader.classList.remove("hidden");
-
-      const query = `
-        [out:json][timeout:20];
-        (
-          node["amenity"="hospital"](${box});
-          way["amenity"="hospital"](${box});
-          relation["amenity"="hospital"](${box});
-          node["healthcare"="hospital"](${box});
-          way["healthcare"="hospital"](${box});
-        );
-        out center tags;
-      `;
-
-      try {
-        const data = await overpass(query);
-        const hospitals = normalizeElements(data.elements)
-          .filter(x => x.tags?.name || x.tags?.["name:vi"])
-          .sort((a, b) => a.distance - b.distance)
-          .slice(0, 14);
-
-        lastHospitals = hospitals;
-        document.getElementById("hospitalCountPill").textContent = hospitals.length;
-        document.getElementById("hospitalSubStatus").textContent = `Tìm thấy ${hospitals.length} bệnh viện trong ${radiusKm} km`;
-        renderHospitals(hospitals);
-
-        if (!document.getElementById("hospitalSection").classList.contains("hidden")) {
-          showOnMap(hospitals, "hospital");
-        }
-      } catch (e) {
-        document.getElementById("hospitalResults").innerHTML = `
-          <div class="p-6 text-center rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-300 text-sm font-semibold">
-            ⚠️ Không lấy được dữ liệu bệnh viện từ máy chủ bản đồ. Hãy bấm "Làm mới" để thử lại.
-          </div>`;
-      } finally {
-        loader.classList.add("hidden");
-      }
-    }
-
-    async function searchParking() {
-      if (!userLocation) {
-        getLocationAndSearch("parking");
-        return;
-      }
-
-      const vehicle = document.getElementById("vehicle").value;
-      const radiusKm = Math.min(parseFloat(document.getElementById("searchRadius")?.value || "5"), 10);
-      const box = aroundBox(userLocation.lat, userLocation.lon, radiusKm);
-      const loader = document.getElementById("parkingLoader");
-      loader.classList.remove("hidden");
-
-      const query = `
-        [out:json][timeout:20];
-        (
-          node["amenity"="parking"](${box});
-          way["amenity"="parking"](${box});
-          relation["amenity"="parking"](${box});
-          node["amenity"="parking_space"](${box});
-          node["amenity"="charging_station"](${box});
-        );
-        out center tags;
-      `;
-
-      try {
-        const data = await overpass(query);
-        let places = normalizeElements(data.elements)
-          .filter(x => x.name || x.tags.amenity === "parking" || x.tags.amenity === "charging_station");
-
-        places = places.map(p => ({
-          ...p,
-          score: parkingScore(p, vehicle)
-        }))
-        .sort((a, b) => (a.distance + a.score) - (b.distance + b.score))
-        .slice(0, 15);
-
-        lastParking = places;
-        document.getElementById("parkingCountPill").textContent = places.length;
-        document.getElementById("parkingSubStatus").textContent = `Tìm thấy ${places.length} điểm đỗ/sạc phù hợp`;
-        renderParking(places, vehicle);
-
-        if (!document.getElementById("parkingSection").classList.contains("hidden")) {
-          showOnMap(places, "parking");
-        }
-      } catch (e) {
-        document.getElementById("parkingResults").innerHTML = `
-          <div class="p-6 text-center rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-300 text-sm font-semibold">
-            ⚠️ Không lấy được dữ liệu bãi đỗ. Hãy bấm "Tìm lại".
-          </div>`;
-      } finally {
-        loader.classList.add("hidden");
-      }
-    }
-
-    function parkingScore(p, vehicle) {
-      const t = p.tags || {};
-      let score = 0;
-
-      if (vehicle === "motorcycle") {
-        if (t.motorcycle === "yes" || t["parking:motorcycle"] === "yes") score -= 2;
-        if (t.motorcycle === "no") score += 5;
-      }
-      if (vehicle === "car") {
-        if (t.motorcar === "yes" || t["parking:motorcar"] === "yes") score -= 2;
-        if (t.motorcar === "no") score += 5;
-      }
-      if (vehicle === "bicycle") {
-        if (t.bicycle === "yes" || t["parking:bicycle"] === "yes") score -= 2;
-        if (t.bicycle === "no") score += 5;
-      }
-      if (vehicle === "electric") {
-        if (t.amenity === "charging_station") score -= 4;
-        if (t["motorcar:charging"] === "yes") score -= 3;
-        if (t["capacity:charging"] || t["socket:type2"] === "yes") score -= 2;
-      }
-      return score;
-    }
-
-    function filterRenderedResults() {
-      const keyword = (document.getElementById("keywordFilter")?.value || "").trim().toLowerCase();
-      const filteredHospitals = lastHospitals.filter(h => h.name.toLowerCase().includes(keyword));
-      const filteredParking = lastParking.filter(p => p.name.toLowerCase().includes(keyword));
-
-      if (lastHospitals.length) renderHospitals(filteredHospitals);
-      if (lastParking.length) renderParking(filteredParking, document.getElementById("vehicle").value);
-    }
-
-    function renderHospitals(items) {
-      const box = document.getElementById("hospitalResults");
-
-      if (!items.length) {
-        box.innerHTML = `
-          <div class="text-center py-8 text-slate-500 text-sm">
-            Không tìm thấy bệnh viện nào khớp với bộ lọc hiện tại. Hãy thử tăng bán kính tìm kiếm (ví dụ 15 km).
-          </div>`;
-        return;
-      }
-
-      const specialty = document.getElementById("specialty").value;
-      const date = document.getElementById("date").value || "";
-      const times = ["08:00", "08:30", "09:15", "10:00", "14:00", "15:30"];
-
-      box.innerHTML = items.map((h, i) => {
-        const time = times[i % times.length];
-        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + " " + h.lat + "," + h.lon)}`;
-        const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lon}`;
-        const address = h.tags["addr:full"] || h.tags["addr:street"] || "Nhấn để xem vị trí trên bản đồ VIETMAP";
-        const phone = h.tags.phone || h.tags["contact:phone"] || "";
-        const emergency = h.tags.emergency === "yes";
-
-        return `
-          <div class="result group rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-sky-500 dark:hover:border-sky-500 p-4 transition-all shadow-sm hover:shadow-md cursor-pointer"
-               onclick="focusMarkerOnMap(${h.lat}, ${h.lon}, '${ h.id }')">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center font-extrabold text-sm shrink-0 mt-0.5">
-                  <i class="fa-solid fa-hospital"></i>
-                </div>
-                <div>
-                  <h3 class="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base group-hover:text-sky-600 dark:group-hover:text-sky-400 transition leading-snug">
-                    ${escapeHtml(h.name)}
-                  </h3>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
-                    <i class="fa-solid fa-location-dot text-slate-400"></i> ${escapeHtml(address)}
-                  </p>
-                </div>
-              </div>
-              <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800 shrink-0">
-                ${h.distance.toFixed(2)} km
-              </span>
-            </div>
-
-            <!-- Badges -->
-            <div class="flex flex-wrap items-center gap-1.5 mt-3">
-              <span class="badge inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300">
-                <i class="fa-solid fa-stethoscope"></i> ${escapeHtml(specialty)}
-              </span>
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
-                <i class="fa-regular fa-clock"></i> Ca gần nhất: ${time}
-              </span>
-              ${emergency ? `
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300">
-                  🚑 Trực cấp cứu 24/7
-                </span>` : ""}
-              ${phone ? `
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                  📞 ${escapeHtml(phone)}
-                </span>` : ""}
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-wrap items-center gap-2 mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80" onclick="event.stopPropagation()">
-              <button type="button"
-                      onclick="openBookingModal('${escapeJsString(h.name)}', ${h.lat}, ${h.lon}, '${time}')"
-                      class="book flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-500 hover:to-sky-500 text-white shadow-sm transition">
-                <i class="fa-solid fa-calendar-plus"></i> Đặt lịch khám ngay
-              </button>
-
-              <button type="button"
-                      onclick="findParkingNearHospital(${h.lat}, ${h.lon}, '${escapeJsString(h.name)}')"
-                      class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/50 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 transition">
-                <i class="fa-solid fa-square-parking"></i> Tìm bãi đỗ quanh viện
-              </button>
-
-              <a href="${mapsUrl}" target="_blank" rel="noopener"
-                 class="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
-                 title="Mở thông tin trên Google Maps">
-                <i class="fa-solid fa-up-right-from-square"></i> Maps
-              </a>
-
-              <a href="${dirUrl}" target="_blank" rel="noopener"
-                 class="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
-                 title="Chỉ đường tới bệnh viện">
-                <i class="fa-solid fa-diamond-turn-right text-sky-500"></i>
-              </a>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderParking(items, vehicle) {
-      const box = document.getElementById("parkingResults");
-
-      if (!items.length) {
-        box.innerHTML = `
-          <div class="text-center py-8 text-slate-500 text-sm">
-            Không tìm thấy bãi đỗ phù hợp trong phạm vi tìm kiếm. Hãy thử đổi bán kính lên 8 km hoặc 15 km.
-          </div>`;
-        return;
-      }
-
-      const vehicleBadge = {
-        car: { label: "🚗 Ô tô", icon: "fa-car" },
-        motorcycle: { label: "🏍️ Xe máy", icon: "fa-motorcycle" },
-        electric: { label: "⚡ Xe điện EV", icon: "fa-charging-station" },
-        bicycle: { label: "🚲 Xe đạp", icon: "fa-bicycle" }
-      }[vehicle] || { label: "🚗 Phương tiện", icon: "fa-car" };
-
-      box.innerHTML = items.map(p => {
-        const t = p.tags || {};
-        const isCharging = t.amenity === "charging_station";
-        const typeLabel = isCharging ? "Trạm sạc điện" : "Bãi đỗ xe";
-        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}`;
-        const feeText = t.fee === "no" ? "Miễn phí" : (t.fee === "yes" ? "Có thu phí" : (t.fee || "Theo quy định"));
-
-        return `
-          <div class="result group rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-sky-500 dark:hover:border-sky-500 p-4 transition-all shadow-sm hover:shadow-md cursor-pointer"
-               onclick="focusMarkerOnMap(${p.lat}, ${p.lon}, '${p.id}')">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl ${isCharging ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-sky-500/10 text-sky-600 dark:text-sky-400'} flex items-center justify-center font-extrabold text-sm shrink-0 mt-0.5">
-                  <i class="fa-solid ${isCharging ? 'fa-charging-station' : 'fa-square-parking'}"></i>
-                </div>
-                <div>
-                  <h3 class="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base group-hover:text-sky-600 dark:group-hover:text-sky-400 transition leading-snug">
-                    ${escapeHtml(p.name)}
-                  </h3>
-                  <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-                    <span class="badge px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
-                      ${vehicleBadge.label}
-                    </span>
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isCharging ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}">
-                      ${escapeHtml(typeLabel)}
-                    </span>
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
-                      💰 ${escapeHtml(feeText)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shrink-0">
-                ${p.distance.toFixed(2)} km
-              </span>
-            </div>
-
-            <div class="meta text-xs text-slate-500 dark:text-slate-400 mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
-              ${t.capacity ? `<span>📦 Sức chứa: <b>${escapeHtml(t.capacity)} chỗ</b></span>` : ""}
-              ${t.opening_hours ? `<span>🕒 Giờ mở cửa: <b>${escapeHtml(t.opening_hours)}</b></span>` : `<span>🕒 Hoạt động: <b>Cả ngày</b></span>`}
-              ${t.surface ? `<span>🛣️ Mặt sân: <b>${escapeHtml(t.surface)}</b></span>` : ""}
-            </div>
-
-            <div class="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80" onclick="event.stopPropagation()">
-              <button type="button" onclick="focusMarkerOnMap(${p.lat}, ${p.lon}, '${p.id}')"
-                      class="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1">
-                <i class="fa-solid fa-eye"></i> Xem trên VIETMAP
-              </button>
-              <a class="book inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white shadow-sm transition"
-                 href="${mapsUrl}" target="_blank" rel="noopener">
-                <i class="fa-solid fa-diamond-turn-right"></i> Chỉ đường Google Maps
-              </a>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function showOnMap(items, type) {
-      if (!map || !userLocation || !window.vietmapgl) return;
-
-      clearMarkers();
-      const userPos = [userLocation.lon, userLocation.lat];
-
-      if (userMarker) {
-        userMarker.setLngLat(userPos);
-      } else {
-        const el = document.createElement("div");
-        el.className = "user-gps-marker";
-        userMarker = new vietmapgl.Marker({ element: el })
-          .setLngLat(userPos)
-          .setPopup(new vietmapgl.Popup({ offset: 14 }).setHTML("<b>📍 Vị trí hiện tại của bạn</b>"))
-          .addTo(map);
-      }
-
-      const coords = [userPos];
-
-      items.forEach(p => {
-        const isCharging = p.tags?.amenity === "charging_station";
-        const markerEl = document.createElement("div");
-        markerEl.className = `custom-poi-marker ${type === "hospital" ? "hospital-marker" : (isCharging ? "ev-marker" : "parking-marker")}`;
-        markerEl.innerHTML = type === "hospital"
-          ? '<i class="fa-solid fa-kit-medical"></i>'
-          : (isCharging ? '<i class="fa-solid fa-bolt"></i>' : 'P');
-
-        const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}`;
-        const popupHtml = `
-          <div class="min-w-[210px] text-slate-800">
-            <div class="text-[10px] font-bold uppercase tracking-wider ${type === "hospital" ? "text-rose-600" : "text-sky-600"} mb-0.5">
-              ${type === "hospital" ? "🏥 Cơ sở Y tế" : (isCharging ? "⚡ Trạm sạc điện" : "🅿️ Bãi đỗ xe")}
-            </div>
-            <div class="font-extrabold text-sm leading-snug mb-1">${escapeHtml(p.name)}</div>
-            <div class="text-xs text-slate-500 mb-2.5">📍 Cách bạn <b>${p.distance.toFixed(2)} km</b></div>
-            <div class="flex gap-1.5">
-              ${type === "hospital" ? `
-                <button type="button" onclick="openBookingModal('${escapeJsString(p.name)}', ${p.lat}, ${p.lon}, '08:30')"
-                        class="flex-1 py-1.5 px-2.5 rounded-lg bg-teal-600 text-white font-bold text-xs text-center">
-                  📅 Đặt lịch
-                </button>
-              ` : ""}
-              <a href="${dirUrl}" target="_blank" rel="noopener"
-                 class="flex-1 py-1.5 px-2.5 rounded-lg bg-sky-600 text-white font-bold text-xs text-center no-underline">
-                🧭 Chỉ đường
-              </a>
-            </div>
-          </div>
-        `;
-
-        const popup = new vietmapgl.Popup({ offset: 22 }).setHTML(popupHtml);
-        const marker = new vietmapgl.Marker({ element: markerEl })
-          .setLngLat([p.lon, p.lat])
-          .setPopup(popup)
-          .addTo(map);
-
-        markers.push({ id: String(p.id), marker, popup, el: markerEl });
-        coords.push([p.lon, p.lat]);
-      });
-
-      currentBoundsCoords = coords;
-      fitAllMarkers();
-    }
-
-    function fitAllMarkers() {
-      if (!map || !window.vietmapgl || !currentBoundsCoords.length) return;
-      if (currentBoundsCoords.length > 1) {
-        const bounds = currentBoundsCoords.reduce(
-          (b, c) => b.extend(c),
-          new vietmapgl.LngLatBounds(currentBoundsCoords[0], currentBoundsCoords[0])
-        );
-        map.fitBounds(bounds, { padding: 65, maxZoom: 16 });
-      } else {
-        map.flyTo({ center: currentBoundsCoords[0], zoom: 15 });
-      }
-    }
-
-    function focusMarkerOnMap(lat, lon, id) {
-      if (!map) return;
-      markers.forEach(item => {
-        item.el.classList.remove("active-marker");
-        if (item.popup.isOpen()) item.popup.remove();
-      });
-
-      map.flyTo({ center: [lon, lat], zoom: 16.5, speed: 1.3 });
-
-      const found = markers.find(m => m.id === String(id));
-      if (found) {
-        found.el.classList.add("active-marker");
-        found.marker.togglePopup();
-      }
-    }
-
-    // Tính năng thông minh: Tìm bãi đỗ xe ngay quanh bệnh viện vừa chọn
-    function findParkingNearHospital(lat, lon, hospitalName) {
-      userLocation = { lat, lon, accuracy: 15 };
-      setStatus(`📍 Đang tìm bãi đỗ quanh: ${hospitalName}`, "active");
-
-      // Chuyển sang tab Bãi đậu xe
-      const parkingTabBtn = document.querySelector('.tab[data-target="parkingSection"]');
-      if (parkingTabBtn) parkingTabBtn.click();
-
-      showToast(`Đang quét các bãi đỗ xe gần ${hospitalName}...`, "info");
-      searchParking();
-    }
-
-    function openBookingModal(hospitalName, lat, lon, defaultTime) {
-      selectedTimeSlot = defaultTime || "08:30";
-      document.getElementById("bookingHospitalName").textContent = hospitalName;
-      document.getElementById("bookingHospitalLat").value = lat;
-      document.getElementById("bookingHospitalLon").value = lon;
-      document.getElementById("bookingSpecialtyInput").value = document.getElementById("specialty").value;
-      document.getElementById("bookingDateInput").value = document.getElementById("date").value;
-
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hospitalName + " " + lat + "," + lon)}`;
-      document.getElementById("bookingGoogleMapsLink").href = mapsUrl;
-
-      renderTimeSlotButtons();
-      const modal = document.getElementById("bookingModal");
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    }
-
-    function closeBookingModal() {
-      const modal = document.getElementById("bookingModal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
-
-    function renderTimeSlotButtons() {
-      const slots = ["07:30", "08:00", "08:30", "09:15", "10:00", "13:30", "14:30", "15:30"];
-      const container = document.getElementById("timeSlotContainer");
-      container.innerHTML = slots.map(slot => {
-        const active = slot === selectedTimeSlot;
-        return `
-          <button type="button" onclick="selectBookingSlot('${slot}')"
-                  class="py-2 px-2 rounded-xl text-xs font-bold border transition ${
-                    active
-                      ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-                      : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-teal-500'
-                  }">
-            🕒 ${slot}
+        <div class="controls">
+          <button class="btn btn-primary" onclick="getLocationAndSearch('hospital')">
+            <i class="fa-solid fa-satellite-dish"></i> Quét bệnh viện quanh tôi
           </button>
-        `;
-      }).join("");
-    }
-
-    function selectBookingSlot(slot) {
-      selectedTimeSlot = slot;
-      renderTimeSlotButtons();
-    }
-
-    function getSavedTickets() {
-      try {
-        return JSON.parse(localStorage.getItem("cp_appointments") || "[]");
-      } catch {
-        return [];
-      }
-    }
-
-    function updateTicketBadge() {
-      const tickets = getSavedTickets();
-      const badge = document.getElementById("ticketCountBadge");
-      if (badge) badge.textContent = tickets.length;
-    }
-
-    function submitAppointmentBooking(event) {
-      event.preventDefault();
-      const hospital = document.getElementById("bookingHospitalName").textContent;
-      const specialty = document.getElementById("bookingSpecialtyInput").value;
-      const date = document.getElementById("bookingDateInput").value;
-      const patientName = document.getElementById("patientName").value.trim();
-      const patientPhone = document.getElementById("patientPhone").value.trim();
-      const needParking = document.getElementById("needParkingCheck").checked;
-      const hasInsurance = document.getElementById("hasInsuranceCheck").checked;
-      const lat = parseFloat(document.getElementById("bookingHospitalLat").value);
-      const lon = parseFloat(document.getElementById("bookingHospitalLon").value);
-
-      const ticketCode = "CP-" + Math.floor(100000 + Math.random() * 900000);
-      const newTicket = {
-        code: ticketCode,
-        hospital,
-        specialty,
-        date,
-        time: selectedTimeSlot,
-        patientName,
-        patientPhone,
-        needParking,
-        hasInsurance,
-        lat,
-        lon,
-        createdAt: new Date().toLocaleString("vi-VN")
-      };
-
-      const tickets = getSavedTickets();
-      tickets.unshift(newTicket);
-      localStorage.setItem("cp_appointments", JSON.stringify(tickets));
-
-      updateTicketBadge();
-      closeBookingModal();
-      showToast(`Đặt lịch thành công! Mã phiếu khám: ${ticketCode}`, "success");
-      toggleMyTicketsModal(true);
-    }
-
-    function toggleMyTicketsModal(show) {
-      const modal = document.getElementById("myTicketsModal");
-      if (show) {
-        renderMyTicketsList();
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-      } else {
-        modal.classList.add("hidden");
-        modal.classList.remove("flex");
-      }
-    }
-
-    function deleteTicket(code) {
-      const tickets = getSavedTickets().filter(t => t.code !== code);
-      localStorage.setItem("cp_appointments", JSON.stringify(tickets));
-      updateTicketBadge();
-      renderMyTicketsList();
-      showToast("Đã hủy phiếu đặt lịch.", "info");
-    }
-
-    function renderMyTicketsList() {
-      const container = document.getElementById("myTicketsList");
-      const tickets = getSavedTickets();
-
-      if (!tickets.length) {
-        container.innerHTML = `
-          <div class="text-center py-8 text-slate-500 text-sm">
-            Bạn chưa có phiếu đặt lịch khám nào. Hãy chọn một bệnh viện và nhấn <b>"Đặt lịch khám ngay"</b>.
-          </div>`;
-        return;
-      }
-
-      container.innerHTML = tickets.map(t => `
-        <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-teal-500/15 text-teal-700 dark:text-teal-300">
-              #${escapeHtml(t.code)}
-            </span>
-            <button type="button" onclick="deleteTicket('${escapeJsString(t.code)}')"
-                    class="text-xs text-rose-500 hover:underline font-semibold">
-              Hủy lịch
-            </button>
-          </div>
-          <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">${escapeHtml(t.hospital)}</h4>
-          <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
-            <div>👨‍⚕️ Chuyên khoa: <b>${escapeHtml(t.specialty)}</b> — 🕒 <b>${escapeHtml(t.time)}</b> (${escapeHtml(t.date)})</div>
-            <div>👤 Bệnh nhân: <b>${escapeHtml(t.patientName)}</b> (${escapeHtml(t.patientPhone)})</div>
-            <div class="flex flex-wrap gap-1.5 pt-1">
-              ${t.needParking ? `<span class="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[11px] font-semibold">🚗 Đã đăng ký gửi xe</span>` : ""}
-              ${t.hasInsurance ? `<span class="px-2 py-0.5 rounded bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 text-[11px] font-semibold">💳 Khám BHYT</span>` : ""}
-            </div>
-          </div>
-          ${t.lat && t.lon ? `
-            <div class="pt-2 flex gap-2">
-              <button type="button" onclick="toggleMyTicketsModal(false); findParkingNearHospital(${t.lat}, ${t.lon}, '${escapeJsString(t.hospital)}')"
-                      class="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline">
-                🅿️ Xem bãi đỗ xe cạnh viện này
-              </button>
-            </div>
-          ` : ""}
+          <button class="btn btn-secondary" onclick="searchHospitals()">
+            <i class="fa-solid fa-rotate"></i> Quét lại
+          </button>
         </div>
-      `).join("");
-    }
 
-    document.querySelectorAll(".tab").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
-        document.querySelectorAll(".section").forEach(s => {
-          s.classList.remove("active");
-          s.classList.add("hidden");
-        });
+        <div class="loader" id="hospitalLoader">
+          <i class="fa-solid fa-circle-notch fa-spin"></i> Đang quét dữ liệu bệnh viện quanh tọa độ GPS của bạn...
+        </div>
 
-        btn.classList.add("active");
-        const targetEl = document.getElementById(btn.dataset.target);
-        targetEl.classList.add("active");
-        targetEl.classList.remove("hidden");
-        updateTabStyling();
+        <div id="hospitalResults" class="results-list">
+          <div class="empty">
+            <i class="fa-solid fa-location-dot"></i>
+            <b>Chưa có tọa độ GPS thực tế</b><br>
+            Hãy bấm <b>"Quét bệnh viện quanh tôi"</b> và cho phép trình duyệt truy cập vị trí thật của thiết bị.
+          </div>
+        </div>
+      </div>
+    </section>
 
-        if (btn.dataset.target === "hospitalSection" && lastHospitals.length) {
-          showOnMap(lastHospitals, "hospital");
-        } else if (btn.dataset.target === "parkingSection" && lastParking.length) {
-          showOnMap(lastParking, "parking");
-        }
+    <!-- TAB 2: BÃI ĐỖ XE -->
+    <section id="parkingSection" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-car-side" style="color:var(--secondary)"></i> Tìm bãi đỗ xe & Trạm sạc</h2>
+        </div>
 
-        setTimeout(() => {
-          if (map) map.resize();
-        }, 150);
-      });
-    });
+        <div id="parkingContextBanner" style="display:none;background:var(--primary-light);color:var(--primary);padding:10px 12px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px;align-items:center;justify-content:space-between;gap:8px;">
+          <span id="parkingContextText"></span>
+          <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="resetParkingToUserGPS()">Quay về GPS của tôi</button>
+        </div>
 
-    // Ngày mặc định = hôm nay
-    document.getElementById("date").valueAsDate = new Date();
+        <div class="filter-grid">
+          <div class="field">
+            <label for="vehicle">Phương tiện của bạn</label>
+            <select id="vehicle" onchange="if(userLocation) searchParking()">
+              <option value="car">🚗 Ô tô</option>
+              <option value="motorcycle">🏍️ Xe máy</option>
+              <option value="electric">⚡ Xe điện (Trạm sạc)</option>
+              <option value="bicycle">🚲 Xe đạp</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="parkingRadius">Bán kính tìm kiếm</label>
+            <select id="parkingRadius" onchange="if(userLocation) searchParking()">
+              <option value="2">Bán kính 2 km</option>
+              <option value="5" selected>Bán kính 5 km</option>
+              <option value="10">Bán kính 10 km</option>
+            </select>
+          </div>
+        </div>
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // Khôi phục giao diện Sáng/Tối
-      if (localStorage.getItem("cp_theme") === "dark") {
-        document.documentElement.classList.add("dark");
-        document.getElementById("themeIcon").className = "fa-solid fa-sun text-amber-400 text-sm";
-      }
+        <div class="controls">
+          <button class="btn btn-primary" onclick="getLocationAndSearch('parking')">
+            <i class="fa-solid fa-location-crosshairs"></i> Tìm bãi đỗ gần tôi
+          </button>
+          <button class="btn btn-secondary" onclick="searchParking()">
+            <i class="fa-solid fa-rotate"></i> Tìm lại
+          </button>
+        </div>
 
-      updateTabStyling();
-      syncVehiclePills(document.getElementById("vehicle").value);
-      updateTicketBadge();
-      initMap();
+        <div class="loader" id="parkingLoader">
+          <i class="fa-solid fa-circle-notch fa-spin"></i> Đang tìm bãi đỗ xe quanh vị trí thực tế...
+        </div>
 
-      document.getElementById("locationModal").addEventListener("click", event => {
-        if (event.target.id === "locationModal") closeLocationPrompt();
-      });
-      document.getElementById("bookingModal").addEventListener("click", event => {
-        if (event.target.id === "bookingModal") closeBookingModal();
-      });
-    });
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function escapeJsString(value) {
-      return String(value ?? "")
-        .replaceAll("\\", "\\\\")
-        .replaceAll("'", "\\'")
-        .replaceAll('"', '\\"');
-    }
-  </script>
-</body>
-</html>
+        <div id="parkingResults" class="results-list">
+          <div class="empty">
+            <i class="fa-solid fa-square-parking"></i>
+            <b>Chưa có vị trí GPS thực tế</b><br>
+            Hãy bấm <b>"Tìm bãi đỗ gần tôi"</b> để lấy tọa độ thật từ thiết bị của bạn.
+          </div>
+        </div>
+      </div>
