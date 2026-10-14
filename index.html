@@ -784,3 +784,713 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- TAB 3: LỊCH HẸN ĐÃ ĐẶT -->
+    <section id="appointmentsSection" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-clipboard-Check" style="color:var(--primary)"></i> Phiếu khám đã đặt</h2>
+        </div>
+        <div id="appointmentsList" class="results-list"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- CỘT PHẢI: BẢN ĐỒ SỐ VIETMAP CỐ ĐỊNH -->
+  <div class="right-panel">
+    <div class="map-card">
+      <div class="map-toolbar">
+        <div class="map-toolbar-left">
+          <button class="btn btn-primary" style="padding:8px 14px;font-size:13px;" onclick="locateMe()">
+            <i class="fa-solid fa-crosshairs"></i> Định vị GPS thật của tôi
+          </button>
+          <button class="btn btn-secondary" id="trackBtn" style="padding:8px 14px;font-size:13px;" onclick="toggleTracking()">
+            <i class="fa-solid fa-satellite"></i> Theo dõi GPS liên tục (Live)
+          </button>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--text-muted);" id="accuracyBadge">
+          Độ chính xác: --
+        </span>
+      </div>
+
+      <div id="map"></div>
+
+      <div class="map-footer">
+        <div class="legend">
+          <span class="legend-item"><span class="dot" style="background:#0284c7"></span> Vị trí thật của bạn</span>
+          <span class="legend-item"><span class="dot" style="background:#ef4444"></span> Bệnh viện</span>
+          <span class="legend-item"><span class="dot" style="background:#0d9488"></span> Bãi đỗ xe / Trạm sạc</span>
+        </div>
+        <span>Bản đồ số VIETMAP GL & OpenStreetMap</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // VIETMAP API Key từ code gốc của bạn
+  const VIETMAP_API_KEY = "fd87b92b8c9b1a7848dd81147205540504a99b37cf661f41";
+
+  let userLocation = null; // Chỉ lưu vị trí GPS thực tế từ navigator.geolocation
+  let customParkingCenter = null; // Dùng khi bấm "Tìm bãi đỗ quanh bệnh viện X"
+  let map = null;
+  let userMarker = null;
+  let markers = [];
+  let watchId = null;
+  let pendingLocationAction = null;
+  let lastHospitals = [];
+  let selectedHospitalForBooking = null;
+
+  const locationStatus = document.getElementById("locationStatus");
+  const gpsDot = document.getElementById("gpsDot");
+  const accuracyBadge = document.getElementById("accuracyBadge");
+
+  // Ngày mặc định là hôm nay
+  document.getElementById("date").valueAsDate = new Date();
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#38bdf8"></i> <span>${escapeHtml(msg)}</span>`;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3600);
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    html.setAttribute("data-theme", next);
+    document.getElementById("themeBtn").innerHTML = next === "dark"
+      ? '<i class="fa-solid fa-sun"></i>'
+      : '<i class="fa-solid fa-moon"></i>';
+  }
+
+  // Khởi tạo bản đồ VIETMAP
+  function initMap() {
+    const mapEl = document.getElementById("map");
+    if (!VIETMAP_API_KEY) {
+      mapEl.innerHTML = `<div style="padding:30px;text-align:center;">Chưa cấu hình VIETMAP_API_KEY</div>`;
+      return;
+    }
+
+    map = new vietmapgl.Map({
+      container: "map",
+      style: `https://maps.vietmap.vn/maps/styles/tm/style.json?apikey=${encodeURIComponent(VIETMAP_API_KEY)}`,
+      center: [106.660, 10.762],
+      zoom: 5
+    });
+
+    map.addControl(new vietmapgl.NavigationControl(), "top-right");
+
+    // Khi mở trang, tự động kiểm tra nếu trình duyệt đã cấp quyền GPS trước đó thì lấy luôn vị trí thật
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: "geolocation" }).then(result => {
+        if (result.state === "granted") {
+          requestLocation("hospital", true);
+        }
+      }).catch(() => {});
+    }
+  }
+
+  function setStatus(text, state = "idle") {
+    locationStatus.textContent = text;
+    gpsDot.className = "gps-dot" + (state === "active" ? " active" : state === "error" ? " error" : "");
+  }
+
+  function openLocationPrompt(action) {
+    // Nếu đã có vị trí thật rồi hoặc muốn lấy trực tiếp
+    pendingLocationAction = action || "locate";
+    document.getElementById("locationModal").classList.add("show");
+  }
+
+  function closeLocationPrompt() {
+    pendingLocationAction = null;
+    document.getElementById("locationModal").classList.remove("show");
+  }
+
+  function confirmLocationPermission() {
+    const action = pendingLocationAction || "locate";
+    document.getElementById("locationModal").classList.remove("show");
+    pendingLocationAction = null;
+    requestLocation(action, true);
+  }
+
+  function getLocationAndSearch(type) {
+    if (userLocation) {
+      // Làm mới tọa độ GPS thật mỗi lần bấm
+      requestLocation(type, true);
+    } else {
+      openLocationPrompt(type);
+    }
+  }
+
+  function locateMe() {
+    requestLocation("locate", true);
+  }
+
+  // Hàm lấy vị trí GPS THẬT 100% từ phần cứng thiết bị / trình duyệt
+  function requestLocation(action, forceFresh = true) {
+    if (!navigator.geolocation) {
+      setStatus("Trình duyệt không hỗ trợ định vị GPS", "error");
+      showToast("Thiết bị hoặc trình duyệt của bạn không hỗ trợ định vị GPS.");
+      return;
+    }
+
+    setStatus("Đang lấy tọa độ GPS thực tế từ thiết bị...", "idle");
+
+    navigator.geolocation.getCurrentPosition(
+      async position => {
+        await updateUserLocation(position);
+        const type = (action === "hospital" || action === "parking")
+          ? action
+          : (document.getElementById("hospitalSection").classList.contains("active") ? "hospital" : "parking");
+
+        if (action !== "locate") {
+          if (type === "hospital") searchHospitals();
+          else searchParking();
+        } else {
+          showToast("Đã cập nhật vị trí GPS thật của bạn!");
+        }
+      },
+      error => {
+        const messages = {
+          1: "Bạn đã từ chối quyền vị trí. Hãy bật quyền Location trên trình duyệt.",
+          2: "Không thu được tín hiệu GPS thực tế từ thiết bị.",
+          3: "Quá thời gian chờ tín hiệu GPS. Vui lòng thử lại."
+        };
+        const msg = messages[error.code] || "Không lấy được vị trí GPS thực tế.";
+        setStatus(msg, "error");
+        showToast(msg);
+      },
+      {
+        enableHighAccuracy: true, // Bắt buộc độ chính xác cao nhất
+        timeout: 20000,
+        maximumAge: forceFresh ? 0 : 10000 // maximumAge: 0 buộc trình duyệt lấy vị trí thật mới nhất, không dùng cache cũ
+      }
+    );
+  }
+
+  // Dịch tọa độ GPS thật ra địa chỉ đường phố thực tế (Nominatim OSM)
+  async function reverseGeocodeRealLocation(lat, lon) {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=vi`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.display_name || null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function updateUserLocation(position) {
+    userLocation = {
+      lat: position.coords.latitude,
+      lon: position.coords.longitude,
+      accuracy: position.coords.accuracy
+    };
+
+    const acc = Math.round(userLocation.accuracy);
+    accuracyBadge.textContent = `Sai số GPS: ±${acc} m`;
+    setStatus(`GPS thật: ${userLocation.lat.toFixed(5)}, ${userLocation.lon.toFixed(5)} (±${acc}m)`, "active");
+
+    if (map) {
+      const pos = [userLocation.lon, userLocation.lat];
+      map.flyTo({ center: pos, zoom: 15, essential: true });
+
+      if (!userMarker) {
+        const el = document.createElement("div");
+        el.className = "user-gps-marker";
+        userMarker = new vietmapgl.Marker({ element: el })
+          .setLngLat(pos)
+          .setPopup(new vietmapgl.Popup({ offset: 18 }).setHTML(
+            `<b>📍 Vị trí thật của bạn</b><br>Tọa độ: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)}<br>Độ chính xác: ±${acc}m`
+          ))
+          .addTo(map);
+      } else {
+        userMarker.setLngLat(pos);
+      }
+    }
+
+    // Lấy tên đường/phường thật hiển thị lên thanh trạng thái
+    const address = await reverseGeocodeRealLocation(userLocation.lat, userLocation.lon);
+    if (address) {
+      setStatus(`📍 ${address} (±${acc}m)`, "active");
+    }
+  }
+
+  function toggleTracking() {
+    const btn = document.getElementById("trackBtn");
+    if (!navigator.geolocation) {
+      showToast("Thiết bị không hỗ trợ GPS");
+      return;
+    }
+
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+      btn.innerHTML = `<i class="fa-solid fa-satellite"></i> Theo dõi GPS liên tục (Live)`;
+      showToast("Đã tắt chế độ theo dõi GPS liên tục.");
+      return;
+    }
+
+    btn.innerHTML = `<i class="fa-solid fa-circle-stop" style="color:#ef4444"></i> Đang theo dõi GPS thật...`;
+    showToast("Đang bật theo dõi GPS thực tế theo thời gian thực...");
+
+    watchId = navigator.geolocation.watchPosition(
+      position => updateUserLocation(position),
+      () => setStatus("Mất tín hiệu theo dõi GPS liên tục", "error"),
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 15000
+      }
+    );
+  }
+
+  function clearMarkers() {
+    markers.forEach(m => m.remove());
+    markers = [];
+  }
+
+  function distanceKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(lat1 * Math.PI / 180) *
+              Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function aroundBox(lat, lon, km) {
+    const dLat = km / 111;
+    const dLon = km / (111 * Math.cos(lat * Math.PI / 180));
+    return `${lat - dLat},${lon - dLon},${lat + dLat},${lon + dLon}`;
+  }
+
+  async function overpass(query) {
+    const endpoints = [
+      "https://overpass-api.de/api/interpreter",
+      "https://overpass.kumi.systems/api/interpreter"
+    ];
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "data=" + encodeURIComponent(query)
+        });
+        if (!response.ok) continue;
+        return await response.json();
+      } catch (e) {
+        console.warn("Overpass endpoint failed:", endpoint, e);
+      }
+    }
+    throw new Error("Không thể kết nối máy chủ bản đồ Overpass.");
+  }
+
+  function normalizeElements(elements, refLat, refLon) {
+    return elements.map(el => {
+      const lat = el.lat ?? el.center?.lat;
+      const lon = el.lon ?? el.center?.lon;
+      const tags = el.tags || {};
+      if (lat == null || lon == null) return null;
+
+      return {
+        id: el.id,
+        lat,
+        lon,
+        tags,
+        name: tags.name || tags["name:vi"] || "Điểm đỗ xe / Cơ sở chưa đặt tên",
+        distance: distanceKm(refLat, refLon, lat, lon)
+      };
+    }).filter(Boolean);
+  }
+
+  // Tìm kiếm Bệnh viện quanh vị trí thật
+  async function searchHospitals() {
+    if (!userLocation) {
+      openLocationPrompt("hospital");
+      return;
+    }
+
+    const radiusKm = Number(document.getElementById("hospitalRadius").value || 8);
+    const box = aroundBox(userLocation.lat, userLocation.lon, radiusKm);
+    document.getElementById("hospitalLoader").style.display = "block";
+
+    const query = `
+      [out:json][timeout:25];
+      (
+        node["amenity"="hospital"](${box});
+        way["amenity"="hospital"](${box});
+        relation["amenity"="hospital"](${box});
+        node["healthcare"="hospital"](${box});
+        way["healthcare"="hospital"](${box});
+      );
+      out center tags;
+    `;
+
+    try {
+      const data = await overpass(query);
+      const hospitals = normalizeElements(data.elements, userLocation.lat, userLocation.lon)
+        .filter(x => x.tags.name || x.tags["name:vi"])
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 15);
+
+      lastHospitals = hospitals;
+      renderHospitals(hospitals);
+      showOnMap(hospitals, "hospital");
+    } catch (e) {
+      document.getElementById("hospitalResults").innerHTML =
+        `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>Không lấy được dữ liệu bệnh viện. Vui lòng bấm Quét lại.</div>`;
+    } finally {
+      document.getElementById("hospitalLoader").style.display = "none";
+    }
+  }
+
+  // Tìm kiếm Bãi đỗ xe quanh vị trí thật (hoặc quanh bệnh viện được chọn)
+  async function searchParking() {
+    const center = customParkingCenter || userLocation;
+    if (!center) {
+      openLocationPrompt("parking");
+      return;
+    }
+
+    const vehicle = document.getElementById("vehicle").value;
+    const radiusKm = Number(document.getElementById("parkingRadius").value || 5);
+    const box = aroundBox(center.lat, center.lon, radiusKm);
+
+    document.getElementById("parkingLoader").style.display = "block";
+
+    const query = `
+      [out:json][timeout:25];
+      (
+        node["amenity"="parking"](${box});
+        way["amenity"="parking"](${box});
+        relation["amenity"="parking"](${box});
+        node["amenity"="parking_space"](${box});
+        node["amenity"="charging_station"](${box});
+      );
+      out center tags;
+    `;
+
+    try {
+      const data = await overpass(query);
+      let places = normalizeElements(data.elements, center.lat, center.lon)
+        .filter(x => x.tags.name || x.tags.amenity === "parking" || x.tags.amenity === "charging_station");
+
+      places = places.map(p => ({
+        ...p,
+        name: p.tags.name || (p.tags.amenity === "charging_station" ? "Trạm sạc xe điện" : "Bãi đỗ xe công cộng"),
+        score: parkingScore(p, vehicle)
+      }))
+      .sort((a, b) => (a.distance + a.score) - (b.distance + b.score))
+      .slice(0, 15);
+
+      renderParking(places, vehicle);
+      showOnMap(places, "parking");
+    } catch (e) {
+      document.getElementById("parkingResults").innerHTML =
+        `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>Không lấy được dữ liệu bãi đỗ. Hãy thử lại.</div>`;
+    } finally {
+      document.getElementById("parkingLoader").style.display = "none";
+    }
+  }
+
+  function parkingScore(p, vehicle) {
+    const t = p.tags || {};
+    let score = 0;
+    if (vehicle === "motorcycle") {
+      if (t.motorcycle === "yes" || t["parking:motorcycle"] === "yes") score -= 2;
+      if (t.motorcycle === "no") score += 5;
+    }
+    if (vehicle === "car") {
+      if (t.motorcar === "yes" || t["parking:motorcar"] === "yes") score -= 2;
+      if (t.motorcar === "no") score += 5;
+    }
+    if (vehicle === "bicycle") {
+      if (t.bicycle === "yes" || t["parking:bicycle"] === "yes") score -= 2;
+      if (t.bicycle === "no") score += 5;
+    }
+    if (vehicle === "electric") {
+      if (t.amenity === "charging_station") score -= 4;
+      if (t["motorcar:charging"] === "yes") score -= 3;
+    }
+    return score;
+  }
+
+  function renderHospitals(items) {
+    const box = document.getElementById("hospitalResults");
+    if (!items.length) {
+      box.innerHTML = `<div class="empty"><i class="fa-solid fa-hospital"></i>Không tìm thấy bệnh viện nào trong bán kính đã chọn quanh vị trí thật của bạn. Hãy tăng bán kính lên 15 km.</div>`;
+      return;
+    }
+
+    const specialty = document.getElementById("specialty").value;
+    const date = document.getElementById("date").value || "Hôm nay";
+
+    box.innerHTML = items.map((h, i) => {
+      const addr = h.tags["addr:full"] || [h.tags["addr:housenumber"], h.tags["addr:street"], h.tags["addr:district"]].filter(Boolean).join(" ") || "Nhấn để xem vị trí trên bản đồ VIETMAP";
+      const phone = h.tags.phone || h.tags["contact:phone"] || "";
+      const emergency = h.tags.emergency === "yes" ? `<span class="badge" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-truck-medical"></i> Cấp cứu 24/7</span>` : "";
+      const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lon}&destination=${h.lat},${h.lon}`;
+
+      return `
+        <div class="result-card" onclick="focusMarker(${i}, ${h.lat}, ${h.lon})">
+          <div class="result-top">
+            <h3>${escapeHtml(h.name)}</h3>
+            <span class="distance-pill"><i class="fa-solid fa-location-arrow"></i> ${h.distance.toFixed(2)} km</span>
+          </div>
+          <div class="badges">
+            <span class="badge"><i class="fa-solid fa-user-doctor"></i> ${escapeHtml(specialty)}</span>
+            ${emergency}
+          </div>
+          <div class="meta">
+            <i class="fa-solid fa-map-pin"></i> ${escapeHtml(addr)}<br>
+            ${phone ? `<i class="fa-solid fa-phone"></i> <b>${escapeHtml(phone)}</b><br>` : ""}
+            <i class="fa-regular fa-calendar"></i> Ngày khám: <b>${escapeHtml(date)}</b>
+          </div>
+          <div class="card-actions" onclick="event.stopPropagation()">
+            <button class="btn btn-primary" onclick="openBookingModal(${i})">
+              <i class="fa-solid fa-calendar-plus"></i> Đặt lịch khám
+            </button>
+            <button class="btn btn-secondary" onclick="findParkingNearHospital(${h.lat}, ${h.lon}, '${escapeJs(h.name)}')">
+              <i class="fa-solid fa-square-parking"></i> Bãi đỗ quanh viện
+            </button>
+            <a class="btn btn-teal" href="${directionsUrl}" target="_blank" rel="noopener">
+              <i class="fa-solid fa-diamond-turn-right"></i> Chỉ đường
+            </a>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderParking(items, vehicle) {
+    const box = document.getElementById("parkingResults");
+    if (!items.length) {
+      box.innerHTML = `<div class="empty"><i class="fa-solid fa-square-parking"></i>Không tìm thấy bãi đỗ xe phù hợp trong bán kính này. Hãy thử tăng bán kính lên 10 km.</div>`;
+      return;
+    }
+
+    const vehicleName = {
+      car: "🚗 Ô tô",
+      motorcycle: "🏍️ Xe máy",
+      electric: "⚡ Xe điện",
+      bicycle: "🚲 Xe đạp"
+    }[vehicle];
+
+    box.innerHTML = items.map((p, i) => {
+      const t = p.tags || {};
+      const isCharging = t.amenity === "charging_station";
+      const typeLabel = isCharging ? "⚡ Trạm sạc điện" : "🅿️ Bãi đỗ xe";
+      const originQuery = userLocation ? `&origin=${userLocation.lat},${userLocation.lon}` : "";
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1${originQuery}&destination=${p.lat},${p.lon}`;
+
+      return `
+        <div class="result-card" onclick="focusMarker(${i}, ${p.lat}, ${p.lon})">
+          <div class="result-top">
+            <h3>${escapeHtml(p.name)}</h3>
+            <span class="distance-pill">${p.distance.toFixed(2)} km</span>
+          </div>
+          <div class="badges">
+            <span class="badge">${vehicleName}</span>
+            <span class="badge">${typeLabel}</span>
+          </div>
+          <div class="meta">
+            ${t.capacity ? `Sức chứa: <b>${escapeHtml(t.capacity)} chỗ</b><br>` : ""}
+            ${t.fee ? `Thu phí: <b>${escapeHtml(t.fee === 'yes' ? 'Có thu phí' : t.fee)}</b><br>` : ""}
+            ${t.opening_hours ? `Giờ mở cửa: <b>${escapeHtml(t.opening_hours)}</b><br>` : ""}
+            Tọa độ: ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}
+          </div>
+          <div class="card-actions" onclick="event.stopPropagation()">
+            <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener">
+              <i class="fa-solid fa-route"></i> Dẫn đường từ vị trí thật
+            </a>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function showOnMap(items, type) {
+    if (!map || !window.vietmapgl) return;
+    clearMarkers();
+
+    const coords = [];
+    if (userLocation) {
+      coords.push([userLocation.lon, userLocation.lat]);
+    }
+
+    items.forEach((p) => {
+      const color = type === "hospital" ? "#ef4444" : "#0d9488";
+      const popup = new vietmapgl.Popup({ offset: 25 }).setHTML(
+        `<div style="min-width:190px;color:#0f172a">
+          <b>${escapeHtml(p.name)}</b><br>
+          <span>${type === "hospital" ? "🏥 Bệnh viện" : "🅿️ Bãi đỗ xe / Trạm sạc"}</span><br>
+          <span>📍 Cách bạn: <b>${p.distance.toFixed(2)} km</b></span>
+        </div>`
+      );
+      const marker = new vietmapgl.Marker({ color })
+        .setLngLat([p.lon, p.lat])
+        .setPopup(popup)
+        .addTo(map);
+
+      markers.push(marker);
+      coords.push([p.lon, p.lat]);
+    });
+
+    if (coords.length > 1) {
+      const bounds = coords.reduce((b, c) => b.extend(c), new vietmapgl.LngLatBounds(coords[0], coords[0]));
+      map.fitBounds(bounds, { padding: 65, maxZoom: 16 });
+    } else if (coords.length === 1) {
+      map.flyTo({ center: coords[0], zoom: 15 });
+    }
+  }
+
+  function focusMarker(index, lat, lon) {
+    if (!map) return;
+    map.flyTo({ center: [lon, lat], zoom: 17, essential: true });
+    if (markers[index]) {
+      markers[index].togglePopup();
+    }
+  }
+
+  // Tìm bãi đỗ xe xung quanh 1 bệnh viện cụ thể
+  function findParkingNearHospital(lat, lon, hospitalName) {
+    customParkingCenter = { lat, lon, name: hospitalName };
+    document.querySelector('[data-target="parkingSection"]').click();
+    const banner = document.getElementById("parkingContextBanner");
+    document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> Đang tìm bãi đỗ quanh: <b>${escapeHtml(hospitalName)}</b>`;
+    banner.style.display = "flex";
+    searchParking();
+  }
+
+  function resetParkingToUserGPS() {
+    customParkingCenter = null;
+    document.getElementById("parkingContextBanner").style.display = "none";
+    searchParking();
+  }
+
+  // Đặt lịch khám & lưu lịch hẹn
+  function openBookingModal(index) {
+    const h = lastHospitals[index];
+    if (!h) return;
+    selectedHospitalForBooking = h;
+    document.getElementById("bookingHospitalName").textContent = `${h.name} (${h.distance.toFixed(2)} km từ vị trí của bạn)`;
+    document.getElementById("bookingModal").classList.add("show");
+  }
+
+  function closeBookingModal() {
+    document.getElementById("bookingModal").classList.remove("show");
+  }
+
+  function submitBooking() {
+    const name = document.getElementById("patientName").value.trim() || "Khách đặt lịch";
+    const phone = document.getElementById("patientPhone").value.trim() || "Chưa cung cấp";
+    const slot = document.getElementById("bookingTimeSlot").value;
+    const vehicle = document.getElementById("bookingVehicle").value;
+    const specialty = document.getElementById("specialty").value;
+    const date = document.getElementById("date").value || "Hôm nay";
+
+    if (!selectedHospitalForBooking) return;
+
+    const code = "CP-" + Math.floor(100000 + Math.random() * 900000);
+    const bookings = JSON.parse(localStorage.getItem("cp_bookings") || "[]");
+    bookings.unshift({
+      code,
+      hospital: selectedHospitalForBooking.name,
+      lat: selectedHospitalForBooking.lat,
+      lon: selectedHospitalForBooking.lon,
+      specialty,
+      date,
+      slot,
+      patientName: name,
+      patientPhone: phone,
+      vehicle
+    });
+    localStorage.setItem("cp_bookings", JSON.stringify(bookings));
+
+    closeBookingModal();
+    renderAppointments();
+    showToast(`Đặt lịch thành công! Mã phiếu khám: #${code}`);
+    document.querySelector('[data-target="appointmentsSection"]').click();
+  }
+
+  function renderAppointments() {
+    const bookings = JSON.parse(localStorage.getItem("cp_bookings") || "[]");
+    document.getElementById("bookingCount").textContent = bookings.length;
+    const box = document.getElementById("appointmentsList");
+
+    if (!bookings.length) {
+      box.innerHTML = `<div class="empty"><i class="fa-solid fa-ticket"></i>Bạn chưa có phiếu đặt lịch khám nào.</div>`;
+      return;
+    }
+
+    box.innerHTML = bookings.map((b, idx) => `
+      <div class="result-card">
+        <div class="result-top">
+          <h3>${escapeHtml(b.hospital)}</h3>
+          <span class="distance-pill">#${escapeHtml(b.code)}</span>
+        </div>
+        <div class="badges">
+          <span class="badge"><i class="fa-solid fa-stethoscope"></i> ${escapeHtml(b.specialty)}</span>
+          <span class="badge"><i class="fa-solid fa-clock"></i> ${escapeHtml(b.slot)} | ${escapeHtml(b.date)}</span>
+        </div>
+        <div class="meta">
+          Bệnh nhân: <b>${escapeHtml(b.patientName)}</b> (${escapeHtml(b.patientPhone)})<br>
+          Phương tiện: <b>${escapeHtml(b.vehicle)}</b>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-secondary" onclick="findParkingNearHospital(${b.lat}, ${b.lon}, '${escapeJs(b.hospital)}')">
+            <i class="fa-solid fa-square-parking"></i> Tìm bãi đỗ quanh viện này
+          </button>
+          <button class="btn btn-secondary" style="color:var(--danger)" onclick="deleteBooking(${idx})">
+            <i class="fa-solid fa-trash"></i> Hủy phiếu
+          </button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function deleteBooking(index) {
+    const bookings = JSON.parse(localStorage.getItem("cp_bookings") || "[]");
+    bookings.splice(index, 1);
+    localStorage.setItem("cp_bookings", JSON.stringify(bookings));
+    renderAppointments();
+  }
+
+  // Chuyển Tabs
+  document.querySelectorAll(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.target).classList.add("active");
+      setTimeout(() => { if (map) map.resize(); }, 150);
+    });
+  });
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function escapeJs(value) {
+    return String(value ?? "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    initMap();
+    renderAppointments();
+  });
+</script>
+</body>
+</html>
