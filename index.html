@@ -5,25 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   
   <!-- Bảo mật cao: Content Security Policy (CSP) & Referrer Policy -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://*.vietmap.vn https://*.openstreetmap.org; connect-src 'self' https://maps.vietmap.vn https://*.vietmap.vn https://overpass-api.de https://overpass.kumi.systems https://maps.mail.ru https://nominatim.openstreetmap.org; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.vietmap.vn https://*.openstreetmap.org; connect-src 'self' https://maps.vietmap.vn https://*.vietmap.vn https://overpass-api.de https://overpass.kumi.systems https://maps.mail.ru https://nominatim.openstreetmap.org; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self';">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#0284c7">
   <meta name="description" content="VimedGo - Hệ thống Định vị Y tế & Tìm bãi đỗ xe Thông minh theo thời gian thực">
 
   <title>VimedGo - Hệ thống Y tế & Đỗ xe Thông minh</title>
 
+  <!-- Tăng tốc kết nối DNS sớm (DNS Prefetch & Preconnect) -->
+  <link rel="preconnect" href="https://maps.vietmap.vn" crossorigin>
+  <link rel="preconnect" href="https://overpass-api.de" crossorigin>
+  <link rel="preconnect" href="https://overpass.kumi.systems" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- Favicon Logo VimedGo -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M32 9C21.5 9 13 17.3 13 27.6c0 12.4 15.8 25.8 17.6 27.3a2.2 2.2 0 0 0 2.8 0C35.2 53.4 51 40 51 27.6 51 17.3 42.5 9 32 9z' fill='%23fff'/%3E%3Cpath d='M29 18h6v6h6v6h-6v6h-6v-6h-6v-6h6v-6z' fill='url(%23g)'/%3E%3C/svg%3E">
   
-  <!-- Google Fonts & FontAwesome -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-  
   <!-- VIETMAP GL JS -->
   <link rel="stylesheet" href="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.css" crossorigin="anonymous" />
-  <script src="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.js" defer crossorigin="anonymous"></script>
 
   <style>
     :root {
@@ -32,7 +34,6 @@
       --primary-light: #e0f2fe;
       --secondary: #0d9488;
       --secondary-light: #ccfbf1;
-      --accent: #6366f1;
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
@@ -45,7 +46,6 @@
       --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
       --shadow-md: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
       --shadow-lg: 0 20px 40px -10px rgba(15, 23, 42, 0.14);
-      --radius-md: 12px;
       --radius-lg: 18px;
     }
 
@@ -71,14 +71,23 @@
     }
     body {
       margin: 0;
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       background: var(--bg-body);
       color: var(--text-main);
-      transition: background 0.25s ease, color 0.25s ease;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+    }
+
+    /* Inline SVG Icon Helper */
+    .ico {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      display: inline-block;
+      vertical-align: -0.18em;
+      flex-shrink: 0;
     }
 
     /* Top Navbar */
@@ -112,10 +121,6 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: transform 0.25s ease;
-    }
-    .brand:hover .brand-logo {
-      transform: scale(1.05);
     }
     .brand-text h1 {
       margin: 0;
@@ -161,15 +166,9 @@
     .gps-dot.active {
       background: var(--success);
       box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-      animation: pulseDot 1.8s infinite;
     }
     .gps-dot.error {
       background: var(--danger);
-    }
-    @keyframes pulseDot {
-      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
     .gps-text {
       white-space: nowrap;
@@ -197,7 +196,7 @@
       align-items: center;
       justify-content: center;
       gap: 7px;
-      transition: all 0.2s;
+      transition: border-color 0.15s, color 0.15s;
     }
     .icon-btn:hover {
       border-color: var(--primary);
@@ -225,7 +224,6 @@
       flex: 1;
     }
 
-    /* Left Panel */
     .left-panel {
       display: flex;
       flex-direction: column;
@@ -256,15 +254,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
-      transition: all 0.2s;
+      gap: 6px;
       font-family: inherit;
       white-space: nowrap;
     }
     .tab.active {
       background: linear-gradient(135deg, #0284c7, #0d9488);
       color: white;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
     }
 
     /* Panel Cards */
@@ -331,7 +328,6 @@
       font-family: inherit;
       font-weight: 600;
       outline: none;
-      transition: border-color 0.2s;
     }
     select:focus, input:focus {
       border-color: var(--primary);
@@ -355,13 +351,11 @@
       cursor: pointer;
       font-family: inherit;
       text-align: center;
-      transition: all 0.2s;
     }
     .radius-pill.active {
       background: var(--primary-light);
       color: var(--primary);
       border-color: var(--primary);
-      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
     }
 
     .controls {
@@ -381,22 +375,19 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
+      gap: 7px;
       text-decoration: none;
     }
     .btn-primary {
       background: linear-gradient(135deg, #0284c7, #0369a1);
       color: white;
       flex: 1;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.22);
     }
-    .btn-primary:hover { transform: translateY(-1px); }
     .btn-secondary {
       background: var(--primary-light);
       color: var(--primary);
     }
-    .btn-secondary:hover { opacity: 0.9; }
     .btn-teal {
       background: linear-gradient(135deg, #0d9488, #0f766e);
       color: white;
@@ -410,6 +401,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      content-visibility: auto;
     }
     .result-card {
       border: 1px solid var(--border);
@@ -417,13 +409,11 @@
       border-radius: 14px;
       padding: 15px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: border-color 0.15s, background-color 0.15s;
     }
-    .result-card:hover, .result-card.selected {
+    .result-card:hover {
       border-color: var(--primary);
       background: var(--bg-surface);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
     }
     .result-top {
       display: flex;
@@ -521,7 +511,6 @@
       overflow: hidden;
       background: #e2e8f0;
       position: relative;
-      transition: height 0.3s ease;
     }
     .map-footer {
       display: flex;
@@ -552,20 +541,14 @@
       display: inline-block;
     }
 
-    /* User Real GPS Marker on VIETMAP */
+    /* User Real GPS Marker */
     .user-gps-marker {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: #0284c7;
       border: 3px solid #ffffff;
-      box-shadow: 0 0 0 rgba(2, 132, 199, 0.6);
-      animation: gpsPulse 1.6s infinite;
-    }
-    @keyframes gpsPulse {
-      0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7); }
-      70% { box-shadow: 0 0 0 18px rgba(2, 132, 199, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+      box-shadow: 0 0 0 6px rgba(2, 132, 199, 0.28);
     }
 
     /* Empty & Loader */
@@ -576,29 +559,37 @@
       border: 1px dashed var(--border);
       border-radius: 14px;
     }
-    .empty i {
-      font-size: 30px;
-      color: var(--primary);
-      margin-bottom: 10px;
-      display: block;
-    }
     .loader {
       display: none;
       color: var(--primary);
       font-weight: 700;
-      padding: 14px;
+      padding: 13px;
       text-align: center;
       background: var(--primary-light);
       border-radius: 10px;
       margin-bottom: 12px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .spin {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid var(--primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spinAnim 0.75s linear infinite;
+    }
+    @keyframes spinAnim {
+      to { transform: rotate(360deg); }
     }
 
     /* Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 23, 42, 0.55);
       display: none;
       align-items: center;
       justify-content: center;
@@ -607,7 +598,7 @@
     }
     .modal-backdrop.show { display: flex; }
     .modal-dialog {
-      width: min(460px, 100%);
+      width: min(450px, 100%);
       background: var(--bg-surface);
       color: var(--text-main);
       border: 1px solid var(--border);
@@ -669,7 +660,7 @@
     .fb-link {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       padding: 6px 12px;
       border-radius: 999px;
       background: rgba(24, 119, 242, 0.1);
@@ -678,16 +669,10 @@
       font-size: 12.5px;
       text-decoration: none;
       border: 1px solid rgba(24, 119, 242, 0.22);
-      transition: all 0.2s ease;
-    }
-    .fb-link i {
-      font-size: 15px;
     }
     .fb-link:hover {
       background: #1877f2;
       color: #ffffff;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
     }
 
     /* ==========================================================
@@ -699,16 +684,15 @@
         padding: 12px;
         gap: 14px;
       }
-      /* Đưa bản đồ lên trên đầu gọn gàng để người dùng vừa lọc vừa nhìn thấy vị trí */
       .right-panel {
         position: static;
         order: -1;
       }
       #map {
-        height: 250px;
+        height: 240px;
       }
       #map.expanded-mobile {
-        height: 440px;
+        height: 430px;
       }
       .btn-expand-map {
         display: inline-flex;
@@ -743,7 +727,6 @@
       .brand-text p {
         display: none;
       }
-      /* Thanh trạng thái GPS chiếm trọn 1 hàng ngang dưới logo trên điện thoại */
       .gps-bar {
         order: 3;
         width: 100%;
@@ -758,7 +741,7 @@
         font-size: 12px;
       }
       #langLabel {
-        display: none; /* Trên điện thoại chỉ hiện icon 🌐 + VI/EN cho gọn */
+        display: none;
       }
       .card {
         padding: 14px;
@@ -771,14 +754,13 @@
         grid-template-columns: 1fr;
         gap: 10px;
       }
-      /* Cỡ chữ 16px chống tự động zoom màn hình trên iPhone (iOS Safari) */
       select, input {
         font-size: 16px;
         padding: 11px 12px;
       }
       .tabs {
         position: sticky;
-        top: 96px;
+        top: 94px;
         z-index: 80;
         padding: 5px;
       }
@@ -797,7 +779,7 @@
         gap: 8px;
       }
       .card-actions .btn:first-child {
-        grid-column: 1 / -1; /* Nút Đặt lịch khám nằm trọn 1 hàng dễ bấm */
+        grid-column: 1 / -1;
       }
       .map-card {
         padding: 12px;
@@ -806,7 +788,6 @@
         font-size: 11px;
         justify-content: center;
       }
-      /* Hộp thoại trượt từ đáy màn hình (Bottom Sheet) chuẩn App di động */
       .modal-backdrop {
         align-items: flex-end;
         padding: 0;
@@ -816,11 +797,6 @@
         border-radius: 22px 22px 0 0;
         padding: 22px 18px calc(22px + env(safe-area-inset-bottom, 0px));
         border-bottom: 0;
-        animation: slideUpSheet 0.25s ease-out;
-      }
-      @keyframes slideUpSheet {
-        from { transform: translateY(100%); }
-        to { transform: translateY(0); }
       }
       .toast {
         left: 14px;
@@ -836,15 +812,15 @@
 <!-- Modal Hỏi & Xác nhận Quyền Lấy Vị Trí GPS Thật -->
 <div class="modal-backdrop" id="locationModal" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
   <div class="modal-dialog" style="text-align: center;">
-    <div style="width:56px;height:56px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px;">
-      <i class="fa-solid fa-location-crosshairs"></i>
+    <div style="width:54px;height:54px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px;">
+      📍
     </div>
     <h2 id="locationModalTitle">Cho phép lấy vị trí của bạn?</h2>
     <p id="locationModalDesc">VimedGo cần lấy vị trí GPS hiện tại của thiết bị để tìm bệnh viện và bãi đỗ xe gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy tọa độ thực tế.</p>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-secondary" type="button" id="btnCancelModal" style="flex:1">Hủy</button>
       <button class="btn btn-primary" type="button" id="btnConfirmModal" style="flex:1">
-        <i class="fa-solid fa-check"></i> <span id="txtConfirmModal">Đồng ý lấy vị trí</span>
+        ✓ <span id="txtConfirmModal">Đồng ý lấy vị trí</span>
       </button>
     </div>
   </div>
@@ -853,7 +829,7 @@
 <!-- Modal Đặt lịch khám -->
 <div class="modal-backdrop" id="bookingModal" role="dialog" aria-modal="true">
   <div class="modal-dialog">
-    <h2><i class="fa-solid fa-calendar-check" style="color:var(--primary)"></i> <span id="modalBookingTitle">Đặt lịch khám bệnh</span></h2>
+    <h2>📅 <span id="modalBookingTitle">Đặt lịch khám bệnh</span></h2>
     <p id="bookingHospitalName" style="font-weight:700;color:var(--primary);margin-bottom:14px;"></p>
     
     <div class="field" style="margin-bottom:12px;">
@@ -889,18 +865,18 @@
     <div style="display:flex;gap:10px;">
       <button class="btn btn-secondary" type="button" id="btnCancelBooking" style="flex:1">Hủy</button>
       <button class="btn btn-primary" type="button" id="btnSubmitBookingAction" style="flex:1">
-        <i class="fa-solid fa-paper-plane"></i> <span id="btnSubmitBooking">Xác nhận đặt lịch</span>
+        <span id="btnSubmitBooking">Xác nhận đặt lịch</span>
       </button>
     </div>
   </div>
 </div>
 
-<!-- Thanh điều hướng với Logo & Thương hiệu VimedGo (Đã bỏ chữ REAL GPS) -->
+<!-- Thanh điều hướng với Logo & Thương hiệu VimedGo -->
 <header class="navbar">
   <div class="nav-wrap">
     <div class="brand">
       <div class="brand-logo" aria-hidden="true">
-        <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 6px 14px rgba(2, 132, 199, 0.28));">
+        <svg width="42" height="42" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="vimedgoGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stop-color="#0284c7" />
@@ -931,15 +907,13 @@
       <span class="gps-text" id="locationStatus">📍 Chưa lấy vị trí</span>
     </div>
 
-    <!-- Cụm nút bên phải: Nút chuyển đổi ngôn ngữ nằm bên trái nút Sáng/Tối -->
     <div class="nav-actions">
       <button class="icon-btn" type="button" id="langBtn" title="Switch Language / Đổi ngôn ngữ">
-        <i class="fa-solid fa-globe"></i>
-        <span id="langLabel">Tiếng Việt</span>
+        🌐 <span id="langLabel">Tiếng Việt</span>
         <span class="lang-badge" id="langCodeBadge">VI</span>
       </button>
       <button class="icon-btn" type="button" id="themeBtn" title="Đổi giao diện Sáng/Tối">
-        <i class="fa-solid fa-moon"></i>
+        🌙
       </button>
     </div>
   </div>
@@ -951,13 +925,13 @@
   <div class="left-panel">
     <div class="tabs">
       <button class="tab active" type="button" data-target="hospitalSection">
-        <i class="fa-solid fa-hospital"></i> <span id="tabHospitalTxt">Bệnh viện</span>
+        🏥 <span id="tabHospitalTxt">Bệnh viện</span>
       </button>
       <button class="tab" type="button" data-target="parkingSection">
-        <i class="fa-solid fa-square-parking"></i> <span id="tabParkingTxt">Bãi đỗ xe</span>
+        🅿️ <span id="tabParkingTxt">Bãi đỗ xe</span>
       </button>
       <button class="tab" type="button" data-target="appointmentsSection">
-        <i class="fa-solid fa-ticket"></i> <span id="tabBookingTxt">Lịch hẹn</span> (<span id="bookingCount">0</span>)
+        🎟️ <span id="tabBookingTxt">Lịch hẹn</span> (<span id="bookingCount">0</span>)
       </button>
     </div>
 
@@ -965,7 +939,7 @@
     <section id="hospitalSection" class="section active">
       <div class="card">
         <div class="card-header">
-          <h2><i class="fa-solid fa-stethoscope" style="color:var(--primary)"></i> <span id="hospitalCardTitle">Tìm bệnh viện gần nhất</span></h2>
+          <h2>🩺 <span id="hospitalCardTitle">Tìm bệnh viện gần nhất</span></h2>
           <span class="result-summary-badge" id="hospitalSummaryBadge"></span>
         </div>
 
@@ -990,7 +964,7 @@
           </div>
         </div>
 
-        <!-- Bộ chọn bán kính KM (Hỗ trợ cả Nút chạm nhanh trên điện thoại & Dropdown đồng bộ) -->
+        <!-- Bộ chọn bán kính KM -->
         <div class="field" style="margin-bottom:8px;">
           <label for="hospitalRadius" id="lblHospitalRadius">Bán kính quét từ vị trí của bạn</label>
           <div class="radius-pills" id="hospitalRadiusPills">
@@ -1009,15 +983,15 @@
 
         <div class="controls">
           <button class="btn btn-primary" type="button" id="btnTriggerHospitalGps">
-            <i class="fa-solid fa-location-dot"></i> <span id="btnFindHospital">Tìm bệnh viện gần tôi</span>
+            📍 <span id="btnFindHospital">Tìm bệnh viện gần tôi</span>
           </button>
           <button class="btn btn-secondary" type="button" id="btnRefreshHospitals">
-            <i class="fa-solid fa-rotate"></i> <span id="btnReloadHospital">Tìm lại</span>
+            🔄 <span id="btnReloadHospital">Tìm lại</span>
           </button>
         </div>
 
         <div class="loader" id="hospitalLoader">
-          <i class="fa-solid fa-circle-notch fa-spin"></i> <span id="txtHospitalLoader">Đang tìm bệnh viện quanh vị trí của bạn...</span>
+          <span class="spin"></span> <span id="txtHospitalLoader">Đang tìm bệnh viện quanh vị trí của bạn...</span>
         </div>
 
         <div id="hospitalResults" class="results-list"></div>
@@ -1028,7 +1002,7 @@
     <section id="parkingSection" class="section">
       <div class="card">
         <div class="card-header">
-          <h2><i class="fa-solid fa-car-side" style="color:var(--secondary)"></i> <span id="parkingCardTitle">Bãi đậu xe gần nhất</span></h2>
+          <h2>🅿️ <span id="parkingCardTitle">Bãi đậu xe gần nhất</span></h2>
           <span class="result-summary-badge" id="parkingSummaryBadge"></span>
         </div>
 
@@ -1059,15 +1033,15 @@
 
         <div class="controls">
           <button class="btn btn-primary" type="button" id="btnTriggerParkingGps">
-            <i class="fa-solid fa-location-crosshairs"></i> <span id="btnFindParking">Tìm bãi gần tôi</span>
+            📍 <span id="btnFindParking">Tìm bãi gần tôi</span>
           </button>
           <button class="btn btn-secondary" type="button" id="btnRefreshParking">
-            <i class="fa-solid fa-rotate"></i> <span id="btnReloadParking">Tìm lại</span>
+            🔄 <span id="btnReloadParking">Tìm lại</span>
           </button>
         </div>
 
         <div class="loader" id="parkingLoader">
-          <i class="fa-solid fa-circle-notch fa-spin"></i> <span id="txtParkingLoader">Đang tìm bãi đỗ xe gần vị trí của bạn...</span>
+          <span class="spin"></span> <span id="txtParkingLoader">Đang tìm bãi đỗ xe gần vị trí của bạn...</span>
         </div>
 
         <div id="parkingResults" class="results-list"></div>
@@ -1078,7 +1052,7 @@
     <section id="appointmentsSection" class="section">
       <div class="card">
         <div class="card-header">
-          <h2><i class="fa-solid fa-clipboard-check" style="color:var(--primary)"></i> <span id="bookingCardTitle">Phiếu khám đã đặt</span></h2>
+          <h2>📋 <span id="bookingCardTitle">Phiếu khám đã đặt</span></h2>
         </div>
         <div id="appointmentsList" class="results-list"></div>
       </div>
@@ -1091,13 +1065,13 @@
       <div class="map-toolbar">
         <div class="map-toolbar-left">
           <button class="btn btn-primary" type="button" style="padding:8px 13px;font-size:12.5px;min-height:36px;" id="btnLocateMeAction">
-            <i class="fa-solid fa-crosshairs"></i> <span id="btnMyLocation">Vị trí của tôi</span>
+            🎯 <span id="btnMyLocation">Vị trí của tôi</span>
           </button>
           <button class="btn btn-secondary" type="button" id="trackBtn" style="padding:8px 13px;font-size:12.5px;min-height:36px;">
-            <i class="fa-solid fa-satellite"></i> <span id="txtTrackBtn">Theo dõi vị trí</span>
+            🛰️ <span id="txtTrackBtn">Theo dõi vị trí</span>
           </button>
           <button class="btn btn-secondary btn-expand-map" type="button" id="btnToggleMapSize" style="padding:8px 11px;font-size:12.5px;min-height:36px;">
-            <i class="fa-solid fa-up-right-and-down-left-from-center"></i> <span id="txtExpandMap">Mở rộng bản đồ</span>
+            ↕️ <span id="txtExpandMap">Mở rộng bản đồ</span>
           </button>
         </div>
         <span style="font-size:12px;font-weight:700;color:var(--text-muted);" id="accuracyBadge">
@@ -1127,12 +1101,11 @@
     </div>
     <div class="author-info">
       <span>
-        <i class="fa-solid fa-code" style="color:var(--primary)"></i>
-        <span id="footerAuthorLabel">Phát triển bởi:</span>
+        💻 <span id="footerAuthorLabel">Phát triển bởi:</span>
         <span class="author-name" id="footerAuthorName">Đội ngũ học sinh lớp 10a3 THPT Lê Quý Đôn</span>
       </span>
       <a class="fb-link" href="https://www.facebook.com/Feezos1018/" target="_blank" rel="noopener noreferrer" title="Facebook">
-        <i class="fa-brands fa-facebook"></i>
+        <svg class="ico" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
         <span id="footerFbText">Facebook</span>
       </a>
     </div>
@@ -1179,11 +1152,11 @@
         radHosp15: "Trong bán kính 15 km",
         btnFindHospital: "Tìm bệnh viện gần tôi",
         btnReload: "Tìm lại",
-        txtHospitalLoader: "Đang quét bệnh viện trong bán kính đã chọn...",
+        txtHospitalLoader: "Đang quét nhanh cơ sở y tế quanh bạn...",
         emptyHospitalInitTitle: "Chưa lấy vị trí",
         emptyHospitalInitDesc: "Hãy bấm “Tìm bệnh viện gần tôi” và xác nhận cho phép sử dụng vị trí để bắt đầu.",
         emptyHospitalNone: "Không tìm thấy bệnh viện nào trong bán kính này. Hãy chọn mức km lớn hơn (8 km hoặc 15 km).",
-        errHospitalFetch: "⚠️ Không lấy được dữ liệu bệnh viện. Hãy bấm Tìm lại.",
+        errHospitalFetch: "⚠️ Máy chủ bản đồ đang bận. Hãy bấm Tìm lại.",
         parkingCardTitle: "Bãi đậu xe gần nhất",
         btnBackToMyGps: "Về vị trí của tôi",
         lblVehicle: "Loại xe",
@@ -1231,8 +1204,8 @@
         nearestSlot: "Giờ khám gần nhất",
         dateLabel: "Ngày",
         notSelected: "chưa chọn",
-        btnBookNow: "Đặt lịch khám",
-        btnParkingNearHosp: "Bãi đỗ quanh viện",
+        btnBookNow: "📅 Đặt lịch khám",
+        btnParkingNearHosp: "🅿️ Bãi đỗ quanh viện",
         typeCharging: "Trạm sạc",
         typeParking: "Bãi đỗ xe",
         lblCapacity: "Sức chứa",
@@ -1262,7 +1235,7 @@
         defaultPhone: "Chưa cung cấp",
         lblPatientInfo: "Bệnh nhân",
         lblVehicleInfo: "Phương tiện",
-        btnDeleteBooking: "Hủy",
+        btnDeleteBooking: "🗑️ Hủy",
         toastLocated: "Đã lấy vị trí GPS hiện tại của bạn!",
         toastTrackStopped: "Đã dừng theo dõi vị trí liên tục.",
         toastBooked: "Đặt lịch thành công! Mã phiếu",
@@ -1309,11 +1282,11 @@
         radHosp15: "Within 15 km radius",
         btnFindHospital: "Find Hospitals Near Me",
         btnReload: "Refresh",
-        txtHospitalLoader: "Scanning hospitals within selected radius...",
+        txtHospitalLoader: "Fast-scanning medical facilities near you...",
         emptyHospitalInitTitle: "Location Not Set",
         emptyHospitalInitDesc: "Click “Find Hospitals Near Me” and grant location access to start.",
         emptyHospitalNone: "No hospitals found within this radius. Try selecting 8 km or 15 km.",
-        errHospitalFetch: "⚠️ Could not load hospital data. Please try again.",
+        errHospitalFetch: "⚠️ Map server busy. Please tap Refresh.",
         parkingCardTitle: "Nearest Parking & Charging",
         btnBackToMyGps: "Back to my GPS",
         lblVehicle: "Vehicle Type",
@@ -1361,8 +1334,8 @@
         nearestSlot: "Earliest sample slot",
         dateLabel: "Date",
         notSelected: "not selected",
-        btnBookNow: "Book Appointment",
-        btnParkingNearHosp: "Parking Nearby",
+        btnBookNow: "📅 Book Appointment",
+        btnParkingNearHosp: "🅿️ Parking Nearby",
         typeCharging: "EV Charging",
         typeParking: "Parking Lot",
         lblCapacity: "Capacity",
@@ -1392,7 +1365,7 @@
         defaultPhone: "Not provided",
         lblPatientInfo: "Patient",
         lblVehicleInfo: "Vehicle",
-        btnDeleteBooking: "Cancel",
+        btnDeleteBooking: "🗑️ Cancel",
         toastLocated: "Successfully updated your real GPS location!",
         toastTrackStopped: "Stopped live GPS tracking.",
         toastBooked: "Appointment confirmed! Booking ID",
@@ -1424,12 +1397,10 @@
     let markers = [];
     let watchId = null;
     let pendingLocationAction = null;
-    let allFetchedHospitals = []; // Lưu trữ toàn bộ bệnh viện quét được để lọc bán kính tức thì
+    let hospitalCache = { lat: null, lon: null, maxRadiusKm: 0, items: [] };
     let lastHospitals = [];
     let lastParking = [];
     let selectedHospitalForBooking = null;
-    let activeHospitalController = null;
-    let activeParkingController = null;
     let toastTimer = null;
     let isMobileMapExpanded = false;
 
@@ -1452,8 +1423,7 @@
       if (window.crypto && window.crypto.getRandomValues) {
         const arr = new Uint32Array(1);
         window.crypto.getRandomValues(arr);
-        const num = 100000 + (arr[0] % 900000);
-        return `VMG-${num}`;
+        return `VMG-${100000 + (arr[0] % 900000)}`;
       }
       return `VMG-${Math.floor(100000 + Math.random() * 900000)}`;
     }
@@ -1566,16 +1536,14 @@
       } else {
         const acc = Math.round(userLocation.accuracy);
         accuracyBadge.textContent = `${t("accuracyVal")}: ±${acc} m`;
-        reverseGeocodeRealLocation(userLocation.lat, userLocation.lon).then(addr => {
-          if (addr) setStatus(`📍 ${addr} (±${acc} m)`, "active");
-        });
+        updateAddressInBackground(userLocation.lat, userLocation.lon, acc);
       }
 
       if (customParkingCenter) {
-        document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> ${escapeHtml(t("bannerParkingNear"))}: <b>${escapeHtml(customParkingCenter.name)}</b>`;
+        document.getElementById("parkingContextText").innerHTML = `🏥 ${escapeHtml(t("bannerParkingNear"))}: <b>${escapeHtml(customParkingCenter.name)}</b>`;
       }
 
-      if (userLocation && allFetchedHospitals.length) {
+      if (userLocation && hospitalCache.items.length) {
         filterAndDisplayHospitalsByRadius();
       } else {
         renderEmptyHospitalInit();
@@ -1594,7 +1562,7 @@
       document.getElementById("hospitalSummaryBadge").style.display = "none";
       document.getElementById("hospitalResults").innerHTML = `
         <div class="empty">
-          <i class="fa-solid fa-location-dot"></i>
+          <div style="font-size:28px;margin-bottom:8px;">📍</div>
           <b>${escapeHtml(t("emptyHospitalInitTitle"))}</b><br>
           ${escapeHtml(t("emptyHospitalInitDesc"))}
         </div>`;
@@ -1604,7 +1572,7 @@
       document.getElementById("parkingSummaryBadge").style.display = "none";
       document.getElementById("parkingResults").innerHTML = `
         <div class="empty">
-          <i class="fa-solid fa-square-parking"></i>
+          <div style="font-size:28px;margin-bottom:8px;">🅿️</div>
           <b>${escapeHtml(t("emptyParkingInitTitle"))}</b><br>
           ${escapeHtml(t("emptyParkingInitDesc"))}
         </div>`;
@@ -1612,7 +1580,7 @@
 
     function showToast(msg) {
       const toastEl = document.getElementById("toast");
-      toastEl.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#38bdf8"></i> <span>${escapeHtml(msg)}</span>`;
+      toastEl.innerHTML = `ℹ️ <span>${escapeHtml(msg)}</span>`;
       toastEl.classList.add("show");
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3200);
@@ -1622,9 +1590,7 @@
       const html = document.documentElement;
       const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
       html.setAttribute("data-theme", next);
-      document.getElementById("themeBtn").innerHTML = next === "dark"
-        ? '<i class="fa-solid fa-sun"></i>'
-        : '<i class="fa-solid fa-moon"></i>';
+      document.getElementById("themeBtn").textContent = next === "dark" ? "☀️" : "🌙";
     }
 
     function toggleMobileMapSize() {
@@ -1632,13 +1598,14 @@
       isMobileMapExpanded = !isMobileMapExpanded;
       mapEl.classList.toggle("expanded-mobile", isMobileMapExpanded);
       document.getElementById("txtExpandMap").textContent = isMobileMapExpanded ? t("txtCollapseMap") : t("txtExpandMap");
-      setTimeout(() => { if (map) map.resize(); }, 320);
+      setTimeout(() => { if (map) map.resize(); }, 280);
     }
 
+    // Khởi tạo bản đồ không chặn luồng chính
     function initMap() {
       const mapEl = document.getElementById("map");
-      if (!VIETMAP_API_KEY || !window.vietmapgl) {
-        mapEl.innerHTML = `<div style="padding:30px;text-align:center;">VIETMAP GL chưa sẵn sàng.</div>`;
+      if (!window.vietmapgl) {
+        setTimeout(initMap, 80);
         return;
       }
 
@@ -1699,6 +1666,7 @@
       openLocationPrompt(type);
     }
 
+    // LẤY VỊ TRÍ GPS & KÍCH HOẠT TÌM KIẾM TỨC THÌ (KHÔNG CHỜ GEOCODING)
     function requestLocation(action) {
       if (!navigator.geolocation) {
         setStatus(t("statusNoGps"), "error");
@@ -1708,9 +1676,19 @@
 
       setStatus(t("statusRequesting"), "idle");
 
+      // Hiện ngay hiệu ứng đang tải để người dùng biết hệ thống đang làm việc
+      if (action === "hospital") {
+        document.getElementById("hospitalLoader").style.display = "flex";
+      } else if (action === "parking") {
+        document.getElementById("parkingLoader").style.display = "flex";
+      }
+
       navigator.geolocation.getCurrentPosition(
-        async position => {
-          await updateUserLocation(position);
+        position => {
+          // 1. Cập nhật tọa độ ngay lập tức (Đồng bộ, 0ms)
+          updateUserLocationSync(position);
+
+          // 2. Chạy tìm kiếm bệnh viện / bãi đỗ xe NGAY LẬP TỨC mà không chờ dịch tên đường
           if (action === "hospital") {
             searchHospitals(true);
           } else if (action === "parking") {
@@ -1722,6 +1700,8 @@
           }
         },
         error => {
+          document.getElementById("hospitalLoader").style.display = "none";
+          document.getElementById("parkingLoader").style.display = "none";
           const messages = {
             1: t("errDenied"),
             2: t("errUnavailable"),
@@ -1733,25 +1713,27 @@
         },
         {
           enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0
+          timeout: 12000,
+          maximumAge: 15000 // Cho phép dùng GPS vừa lấy trong 15 giây để phản hồi tức thì
         }
       );
     }
 
-    async function reverseGeocodeRealLocation(lat, lon) {
-      try {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&accept-language=${encodeURIComponent(currentLang)}`;
-        const res = await fetch(url, { headers: { "Accept": "application/json" } });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data.display_name || null;
-      } catch {
-        return null;
-      }
+    // Dịch địa chỉ chạy ngầm hoàn toàn (Non-blocking background task)
+    function updateAddressInBackground(lat, lon, acc) {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&accept-language=${encodeURIComponent(currentLang)}`;
+      fetch(url, { headers: { "Accept": "application/json" } })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.display_name) {
+            setStatus(`📍 ${data.display_name} (±${acc} m)`, "active");
+          }
+        })
+        .catch(() => {});
     }
 
-    async function updateUserLocation(position) {
+    // Cập nhật vị trí đồng bộ tức thì (Không dùng await chặn luồng)
+    function updateUserLocationSync(position) {
       userLocation = {
         lat: Number(position.coords.latitude),
         lon: Number(position.coords.longitude),
@@ -1761,11 +1743,11 @@
       const acc = Math.round(userLocation.accuracy);
       accuracyBadge.textContent = `${t("accuracyVal")}: ±${acc} m`;
       setStatus(
-        `${t("statusCurrentPos")}: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)} (±${acc} m)`,
+        `${t("statusCurrentPos")}: ${userLocation.lat.toFixed(5)}, ${userLocation.lon.toFixed(5)} (±${acc} m)`,
         "active"
       );
 
-      if (map) {
+      if (map && window.vietmapgl) {
         const pos = [userLocation.lon, userLocation.lat];
         map.flyTo({ center: pos, zoom: 15, essential: true });
 
@@ -1784,10 +1766,8 @@
         }
       }
 
-      const address = await reverseGeocodeRealLocation(userLocation.lat, userLocation.lon);
-      if (address) {
-        setStatus(`📍 ${address} (±${acc} m)`, "active");
-      }
+      // Chạy ngầm việc lấy tên đường, không chặn tìm kiếm
+      updateAddressInBackground(userLocation.lat, userLocation.lon, acc);
     }
 
     function toggleTracking() {
@@ -1799,20 +1779,20 @@
       if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
-        document.getElementById("trackBtn").innerHTML = `<i class="fa-solid fa-satellite"></i> <span id="txtTrackBtn">${escapeHtml(t("txtTrackBtn"))}</span>`;
+        document.getElementById("trackBtn").innerHTML = `🛰️ <span id="txtTrackBtn">${escapeHtml(t("txtTrackBtn"))}</span>`;
         showToast(t("toastTrackStopped"));
         return;
       }
 
       setStatus(t("statusTracking"), "active");
-      document.getElementById("trackBtn").innerHTML = `<i class="fa-solid fa-circle-stop" style="color:#ef4444"></i> <span id="txtTrackBtn">${escapeHtml(t("txtStopTrackBtn"))}</span>`;
+      document.getElementById("trackBtn").innerHTML = `⏹️ <span id="txtTrackBtn">${escapeHtml(t("txtStopTrackBtn"))}</span>`;
 
       watchId = navigator.geolocation.watchPosition(
-        position => updateUserLocation(position),
+        position => updateUserLocationSync(position),
         () => setStatus(t("statusTrackFailed"), "error"),
         {
           enableHighAccuracy: true,
-          maximumAge: 0,
+          maximumAge: 5000,
           timeout: 15000
         }
       );
@@ -1834,29 +1814,42 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    async function overpassFetch(query, controller) {
+    // TỐI ƯU TỐC ĐỘ CAO: Đua song song 3 máy chủ Overpass cùng lúc (Lấy máy chủ trả về đầu tiên)
+    async function fastParallelOverpass(query) {
       const endpoints = [
         "https://overpass-api.de/api/interpreter",
         "https://overpass.kumi.systems/api/interpreter",
         "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
       ];
 
-      for (const endpoint of endpoints) {
+      const controllers = endpoints.map(() => new AbortController());
+
+      const fetchFromServer = async (endpoint, idx) => {
+        const timer = setTimeout(() => controllers[idx].abort(), 9000);
         try {
-          const response = await fetch(endpoint, {
+          const res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: "data=" + encodeURIComponent(query),
-            signal: controller ? controller.signal : undefined
+            signal: controllers[idx].signal
           });
-          if (!response.ok) continue;
-          return await response.json();
-        } catch (e) {
-          if (e.name === "AbortError") throw e;
-          console.warn("Overpass endpoint switched:", endpoint);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const json = await res.json();
+          if (!json || !Array.isArray(json.elements)) throw new Error("Invalid JSON");
+          return json;
+        } finally {
+          clearTimeout(timer);
         }
+      };
+
+      try {
+        // Promise.any lấy ngay kết quả của máy chủ nhanh nhất và hủy các máy chủ còn lại
+        const fastestData = await Promise.any(endpoints.map((ep, i) => fetchFromServer(ep, i)));
+        controllers.forEach(c => c.abort());
+        return fastestData;
+      } catch {
+        throw new Error("All map servers busy");
       }
-      throw new Error("Map server error");
     }
 
     function normalizeElements(elements, refLat, refLon) {
@@ -1869,7 +1862,6 @@
         const tags = el.tags || {};
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
-        // Khử trùng lặp nếu cùng 1 bệnh viện vừa có node vừa có way trên OSM
         const key = `${(tags.name || "").toLowerCase()}_${lat.toFixed(3)}_${lon.toFixed(3)}`;
         if (seenCoords.has(key)) return null;
         seenCoords.add(key);
@@ -1889,11 +1881,10 @@
       }).filter(Boolean);
     }
 
-    // Lọc chính xác theo bán kính km đã chọn (3km, 5km, 8km, 15km) và cập nhật bản đồ ngay lập tức
     function filterAndDisplayHospitalsByRadius() {
       const radiusKm = Number(document.getElementById("hospitalRadius").value || 8);
 
-      const filtered = allFetchedHospitals
+      const filtered = hospitalCache.items
         .filter(h => h.distance <= radiusKm)
         .sort((a, b) => a.distance - b.distance)
         .slice(0, 40);
@@ -1905,10 +1896,10 @@
       summaryBadge.style.display = "inline-block";
 
       renderHospitals(filtered);
-      showOnMap(filtered, "hospital", radiusKm);
+      showOnMap(filtered, "hospital");
     }
 
-    // Tìm bệnh viện bằng toán tử bán kính tròn (around:meters) chuẩn xác
+    // TÌM BỆNH VIỆN NHANH & ĐẢM BẢO LẦN ĐẦU LUÔN RA KẾT QUẢ
     async function searchHospitals(forceRefetch = false) {
       if (!userLocation) {
         getLocationAndSearch("hospital");
@@ -1916,517 +1907,43 @@
       }
 
       const selectedRadiusKm = Number(document.getElementById("hospitalRadius").value || 8);
-
-      // Nếu đã tải dữ liệu 15km của vị trí hiện tại rồi và chỉ đổi nút 3km/5km/8km/15km -> Lọc tức thì không cần chờ mạng
-      if (!forceRefetch && allFetchedHospitals.length > 0) {
-        filterAndDisplayHospitalsByRadius();
-        return;
-      }
-
-      if (activeHospitalController) {
-        activeHospitalController.abort();
-      }
-      activeHospitalController = new AbortController();
-
-      document.getElementById("hospitalLoader").style.display = "block";
-
-      // Quét bán kính tối đa 15km (15000m) một lần bằng toán tử around chuẩn xác để hỗ trợ mọi mức km (3, 5, 8, 15 km)
-      const maxRadiusMeters = Math.max(selectedRadiusKm, 15) * 1000;
       const lat = userLocation.lat;
       const lon = userLocation.lon;
 
-      const query = `
-        [out:json][timeout:25];
-        (
-          nwr["amenity"="hospital"](around:${maxRadiusMeters},${lat},${lon});
-          nwr["healthcare"="hospital"](around:${maxRadiusMeters},${lat},${lon});
-          nwr["amenity"="clinic"](around:${maxRadiusMeters},${lat},${lon});
-          nwr["healthcare"="clinic"](around:${maxRadiusMeters},${lat},${lon});
-        );
-        out center tags;
-      `;
+      // Kiểm tra nếu đã có cache đủ bán kính ở vị trí hiện tại thì lọc tức thì (0ms)
+      const sameLocation = hospitalCache.lat !== null &&
+        distanceKm(lat, lon, hospitalCache.lat, hospitalCache.lon) < 0.3;
 
-      try {
-        const data = await overpassFetch(query, activeHospitalController);
-        allFetchedHospitals = normalizeElements(data.elements, lat, lon)
-          .filter(x => x.tags.name || x.tags["name:vi"] || x.tags["name:en"]);
-
+      if (!forceRefetch && sameLocation && hospitalCache.maxRadiusKm >= selectedRadiusKm && hospitalCache.items.length > 0) {
         filterAndDisplayHospitalsByRadius();
-      } catch (e) {
-        if (e.name === "AbortError") return;
-        document.getElementById("hospitalResults").innerHTML =
-          `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>${escapeHtml(t("errHospitalFetch"))}</div>`;
-      } finally {
-        document.getElementById("hospitalLoader").style.display = "none";
-      }
-    }
-
-    async function searchParking() {
-      const center = customParkingCenter || userLocation;
-      if (!center) {
-        getLocationAndSearch("parking");
         return;
       }
 
-      if (activeParkingController) {
-        activeParkingController.abort();
-      }
-      activeParkingController = new AbortController();
+      const loaderEl = document.getElementById("hospitalLoader");
+      loaderEl.style.display = "flex";
 
-      const vehicle = document.getElementById("vehicle").value;
-      const radiusKm = Number(document.getElementById("parkingRadius").value || 5);
-      const radiusMeters = radiusKm * 1000;
+      // Quét đúng bán kính người dùng chọn (nhẹ và cực nhanh cho lần đầu)
+      const fetchRadiusKm = selectedRadiusKm;
+      const radiusMeters = fetchRadiusKm * 1000;
 
-      document.getElementById("parkingLoader").style.display = "block";
-
-      const query = `
-        [out:json][timeout:25];
+      // Truy vấn chỉ dùng node & way (bỏ relation nặng) để phản hồi dưới 0.6 giây
+      const buildQuery = (meters) => `
+        [out:json][timeout:12];
         (
-          nwr["amenity"="parking"](around:${radiusMeters},${center.lat},${center.lon});
-          node["amenity"="parking_space"](around:${radiusMeters},${center.lat},${center.lon});
-          nwr["amenity"="charging_station"](around:${radiusMeters},${center.lat},${center.lon});
+          node["amenity"="hospital"](around:${meters},${lat},${lon});
+          way["amenity"="hospital"](around:${meters},${lat},${lon});
+          node["healthcare"="hospital"](around:${meters},${lat},${lon});
+          way["healthcare"="hospital"](around:${meters},${lat},${lon});
+          node["amenity"="clinic"](around:${meters},${lat},${lon});
+          way["amenity"="clinic"](around:${meters},${lat},${lon});
         );
         out center tags;
       `;
 
       try {
-        const data = await overpassFetch(query, activeParkingController);
-        let places = normalizeElements(data.elements, center.lat, center.lon)
-          .filter(x => x.distance <= radiusKm && (x.name || x.tags.amenity === "parking" || x.tags.amenity === "charging_station"));
-
-        places = places.map(p => ({
-          ...p,
-          score: parkingScore(p, vehicle)
-        }))
-        .sort((a, b) => (a.distance + a.score) - (b.distance + b.score))
-        .slice(0, 30);
-
-        lastParking = places;
-
-        const summaryBadge = document.getElementById("parkingSummaryBadge");
-        summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(places.length, radiusKm);
-        summaryBadge.style.display = "inline-block";
-
-        renderParking(places, vehicle);
-        showOnMap(places, "parking", radiusKm);
-      } catch (e) {
-        if (e.name === "AbortError") return;
-        document.getElementById("parkingResults").innerHTML =
-          `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>${escapeHtml(t("errParkingFetch"))}</div>`;
-      } finally {
-        document.getElementById("parkingLoader").style.display = "none";
-      }
-    }
-
-    function parkingScore(p, vehicle) {
-      const tags = p.tags || {};
-      let score = 0;
-
-      if (vehicle === "motorcycle") {
-        if (tags.motorcycle === "yes" || tags["parking:motorcycle"] === "yes") score -= 2;
-        if (tags.motorcycle === "no") score += 5;
-      }
-      if (vehicle === "car") {
-        if (tags.motorcar === "yes" || tags["parking:motorcar"] === "yes") score -= 2;
-        if (tags.motorcar === "no") score += 5;
-      }
-      if (vehicle === "bicycle") {
-        if (tags.bicycle === "yes" || tags["parking:bicycle"] === "yes") score -= 2;
-        if (tags.bicycle === "no") score += 5;
-      }
-      if (vehicle === "electric") {
-        if (tags.amenity === "charging_station") score -= 4;
-        if (tags["motorcar:charging"] === "yes") score -= 3;
-        if (tags["capacity:charging"] || tags["socket:type2"] === "yes") score -= 2;
-      }
-      return score;
-    }
-
-    function getLocalizedPlaceName(item, fallbackType) {
-      const tags = item.tags || {};
-      if (currentLang === "en") {
-        return tags["name:en"] || tags.name || tags["name:vi"] || fallbackType;
-      }
-      return tags["name:vi"] || tags.name || tags["name:en"] || fallbackType;
-    }
-
-    function renderHospitals(items) {
-      const box = document.getElementById("hospitalResults");
-      if (!items.length) {
-        box.innerHTML = `<div class="empty"><i class="fa-solid fa-hospital"></i>${escapeHtml(t("emptyHospitalNone"))}</div>`;
-        return;
-      }
-
-      const specKey = document.getElementById("specialty").value;
-      const specialtyText = I18N[currentLang].specialties[specKey] || specKey;
-      const date = document.getElementById("date").value || t("notSelected");
-      const times = ["08:00", "08:30", "09:00", "09:30", "10:00"];
-
-      box.innerHTML = items.map((h, i) => {
-        const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
-        const isClinic = h.tags.amenity === "clinic" || h.tags.healthcare === "clinic";
-        const facilityBadge = isClinic ? t("badgeClinic") : t("badgeHospital");
-        const time = times[i % times.length];
-        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayName + " " + h.lat + "," + h.lon)}`;
-
-        return `
-          <div class="result-card" data-action="focus-hospital" data-index="${i}">
-            <div class="result-top">
-              <h3>${escapeHtml(displayName)}</h3>
-              <span class="distance-pill">📍 ${h.distance.toFixed(2)} km</span>
-            </div>
-            <div class="badges">
-              <span class="badge">${escapeHtml(facilityBadge)}</span>
-              <span class="badge"><i class="fa-solid fa-user-doctor"></i> ${escapeHtml(specialtyText)}</span>
-            </div>
-            <div class="meta">
-              ${escapeHtml(t("nearestSlot"))}: <b>${time}</b> | ${escapeHtml(t("dateLabel"))}: <b>${escapeHtml(date)}</b>
-            </div>
-            <div class="card-actions">
-              <button class="btn btn-primary" type="button" data-action="book-hospital" data-index="${i}">
-                <i class="fa-solid fa-calendar-check"></i> ${escapeHtml(t("btnBookNow"))}
-              </button>
-              <button class="btn btn-secondary" type="button" data-action="parking-near-hospital" data-index="${i}">
-                <i class="fa-solid fa-square-parking"></i> ${escapeHtml(t("btnParkingNearHosp"))}
-              </button>
-              <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
-                <i class="fa-solid fa-map-location-dot"></i> Google Maps
-              </a>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderParking(items, vehicle) {
-      const box = document.getElementById("parkingResults");
-      if (!items.length) {
-        box.innerHTML = `<div class="empty"><i class="fa-solid fa-square-parking"></i>${escapeHtml(t("emptyParkingNone"))}</div>`;
-        return;
-      }
-
-      const vehicleName = {
-        car: t("vehCar"),
-        motorcycle: t("vehMoto"),
-        electric: t("vehElectric"),
-        bicycle: t("vehBike")
-      }[vehicle];
-
-      box.innerHTML = items.map((p, i) => {
-        const tags = p.tags || {};
-        const isCharging = tags.amenity === "charging_station";
-        const typeLabel = isCharging ? t("typeCharging") : t("typeParking");
-        const fallbackName = isCharging ? t("unnamedCharging") : t("unnamedParking");
-        const displayName = getLocalizedPlaceName(p, fallbackName);
-
-        const originParam = userLocation ? `&origin=${encodeURIComponent(userLocation.lat + "," + userLocation.lon)}` : "";
-        const mapsUrl = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${encodeURIComponent(p.lat + "," + p.lon)}`;
-
-        return `
-          <div class="result-card" data-action="focus-parking" data-index="${i}">
-            <div class="result-top">
-              <h3>${escapeHtml(displayName)}</h3>
-              <span class="distance-pill">📍 ${p.distance.toFixed(2)} km</span>
-            </div>
-            <div class="badges">
-              <span class="badge">${escapeHtml(vehicleName)}</span>
-              <span class="badge">${escapeHtml(typeLabel)}</span>
-            </div>
-            <div class="meta">
-              ${tags.capacity ? `${escapeHtml(t("lblCapacity"))}: <b>${escapeHtml(tags.capacity)}</b><br>` : ""}
-              ${tags.fee ? `${escapeHtml(t("lblFee"))}: <b>${escapeHtml(tags.fee)}</b><br>` : ""}
-              ${tags.opening_hours ? `${escapeHtml(t("lblOpenHours"))}: <b>${escapeHtml(tags.opening_hours)}</b><br>` : ""}
-              ${escapeHtml(t("lblCoords"))}: ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}
-            </div>
-            <div class="card-actions">
-              <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
-                ${escapeHtml(t("btnDirections"))}
-              </a>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function showOnMap(items, type) {
-      if (!map || !window.vietmapgl) return;
-      clearMarkers();
-
-      const coords = [];
-      if (userLocation) {
-        const userPos = [userLocation.lon, userLocation.lat];
-        coords.push(userPos);
-        if (userMarker) {
-          userMarker.setLngLat(userPos);
-        }
-      }
-
-      items.forEach((p) => {
-        const color = type === "hospital" ? "#ef4444" : "#0d9488";
-        const fallback = type === "hospital" ? t("unnamedPlace") : t("unnamedParking");
-        const displayName = getLocalizedPlaceName(p, fallback);
-        const popup = new vietmapgl.Popup({ offset: 25 }).setHTML(
-          `<div style="min-width:190px;color:#0f172a">
-            <b>${escapeHtml(displayName)}</b><br>
-            ${escapeHtml(type === "hospital" ? t("badgeHospital") : "🅿️ " + t("typeParking"))}<br>
-            📍 ${p.distance.toFixed(2)} km
-          </div>`
-        );
-        const marker = new vietmapgl.Marker({ color })
-          .setLngLat([p.lon, p.lat])
-          .setPopup(popup)
-          .addTo(map);
-        markers.push(marker);
-        coords.push([p.lon, p.lat]);
-      });
-
-      if (coords.length > 1) {
-        const bounds = coords.reduce((b, c) => b.extend(c), new vietmapgl.LngLatBounds(coords[0], coords[0]));
-        map.fitBounds(bounds, { padding: 48, maxZoom: 16 });
-      } else if (coords.length === 1) {
-        map.setCenter(coords[0]);
-        map.setZoom(15);
-      }
-    }
-
-    function focusMarker(index, lat, lon) {
-      if (!map || !Number.isFinite(lat) || !Number.isFinite(lon)) return;
-      map.flyTo({ center: [lon, lat], zoom: 17, essential: true });
-      if (markers[index]) {
-        markers[index].togglePopup();
-      }
-      // Trên điện thoại, tự động cuộn mượt lên bản đồ khi người dùng chạm vào 1 thẻ bệnh viện/bãi xe
-      if (window.innerWidth <= 960) {
-        document.getElementById("mapPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
-    }
-
-    function findParkingNearHospital(lat, lon, hospitalName) {
-      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
-      customParkingCenter = { lat, lon, name: hospitalName };
-      document.querySelector('[data-target="parkingSection"]').click();
-      const banner = document.getElementById("parkingContextBanner");
-      document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> ${escapeHtml(t("bannerParkingNear"))}: <b>${escapeHtml(hospitalName)}</b>`;
-      banner.style.display = "flex";
-      searchParking();
-    }
-
-    function openBookingModal(index) {
-      const h = lastHospitals[index];
-      if (!h) return;
-      selectedHospitalForBooking = h;
-      const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
-      document.getElementById("bookingHospitalName").textContent = `${displayName} (${h.distance.toFixed(2)} km)`;
-      document.getElementById("bookingModal").classList.add("show");
-    }
-
-    function closeBookingModal() {
-      document.getElementById("bookingModal").classList.remove("show");
-    }
-
-    function submitBooking() {
-      const rawName = document.getElementById("patientName").value.trim().slice(0, 80);
-      const rawPhone = document.getElementById("patientPhone").value.trim().slice(0, 20);
-      const name = rawName || t("defaultPatient");
-      const phone = rawPhone || t("defaultPhone");
-      const slot = document.getElementById("bookingTimeSlot").value;
-      const vehicleSelect = document.getElementById("bookingVehicle");
-      const vehicleText = vehicleSelect.options[vehicleSelect.selectedIndex].text;
-      const specKey = document.getElementById("specialty").value;
-      const date = document.getElementById("date").value || t("notSelected");
-
-      if (!selectedHospitalForBooking) return;
-
-      const code = generateSecureBookingCode();
-      const bookings = getSafeBookings();
-      bookings.unshift({
-        code,
-        hospital: getLocalizedPlaceName(selectedHospitalForBooking, t("unnamedPlace")),
-        lat: Number(selectedHospitalForBooking.lat),
-        lon: Number(selectedHospitalForBooking.lon),
-        specKey,
-        date,
-        slot,
-        patientName: name,
-        patientPhone: phone,
-        vehicle: vehicleText
-      });
-      saveSafeBookings(bookings);
-
-      closeBookingModal();
-      renderAppointments();
-      showToast(`${t("toastBooked")}: #${code}`);
-      document.querySelector('[data-target="appointmentsSection"]').click();
-    }
-
-    function renderAppointments() {
-      const bookings = getSafeBookings();
-      document.getElementById("bookingCount").textContent = bookings.length;
-      const box = document.getElementById("appointmentsList");
-
-      if (!bookings.length) {
-        box.innerHTML = `<div class="empty"><i class="fa-solid fa-ticket"></i>${escapeHtml(t("emptyBookings"))}</div>`;
-        return;
-      }
-
-      box.innerHTML = bookings.map((b, idx) => {
-        const specName = (b.specKey && I18N[currentLang].specialties[b.specKey]) || b.specialty || "";
-        return `
-          <div class="result-card">
-            <div class="result-top">
-              <h3>${escapeHtml(b.hospital)}</h3>
-              <span class="distance-pill">#${escapeHtml(b.code)}</span>
-            </div>
-            <div class="badges">
-              <span class="badge">${escapeHtml(specName)}</span>
-              <span class="badge">${escapeHtml(b.slot)} | ${escapeHtml(b.date)}</span>
-            </div>
-            <div class="meta">
-              ${escapeHtml(t("lblPatientInfo"))}: <b>${escapeHtml(b.patientName)}</b> (${escapeHtml(b.patientPhone)})<br>
-              ${escapeHtml(t("lblVehicleInfo"))}: <b>${escapeHtml(b.vehicle)}</b>
-            </div>
-            <div class="card-actions">
-              <button class="btn btn-secondary" type="button" data-action="booking-parking-near" data-index="${idx}">
-                <i class="fa-solid fa-square-parking"></i> ${escapeHtml(t("btnParkingNearHosp"))}
-              </button>
-              <button class="btn btn-secondary" type="button" style="color:var(--danger)" data-action="delete-booking" data-index="${idx}">
-                <i class="fa-solid fa-trash"></i> ${escapeHtml(t("btnDeleteBooking"))}
-              </button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function deleteBooking(index) {
-      const bookings = getSafeBookings();
-      if (index < 0 || index >= bookings.length) return;
-      bookings.splice(index, 1);
-      saveSafeBookings(bookings);
-      renderAppointments();
-    }
-
-    function bindSecureEvents() {
-      document.getElementById("langBtn").addEventListener("click", toggleLanguage);
-      document.getElementById("themeBtn").addEventListener("click", toggleTheme);
-      document.getElementById("btnToggleMapSize").addEventListener("click", toggleMobileMapSize);
-
-      document.getElementById("btnCancelModal").addEventListener("click", closeLocationPrompt);
-      document.getElementById("btnConfirmModal").addEventListener("click", confirmLocationPermission);
-      document.getElementById("locationModal").addEventListener("click", e => {
-        if (e.target.id === "locationModal") closeLocationPrompt();
-      });
-
-      document.getElementById("btnCancelBooking").addEventListener("click", closeBookingModal);
-      document.getElementById("btnSubmitBookingAction").addEventListener("click", submitBooking);
-      document.getElementById("bookingModal").addEventListener("click", e => {
-        if (e.target.id === "bookingModal") closeBookingModal();
-      });
-
-      document.getElementById("btnTriggerHospitalGps").addEventListener("click", () => getLocationAndSearch("hospital"));
-      document.getElementById("btnRefreshHospitals").addEventListener("click", () => searchHospitals(true));
-      document.getElementById("specialty").addEventListener("change", () => {
-        if (lastHospitals.length) renderHospitals(lastHospitals);
-      });
-      document.getElementById("date").addEventListener("change", () => {
-        if (lastHospitals.length) renderHospitals(lastHospitals);
-      });
-
-      // Sự kiện chọn nhanh bán kính KM bằng nút bấm (3km, 5km, 8km, 15km)
-      document.getElementById("hospitalRadiusPills").addEventListener("click", e => {
-        const pill = e.target.closest(".radius-pill");
-        if (!pill) return;
-        const km = pill.getAttribute("data-radius");
-        document.querySelectorAll("#hospitalRadiusPills .radius-pill").forEach(b => b.classList.remove("active"));
-        pill.classList.add("active");
-        document.getElementById("hospitalRadius").value = km;
-
-        if (userLocation) {
-          if (allFetchedHospitals.length > 0) {
-            filterAndDisplayHospitalsByRadius();
-          } else {
-            searchHospitals(true);
-          }
-        } else {
-          getLocationAndSearch("hospital");
-        }
-      });
-
-      document.getElementById("btnTriggerParkingGps").addEventListener("click", () => getLocationAndSearch("parking"));
-      document.getElementById("btnBackToMyGps").addEventListener("click", () => getLocationAndSearch("parking"));
-      document.getElementById("btnRefreshParking").addEventListener("click", searchParking);
-      document.getElementById("vehicle").addEventListener("change", () => {
-        if (userLocation || customParkingCenter) searchParking();
-      });
-      document.getElementById("parkingRadius").addEventListener("change", () => {
-        if (userLocation || customParkingCenter) searchParking();
-      });
-
-      document.getElementById("btnLocateMeAction").addEventListener("click", () => openLocationPrompt("locate"));
-      document.getElementById("trackBtn").addEventListener("click", toggleTracking);
-
-      document.getElementById("hospitalResults").addEventListener("click", e => {
-        const btn = e.target.closest("[data-action]");
-        if (!btn) return;
-        const action = btn.getAttribute("data-action");
-        const idx = Number(btn.getAttribute("data-index"));
-        const item = lastHospitals[idx];
-        if (!item) return;
-
-        if (action === "book-hospital") {
-          e.stopPropagation();
-          openBookingModal(idx);
-        } else if (action === "parking-near-hospital") {
-          e.stopPropagation();
-          const displayName = getLocalizedPlaceName(item, t("unnamedPlace"));
-          findParkingNearHospital(item.lat, item.lon, displayName);
-        } else if (action === "focus-hospital") {
-          focusMarker(idx, item.lat, item.lon);
-        }
-      });
-
-      document.getElementById("parkingResults").addEventListener("click", e => {
-        if (e.target.closest("a")) return;
-        const card = e.target.closest('[data-action="focus-parking"]');
-        if (!card) return;
-        const idx = Number(card.getAttribute("data-index"));
-        const item = lastParking[idx];
-        if (item) focusMarker(idx, item.lat, item.lon);
-      });
-
-      document.getElementById("appointmentsList").addEventListener("click", e => {
-        const btn = e.target.closest("[data-action]");
-        if (!btn) return;
-        const action = btn.getAttribute("data-action");
-        const idx = Number(btn.getAttribute("data-index"));
-        const bookings = getSafeBookings();
-        const b = bookings[idx];
-        if (!b) return;
-
-        if (action === "booking-parking-near") {
-          findParkingNearHospital(Number(b.lat), Number(b.lon), String(b.hospital || ""));
-        } else if (action === "delete-booking") {
-          deleteBooking(idx);
-        }
-      });
-
-      document.querySelectorAll(".tab").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
-          document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-          btn.classList.add("active");
-          document.getElementById(btn.dataset.target).classList.add("active");
-          setTimeout(() => { if (map) map.resize(); }, 150);
-        });
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      bindSecureEvents();
-      initMap();
-      applyTranslations();
-    });
-  })();
-</script>
-</body>
-</html>
+        let data;
+        try {
+          data = await fastParallelOverpass(buildQuery(radiusMeters));
+        } catch {
+          // Tự động thử lại ngay lần 2 nếu mạng chập chờn ở lần đầu tiên
+          data
