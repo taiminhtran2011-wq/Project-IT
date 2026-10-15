@@ -62,6 +62,9 @@
       background: var(--bg-body);
       color: var(--text-main);
       transition: background 0.25s ease, color 0.25s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     /* Top Navbar */
@@ -188,12 +191,14 @@
     /* Main Workspace */
     .workspace {
       max-width: 1400px;
+      width: 100%;
       margin: 0 auto;
       padding: 20px;
       display: grid;
       grid-template-columns: 520px 1fr;
       gap: 22px;
       align-items: start;
+      flex: 1;
     }
 
     /* Left Panel */
@@ -561,6 +566,58 @@
     }
     .toast.show { display: flex; }
 
+    /* Author Footer */
+    .site-footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      margin-top: 28px;
+      padding: 14px 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .footer-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .author-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .author-name {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .fb-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(24, 119, 242, 0.1);
+      color: #1877f2;
+      font-weight: 700;
+      font-size: 12.5px;
+      text-decoration: none;
+      border: 1px solid rgba(24, 119, 242, 0.22);
+      transition: all 0.2s ease;
+    }
+    .fb-link i {
+      font-size: 15px;
+    }
+    .fb-link:hover {
+      background: #1877f2;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+    }
+
     @media (max-width: 1024px) {
       .workspace {
         grid-template-columns: 1fr;
@@ -569,6 +626,10 @@
         position: static;
       }
       #map { height: 460px; }
+      .footer-wrap {
+        justify-content: center;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -652,7 +713,7 @@
       <span class="gps-text" id="locationStatus">📍 Chưa lấy vị trí</span>
     </div>
 
-    <!-- Cụm nút bên phải: Nút chuyển đổi ngôn ngữ nằm bên trái nút Sáng/Tối (Đã bỏ nút Lấy GPS thật) -->
+    <!-- Cụm nút bên phải: Nút chuyển đổi ngôn ngữ nằm bên trái nút Sáng/Tối -->
     <div class="nav-actions">
       <button class="icon-btn" onclick="toggleLanguage()" id="langBtn" title="Switch Language / Đổi ngôn ngữ">
         <i class="fa-solid fa-globe"></i>
@@ -828,6 +889,23 @@
   </div>
 </main>
 
+<!-- CHÂN TRANG: THÔNG TIN TÁC GIẢ & LINK FACEBOOK -->
+<footer class="site-footer">
+  <div class="footer-wrap">
+    <div>
+      © 2026 <b>Care & Parking</b> — <span id="footerProjectDesc">Dự án Hệ thống Hỗ trợ Khám bệnh & Tìm bãi đỗ xe thông minh</span>
+    </div>
+    <div class="author-info">
+      <span><i class="fa-solid fa-code" style="color:var(--primary)"></i> <span id="footerAuthorLabel">Phát triển bởi tác giả:</span> <span class="author-name">Trần Minh Tài và tập thể lớp 10a3 THPT Lê Quý Đôn</span></span>
+      <!-- Thay đường dẫn Facebook của bạn vào thuộc tính href bên dưới -->
+      <a class="fb-link" href="https://www.facebook.com/Feezos1018/" target="_blank" rel="noopener noreferrer" title="Facebook của tác giả">
+        <i class="fa-brands fa-facebook"></i>
+        <span id="footerFbText">Facebook Tác giả</span>
+      </a>
+    </div>
+  </div>
+</footer>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -898,6 +976,9 @@
       legHospital: "Bệnh viện",
       legParking: "Bãi đỗ xe / Trạm sạc",
       mapProviderNote: "Bản đồ VIETMAP GL & OpenStreetMap",
+      footerProjectDesc: "Dự án Hệ thống Hỗ trợ Khám bệnh & Tìm bãi đỗ xe thông minh",
+      footerAuthorLabel: "Phát triển bởi tác giả:",
+      footerFbText: "Facebook Tác giả",
       modalCancel: "Hủy",
       modalConfirmGps: "Đồng ý lấy vị trí",
       modalTitleParking: "Cho phép lấy vị trí để tìm bãi đỗ xe?",
@@ -1019,6 +1100,9 @@
       legHospital: "Hospital",
       legParking: "Parking / EV Charging",
       mapProviderNote: "Powered by VIETMAP GL & OpenStreetMap",
+      footerProjectDesc: "Smart Healthcare & Parking Locator Project",
+      footerAuthorLabel: "Developed by author:",
+      footerFbText: "Author's Facebook",
       modalCancel: "Cancel",
       modalConfirmGps: "Allow Location",
       modalTitleParking: "Allow location to find parking?",
@@ -1159,7 +1243,7 @@
     document.getElementById("btnReloadParking").textContent = t("btnReload");
     document.getElementById("txtParkingLoader").textContent = t("txtParkingLoader");
 
-    // Đặt lịch & Bản đồ
+    // Đặt lịch & Bản đồ & Chân trang
     document.getElementById("bookingCardTitle").textContent = t("bookingCardTitle");
     document.getElementById("btnMyLocation").textContent = t("btnMyLocation");
     document.getElementById("txtTrackBtn").textContent = watchId !== null ? t("txtStopTrackBtn") : t("txtTrackBtn");
@@ -1167,6 +1251,9 @@
     document.getElementById("legHospital").textContent = t("legHospital");
     document.getElementById("legParking").textContent = t("legParking");
     document.getElementById("mapProviderNote").textContent = t("mapProviderNote");
+    document.getElementById("footerProjectDesc").textContent = t("footerProjectDesc");
+    document.getElementById("footerAuthorLabel").textContent = t("footerAuthorLabel");
+    document.getElementById("footerFbText").textContent = t("footerFbText");
 
     document.getElementById("btnCancelModal").textContent = t("modalCancel");
     document.getElementById("txtConfirmModal").textContent = t("modalConfirmGps");
@@ -1198,7 +1285,6 @@
       document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> ${t("bannerParkingNear")}: <b>${escapeHtml(customParkingCenter.name)}</b>`;
     }
 
-    // Render lại kết quả theo ngôn ngữ mới
     if (lastHospitals.length) {
       renderHospitals(lastHospitals);
     } else {
