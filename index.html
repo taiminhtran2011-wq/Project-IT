@@ -3,17 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Care & Parking Pro - Hệ thống Y tế & Đỗ xe Thông minh</title>
   
-  <!-- Google Fonts & FontAwesome -->
+  <!-- Bảo mật cao: Content Security Policy (CSP) & Referrer Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://*.vietmap.vn https://*.openstreetmap.org; connect-src 'self' https://maps.vietmap.vn https://*.vietmap.vn https://overpass-api.de https://overpass.kumi.systems https://nominatim.openstreetmap.org; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="description" content="VimedGo - Hệ thống Định vị Y tế & Tìm bãi đỗ xe Thông minh theo thời gian thực">
+
+  <title>VimedGo - Hệ thống Y tế & Đỗ xe Thông minh</title>
+
+  <!-- Favicon Logo VimedGo trên Tab trình duyệt -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M32 9C21.5 9 13 17.3 13 27.6c0 12.4 15.8 25.8 17.6 27.3a2.2 2.2 0 0 0 2.8 0C35.2 53.4 51 40 51 27.6 51 17.3 42.5 9 32 9z' fill='%23fff'/%3E%3Cpath d='M29 18h6v6h6v6h-6v6h-6v-6h-6v-6h6v-6z' fill='url(%23g)'/%3E%3C/svg%3E">
+  
+  <!-- Google Fonts & FontAwesome (với crossorigin an toàn) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   
   <!-- VIETMAP GL JS -->
-  <link rel="stylesheet" href="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.css" />
-  <script src="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.css" crossorigin="anonymous" />
+  <script src="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.js" crossorigin="anonymous"></script>
 
   <style>
     :root {
@@ -79,7 +88,7 @@
     .nav-wrap {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 14px 20px;
+      padding: 13px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -89,25 +98,42 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 13px;
+      text-decoration: none;
+      color: inherit;
     }
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #0284c7, #0d9488);
-      color: white;
+    .brand-logo {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 6px 16px rgba(2, 132, 199, 0.3);
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+    }
+    .brand:hover .brand-logo {
+      transform: scale(1.05);
     }
     .brand-text h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 800;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.4px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .brand-highlight {
+      background: linear-gradient(135deg, #0284c7, #0d9488);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand-badge {
+      font-size: 10.5px;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
     }
     .brand-text p {
       margin: 2px 0 0;
@@ -644,8 +670,8 @@
     <h2 id="locationModalTitle">Cho phép lấy vị trí của bạn?</h2>
     <p id="locationModalDesc">Trang web cần lấy vị trí GPS hiện tại của thiết bị để tìm bệnh viện và bãi đỗ xe gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy tọa độ thực tế.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-secondary" type="button" onclick="closeLocationPrompt()" style="flex:1" id="btnCancelModal">Hủy</button>
-      <button class="btn btn-primary" type="button" onclick="confirmLocationPermission()" style="flex:1" id="btnConfirmModal">
+      <button class="btn btn-secondary" type="button" id="btnCancelModal" style="flex:1">Hủy</button>
+      <button class="btn btn-primary" type="button" id="btnConfirmModal" style="flex:1">
         <i class="fa-solid fa-check"></i> <span id="txtConfirmModal">Đồng ý lấy vị trí</span>
       </button>
     </div>
@@ -659,16 +685,16 @@
     <p id="bookingHospitalName" style="font-weight:700;color:var(--primary);margin-bottom:14px;"></p>
     
     <div class="field" style="margin-bottom:12px;">
-      <label id="lblPatientName">Họ và tên bệnh nhân</label>
-      <input type="text" id="patientName" placeholder="Nhập họ và tên...">
+      <label id="lblPatientName" for="patientName">Họ và tên bệnh nhân</label>
+      <input type="text" id="patientName" maxlength="80" autocomplete="name" placeholder="Nhập họ và tên...">
     </div>
     <div class="filter-grid">
       <div class="field">
-        <label id="lblPatientPhone">Số điện thoại</label>
-        <input type="tel" id="patientPhone" placeholder="09xx xxx xxx">
+        <label id="lblPatientPhone" for="patientPhone">Số điện thoại</label>
+        <input type="tel" id="patientPhone" maxlength="20" autocomplete="tel" placeholder="09xx xxx xxx">
       </div>
       <div class="field">
-        <label id="lblTimeSlot">Khung giờ khám</label>
+        <label id="lblTimeSlot" for="bookingTimeSlot">Khung giờ khám</label>
         <select id="bookingTimeSlot">
           <option value="07:30 - 08:30">07:30 - 08:30</option>
           <option value="08:30 - 09:30">08:30 - 09:30</option>
@@ -679,7 +705,7 @@
       </div>
     </div>
     <div class="field" style="margin-bottom:16px;">
-      <label id="lblBookingVehicle">Phương tiện đi kèm (Hỗ trợ gợi ý bãi đỗ)</label>
+      <label id="lblBookingVehicle" for="bookingVehicle">Phương tiện đi kèm (Hỗ trợ gợi ý bãi đỗ)</label>
       <select id="bookingVehicle">
         <option value="none" id="optNoVehicle">Không cần gửi xe</option>
         <option value="car" id="optCarVehicle">🚗 Có đi Ô tô (Cần bãi đỗ ô tô)</option>
@@ -689,21 +715,48 @@
     </div>
 
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-secondary" type="button" onclick="closeBookingModal()" style="flex:1" id="btnCancelBooking">Hủy</button>
-      <button class="btn btn-primary" type="button" onclick="submitBooking()" style="flex:1">
+      <button class="btn btn-secondary" type="button" id="btnCancelBooking" style="flex:1">Hủy</button>
+      <button class="btn btn-primary" type="button" id="btnSubmitBookingAction" style="flex:1">
         <i class="fa-solid fa-paper-plane"></i> <span id="btnSubmitBooking">Xác nhận đặt lịch</span>
       </button>
     </div>
   </div>
 </div>
 
-<!-- Thanh điều hướng -->
+<!-- Thanh điều hướng với Logo & Thương hiệu VimedGo -->
 <header class="navbar">
   <div class="nav-wrap">
     <div class="brand">
-      <div class="brand-icon"><i class="fa-solid fa-staff-snake"></i></div>
+      <!-- LOGO VECTOR ĐỘC QUYỀN CỦA VIMEDGO -->
+      <div class="brand-logo" aria-hidden="true">
+        <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 6px 14px rgba(2, 132, 199, 0.28));">
+          <defs>
+            <linearGradient id="vimedgoGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0284c7" />
+              <stop offset="100%" stop-color="#0d9488" />
+            </linearGradient>
+            <linearGradient id="vimedgoAccent" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#38bdf8" />
+              <stop offset="100%" stop-color="#2dd4bf" />
+            </linearGradient>
+          </defs>
+          <!-- Khung nền bo góc hiện đại -->
+          <rect width="64" height="64" rx="16" fill="url(#vimedgoGrad)" />
+          <!-- Vòng cung chuyển động chữ G (Go / Mobility) -->
+          <path d="M12 31C12 19.9543 20.9543 11 32 11C43.0457 11 52 19.9543 52 31" stroke="url(#vimedgoAccent)" stroke-width="3" stroke-linecap="round" opacity="0.55" />
+          <!-- Hình Ghim Định vị GPS kết hợp chữ V ở mũi nhọn đáy -->
+          <path d="M32 12C22.06 12 14 19.8 14 29.43C14 41.18 29.14 53.4 30.82 54.8C31.51 55.37 32.49 55.37 33.18 54.8C34.86 53.4 50 41.18 50 29.43C50 19.8 41.94 12 32 12Z" fill="#ffffff" />
+          <!-- Chữ thập Y tế (Med) lồng mũi tên điều hướng (Go) ở tâm -->
+          <path d="M29.2 19.5H34.8V25.2H40.5V30.8H34.8V36.5H29.2V30.8H23.5V25.2H29.2V19.5Z" fill="url(#vimedgoGrad)" />
+          <!-- Điểm nhấn tâm định vị -->
+          <circle cx="32" cy="28" r="2.2" fill="#ffffff" />
+        </svg>
+      </div>
       <div class="brand-text">
-        <h1>Care & Parking <span style="font-size:11px;background:var(--primary-light);color:var(--primary);padding:2px 7px;border-radius:99px;vertical-align:middle;">REAL GPS</span></h1>
+        <h1>
+          <span><span class="brand-highlight">Vimed</span>Go</span>
+          <span class="brand-badge">REAL GPS</span>
+        </h1>
         <p id="brandSubtitle">Định vị thực tế Bệnh viện & Bãi đỗ xe quanh bạn</p>
       </div>
     </div>
@@ -715,12 +768,12 @@
 
     <!-- Cụm nút bên phải: Nút chuyển đổi ngôn ngữ nằm bên trái nút Sáng/Tối -->
     <div class="nav-actions">
-      <button class="icon-btn" onclick="toggleLanguage()" id="langBtn" title="Switch Language / Đổi ngôn ngữ">
+      <button class="icon-btn" type="button" id="langBtn" title="Switch Language / Đổi ngôn ngữ">
         <i class="fa-solid fa-globe"></i>
         <span id="langLabel">Tiếng Việt</span>
         <span class="lang-badge" id="langCodeBadge">VI</span>
       </button>
-      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Đổi giao diện Sáng/Tối">
+      <button class="icon-btn" type="button" id="themeBtn" title="Đổi giao diện Sáng/Tối">
         <i class="fa-solid fa-moon"></i>
       </button>
     </div>
@@ -732,13 +785,13 @@
   <!-- CỘT TRÁI: ĐIỀU KHIỂN & KẾT QUẢ -->
   <div class="left-panel">
     <div class="tabs">
-      <button class="tab active" data-target="hospitalSection">
+      <button class="tab active" type="button" data-target="hospitalSection">
         <i class="fa-solid fa-hospital"></i> <span id="tabHospitalTxt">Bệnh viện</span>
       </button>
-      <button class="tab" data-target="parkingSection">
+      <button class="tab" type="button" data-target="parkingSection">
         <i class="fa-solid fa-square-parking"></i> <span id="tabParkingTxt">Bãi đỗ xe</span>
       </button>
-      <button class="tab" data-target="appointmentsSection">
+      <button class="tab" type="button" data-target="appointmentsSection">
         <i class="fa-solid fa-ticket"></i> <span id="tabBookingTxt">Lịch hẹn</span> (<span id="bookingCount">0</span>)
       </button>
     </div>
@@ -753,7 +806,7 @@
         <div class="filter-grid">
           <div class="field">
             <label for="specialty" id="lblSpecialty">Chuyên khoa khám</label>
-            <select id="specialty" onchange="if(lastHospitals.length) renderHospitals(lastHospitals)">
+            <select id="specialty">
               <option value="general" id="specGeneral">Khám tổng quát</option>
               <option value="internal" id="specInternal">Nội khoa</option>
               <option value="surgery" id="specSurgery">Ngoại khoa</option>
@@ -767,13 +820,13 @@
           </div>
           <div class="field">
             <label for="date" id="lblDate">Ngày khám dự kiến</label>
-            <input type="date" id="date" onchange="if(lastHospitals.length) renderHospitals(lastHospitals)">
+            <input type="date" id="date">
           </div>
         </div>
 
         <div class="field" style="margin-bottom:14px;">
           <label for="hospitalRadius" id="lblHospitalRadius">Bán kính quét từ vị trí của bạn</label>
-          <select id="hospitalRadius" onchange="if(userLocation) searchHospitals()">
+          <select id="hospitalRadius">
             <option value="3" id="radHosp3">Trong bán kính 3 km</option>
             <option value="5" id="radHosp5">Trong bán kính 5 km</option>
             <option value="8" selected id="radHosp8">Trong bán kính 8 km</option>
@@ -782,10 +835,10 @@
         </div>
 
         <div class="controls">
-          <button class="btn btn-primary" onclick="getLocationAndSearch('hospital')">
+          <button class="btn btn-primary" type="button" id="btnTriggerHospitalGps">
             <i class="fa-solid fa-location-dot"></i> <span id="btnFindHospital">Tìm bệnh viện gần tôi</span>
           </button>
-          <button class="btn btn-secondary" onclick="searchHospitals()">
+          <button class="btn btn-secondary" type="button" id="btnRefreshHospitals">
             <i class="fa-solid fa-rotate"></i> <span id="btnReloadHospital">Tìm lại</span>
           </button>
         </div>
@@ -807,13 +860,13 @@
 
         <div id="parkingContextBanner" style="display:none;background:var(--primary-light);color:var(--primary);padding:10px 12px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px;align-items:center;justify-content:space-between;gap:8px;">
           <span id="parkingContextText"></span>
-          <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="getLocationAndSearch('parking')" id="btnBackToMyGps">Về vị trí của tôi</button>
+          <button class="btn btn-secondary" type="button" style="padding:4px 10px;font-size:12px;" id="btnBackToMyGps">Về vị trí của tôi</button>
         </div>
 
         <div class="filter-grid">
           <div class="field">
             <label for="vehicle" id="lblVehicle">Loại xe</label>
-            <select id="vehicle" onchange="if(userLocation || customParkingCenter) searchParking()">
+            <select id="vehicle">
               <option value="car" id="vehCar">🚗 Ô tô</option>
               <option value="motorcycle" id="vehMoto">🏍️ Xe máy</option>
               <option value="electric" id="vehElectric">⚡ Xe điện (Trạm sạc)</option>
@@ -822,7 +875,7 @@
           </div>
           <div class="field">
             <label for="parkingRadius" id="lblParkingRadius">Bán kính tìm kiếm</label>
-            <select id="parkingRadius" onchange="if(userLocation || customParkingCenter) searchParking()">
+            <select id="parkingRadius">
               <option value="2" id="radPark2">Bán kính 2 km</option>
               <option value="5" selected id="radPark5">Bán kính 5 km</option>
               <option value="10" id="radPark10">Bán kính 10 km</option>
@@ -831,10 +884,10 @@
         </div>
 
         <div class="controls">
-          <button class="btn btn-primary" onclick="getLocationAndSearch('parking')">
+          <button class="btn btn-primary" type="button" id="btnTriggerParkingGps">
             <i class="fa-solid fa-location-crosshairs"></i> <span id="btnFindParking">Tìm bãi gần tôi</span>
           </button>
-          <button class="btn btn-secondary" onclick="searchParking()">
+          <button class="btn btn-secondary" type="button" id="btnRefreshParking">
             <i class="fa-solid fa-rotate"></i> <span id="btnReloadParking">Tìm lại</span>
           </button>
         </div>
@@ -863,10 +916,10 @@
     <div class="map-card">
       <div class="map-toolbar">
         <div class="map-toolbar-left">
-          <button class="btn btn-primary" style="padding:8px 14px;font-size:13px;" onclick="locateMe()">
+          <button class="btn btn-primary" type="button" style="padding:8px 14px;font-size:13px;" id="btnLocateMeAction">
             <i class="fa-solid fa-crosshairs"></i> <span id="btnMyLocation">Vị trí của tôi</span>
           </button>
-          <button class="btn btn-secondary" id="trackBtn" style="padding:8px 14px;font-size:13px;" onclick="toggleTracking()">
+          <button class="btn btn-secondary" type="button" id="trackBtn" style="padding:8px 14px;font-size:13px;">
             <i class="fa-solid fa-satellite"></i> <span id="txtTrackBtn">Theo dõi vị trí</span>
           </button>
         </div>
@@ -893,11 +946,14 @@
 <footer class="site-footer">
   <div class="footer-wrap">
     <div>
-      © 2026 <b>Care & Parking</b> — <span id="footerProjectDesc">Dự án Hệ thống Hỗ trợ Khám bệnh & Tìm bãi đỗ xe thông minh</span>
+      © 2026 <b>VimedGo</b> — <span id="footerProjectDesc">Dự án Hệ thống Hỗ trợ Khám bệnh & Tìm bãi đỗ xe thông minh</span>
     </div>
     <div class="author-info">
-      <span><i class="fa-solid fa-code" style="color:var(--primary)"></i> <span id="footerAuthorLabel">Phát triển bởi:</span> <span class="author-name">Đội ngũ học sinh lớp 10a3 THPT Lê Quý Đôn</span></span>
-      <!-- Thay đường dẫn Facebook của bạn vào thuộc tính href bên dưới -->
+      <span>
+        <i class="fa-solid fa-code" style="color:var(--primary)"></i>
+        <span id="footerAuthorLabel">Phát triển bởi:</span>
+        <span class="author-name" id="footerAuthorName">Đội ngũ học sinh lớp 10a3 THPT Lê Quý Đôn</span>
+      </span>
       <a class="fb-link" href="https://www.facebook.com/Feezos1018/" target="_blank" rel="noopener noreferrer" title="Facebook">
         <i class="fa-brands fa-facebook"></i>
         <span id="footerFbText">Facebook</span>
@@ -906,1081 +962,1219 @@
   </div>
 </footer>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-  const VIETMAP_API_KEY = "fd87b92b8c9b1a7848dd81147205540504a99b37cf661f41";
+  (() => {
+    "use strict";
 
-  // Ngôn ngữ mặc định là Tiếng Việt ("vi")
-  let currentLang = "vi";
+    const VIETMAP_API_KEY = "fd87b92b8c9b1a7848dd81147205540504a99b37cf661f41";
+    const STORAGE_KEY = "vimedgo_bookings_v1";
 
-  const I18N = {
-    vi: {
-      pageTitle: "Care & Parking Pro - Hệ thống Y tế & Đỗ xe Thông minh",
-      brandSubtitle: "Định vị thực tế Bệnh viện & Bãi đỗ xe quanh bạn",
-      langLabel: "Tiếng Việt",
-      langCode: "VI",
-      statusNotLocated: "📍 Chưa lấy vị trí",
-      statusRequesting: "📍 Đang xin quyền và lấy vị trí GPS...",
-      statusTracking: "🔄 Đang theo dõi vị trí GPS...",
-      statusCurrentPos: "📍 Vị trí hiện tại",
-      statusTrackFailed: "❌ Không thể tiếp tục theo dõi GPS",
-      statusNoGps: "❌ Thiết bị/trình duyệt không hỗ trợ GPS",
-      errDenied: "❌ Bạn đã từ chối quyền truy cập vị trí.",
-      errUnavailable: "❌ Không xác định được vị trí GPS.",
-      errTimeout: "❌ GPS phản hồi quá lâu. Hãy thử lại.",
-      errDefault: "❌ Không lấy được vị trí",
-      tabHospital: "Bệnh viện",
-      tabParking: "Bãi đỗ xe",
-      tabBooking: "Lịch hẹn",
-      hospitalCardTitle: "Tìm bệnh viện gần nhất",
-      lblSpecialty: "Chuyên khoa khám",
-      lblDate: "Ngày khám dự kiến",
-      lblHospitalRadius: "Bán kính quét từ vị trí của bạn",
-      radHosp3: "Trong bán kính 3 km",
-      radHosp5: "Trong bán kính 5 km",
-      radHosp8: "Trong bán kính 8 km",
-      radHosp15: "Trong bán kính 15 km",
-      btnFindHospital: "Tìm bệnh viện gần tôi",
-      btnReload: "Tìm lại",
-      txtHospitalLoader: "Đang tìm bệnh viện quanh vị trí của bạn...",
-      emptyHospitalInitTitle: "Chưa lấy vị trí",
-      emptyHospitalInitDesc: "Hãy bấm <b>“Tìm bệnh viện gần tôi”</b> và xác nhận cho phép sử dụng vị trí để bắt đầu.",
-      emptyHospitalNone: "Không tìm thấy bệnh viện trong phạm vi tìm kiếm.",
-      errHospitalFetch: "⚠️ Không lấy được dữ liệu bệnh viện. Hãy thử lại.",
-      parkingCardTitle: "Bãi đậu xe gần nhất",
-      btnBackToMyGps: "Về vị trí của tôi",
-      lblVehicle: "Loại xe",
-      vehCar: "🚗 Ô tô",
-      vehMoto: "🏍️ Xe máy",
-      vehElectric: "⚡ Xe điện (Trạm sạc)",
-      vehBike: "🚲 Xe đạp",
-      lblParkingRadius: "Bán kính tìm kiếm",
-      radPark2: "Bán kính 2 km",
-      radPark5: "Bán kính 5 km",
-      radPark10: "Bán kính 10 km",
-      btnFindParking: "Tìm bãi gần tôi",
-      txtParkingLoader: "Đang tìm bãi đỗ xe gần vị trí của bạn...",
-      emptyParkingInitTitle: "Chưa có vị trí",
-      emptyParkingInitDesc: "Hãy bấm <b>“Tìm bãi gần tôi”</b> để xác nhận quyền vị trí và tìm bãi đỗ xe gần nhất.",
-      emptyParkingNone: "Không tìm thấy bãi đỗ phù hợp trong phạm vi tìm kiếm.",
-      errParkingFetch: "⚠️ Không lấy được dữ liệu bãi đỗ. Hãy thử lại.",
-      bookingCardTitle: "Phiếu khám đã đặt",
-      emptyBookings: "Chưa có lịch hẹn nào.",
-      btnMyLocation: "Vị trí của tôi",
-      txtTrackBtn: "Theo dõi vị trí",
-      txtStopTrackBtn: "Dừng theo dõi",
-      accuracyInit: "Độ chính xác: --",
-      accuracyVal: "Sai số GPS",
-      legUser: "Vị trí của bạn",
-      legHospital: "Bệnh viện",
-      legParking: "Bãi đỗ xe / Trạm sạc",
-      mapProviderNote: "Bản đồ VIETMAP GL & OpenStreetMap",
-      footerProjectDesc: "Dự án Hệ thống Hỗ trợ Khám bệnh & Tìm bãi đỗ xe thông minh",
-      footerAuthorLabel: "Phát triển bởi tác giả:",
-      footerFbText: "Facebook Tác giả",
-      modalCancel: "Hủy",
-      modalConfirmGps: "Đồng ý lấy vị trí",
-      modalTitleParking: "Cho phép lấy vị trí để tìm bãi đỗ xe?",
-      modalDescParking: "Hệ thống cần truy cập vị trí GPS hiện tại của bạn để tìm các bãi đỗ xe và trạm sạc gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy vị trí thực tế.",
-      modalTitleHospital: "Cho phép lấy vị trí để tìm bệnh viện?",
-      modalDescHospital: "Hệ thống cần truy cập vị trí GPS hiện tại của bạn để tìm các bệnh viện và cơ sở y tế gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy vị trí thực tế.",
-      modalTitleLocate: "Cho phép lấy vị trí của bạn?",
-      modalDescLocate: "Trang web cần vị trí GPS hiện tại của thiết bị để hiển thị vị trí của bạn trên bản đồ VIETMAP.",
-      badgeHospital: "🏥 Bệnh viện",
-      nearestSlot: "Giờ khám gần nhất",
-      dateLabel: "Ngày",
-      notSelected: "chưa chọn",
-      btnBookNow: "Đặt lịch khám",
-      btnParkingNearHosp: "Bãi đỗ quanh viện",
-      typeCharging: "Trạm sạc",
-      typeParking: "Bãi đỗ xe",
-      lblCapacity: "Sức chứa",
-      lblFee: "Phí",
-      lblOpenHours: "Giờ mở cửa",
-      lblCoords: "Tọa độ",
-      btnDirections: "🧭 Chỉ đường",
-      unnamedPlace: "Không có tên",
-      unnamedCharging: "Trạm sạc xe điện",
-      unnamedParking: "Bãi đỗ xe",
-      popupYourPos: "📍 Vị trí hiện tại của bạn",
-      popupCoords: "Tọa độ",
-      popupAccuracy: "Sai số",
-      bannerParkingNear: "Bãi đỗ quanh",
-      modalBookingTitle: "Đặt lịch khám bệnh",
-      lblPatientName: "Họ và tên bệnh nhân",
-      phPatientName: "Nhập họ và tên...",
-      lblPatientPhone: "Số điện thoại",
-      lblTimeSlot: "Khung giờ khám",
-      lblBookingVehicle: "Phương tiện đi kèm (Hỗ trợ gợi ý bãi đỗ)",
-      optNoVehicle: "Không cần gửi xe",
-      optCarVehicle: "🚗 Có đi Ô tô (Cần bãi đỗ ô tô)",
-      optMotoVehicle: "🏍️ Có đi Xe máy",
-      optEvVehicle: "⚡ Có đi Xe điện (Cần trạm sạc)",
-      btnSubmitBooking: "Xác nhận đặt lịch",
-      defaultPatient: "Khách đặt lịch",
-      defaultPhone: "Chưa cung cấp",
-      lblPatientInfo: "Bệnh nhân",
-      lblVehicleInfo: "Phương tiện",
-      btnDeleteBooking: "Hủy",
-      toastLocated: "Đã lấy vị trí GPS hiện tại của bạn!",
-      toastTrackStopped: "Đã dừng theo dõi vị trí liên tục.",
-      toastBooked: "Đặt lịch thành công! Mã phiếu",
-      toastLangChanged: "Đã chuyển sang Tiếng Việt",
-      specialties: {
-        general: "Khám tổng quát",
-        internal: "Nội khoa",
-        surgery: "Ngoại khoa",
-        pediatrics: "Nhi khoa",
-        cardiology: "Tim mạch",
-        dermatology: "Da liễu",
-        ent: "Tai - Mũi - Họng",
-        dental: "Răng - Hàm - Mặt",
-        eye: "Mắt"
+    // Ngôn ngữ mặc định là Tiếng Việt ("vi")
+    let currentLang = "vi";
+
+    const I18N = Object.freeze({
+      vi: {
+        pageTitle: "VimedGo - Hệ thống Y tế & Đỗ xe Thông minh",
+        brandSubtitle: "Định vị thực tế Bệnh viện & Bãi đỗ xe quanh bạn",
+        langLabel: "Tiếng Việt",
+        langCode: "VI",
+        statusNotLocated: "📍 Chưa lấy vị trí",
+        statusRequesting: "📍 Đang xin quyền và lấy vị trí GPS...",
+        statusTracking: "🔄 Đang theo dõi vị trí GPS...",
+        statusCurrentPos: "📍 Vị trí hiện tại",
+        statusTrackFailed: "❌ Không thể tiếp tục theo dõi GPS",
+        statusNoGps: "❌ Thiết bị/trình duyệt không hỗ trợ GPS",
+        errDenied: "❌ Bạn đã từ chối quyền truy cập vị trí.",
+        errUnavailable: "❌ Không xác định được vị trí GPS.",
+        errTimeout: "❌ GPS phản hồi quá lâu. Hãy thử lại.",
+        errDefault: "❌ Không lấy được vị trí",
+        tabHospital: "Bệnh viện",
+        tabParking: "Bãi đỗ xe",
+        tabBooking: "Lịch hẹn",
+        hospitalCardTitle: "Tìm bệnh viện gần nhất",
+        lblSpecialty: "Chuyên khoa khám",
+        lblDate: "Ngày khám dự kiến",
+        lblHospitalRadius: "Bán kính quét từ vị trí của bạn",
+        radHosp3: "Trong bán kính 3 km",
+        radHosp5: "Trong bán kính 5 km",
+        radHosp8: "Trong bán kính 8 km",
+        radHosp15: "Trong bán kính 15 km",
+        btnFindHospital: "Tìm bệnh viện gần tôi",
+        btnReload: "Tìm lại",
+        txtHospitalLoader: "Đang tìm bệnh viện quanh vị trí của bạn...",
+        emptyHospitalInitTitle: "Chưa lấy vị trí",
+        emptyHospitalInitDesc: "Hãy bấm “Tìm bệnh viện gần tôi” và xác nhận cho phép sử dụng vị trí để bắt đầu.",
+        emptyHospitalNone: "Không tìm thấy bệnh viện trong phạm vi tìm kiếm.",
+        errHospitalFetch: "⚠️ Không lấy được dữ liệu bệnh viện. Hãy thử lại.",
+        parkingCardTitle: "Bãi đậu xe gần nhất",
+        btnBackToMyGps: "Về vị trí của tôi",
+        lblVehicle: "Loại xe",
+        vehCar: "🚗 Ô tô",
+        vehMoto: "🏍️ Xe máy",
+        vehElectric: "⚡ Xe điện (Trạm sạc)",
+        vehBike: "🚲 Xe đạp",
+        lblParkingRadius: "Bán kính tìm kiếm",
+        radPark2: "Bán kính 2 km",
+        radPark5: "Bán kính 5 km",
+        radPark10: "Bán kính 10 km",
+        btnFindParking: "Tìm bãi gần tôi",
+        txtParkingLoader: "Đang tìm bãi đỗ xe gần vị trí của bạn...",
+        emptyParkingInitTitle: "Chưa có vị trí",
+        emptyParkingInitDesc: "Hãy bấm “Tìm bãi gần tôi” để xác nhận quyền vị trí và tìm bãi đỗ xe gần nhất.",
+        emptyParkingNone: "Không tìm thấy bãi đỗ phù hợp trong phạm vi tìm kiếm.",
+        errParkingFetch: "⚠️ Không lấy được dữ liệu bãi đỗ. Hãy thử lại.",
+        bookingCardTitle: "Phiếu khám đã đặt",
+        emptyBookings: "Chưa có lịch hẹn nào.",
+        btnMyLocation: "Vị trí của tôi",
+        txtTrackBtn: "Theo dõi vị trí",
+        txtStopTrackBtn: "Dừng theo dõi",
+        accuracyInit: "Độ chính xác: --",
+        accuracyVal: "Sai số GPS",
+        legUser: "Vị trí của bạn",
+        legHospital: "Bệnh viện",
+        legParking: "Bãi đỗ xe / Trạm sạc",
+        mapProviderNote: "Bản đồ VIETMAP GL & OpenStreetMap",
+        footerProjectDesc: "Dự án Hệ thống Hỗ trợ Khám bệnh & Tìm bãi đỗ xe thông minh",
+        footerAuthorLabel: "Phát triển bởi:",
+        footerAuthorName: "Đội ngũ học sinh lớp 10a3 THPT Lê Quý Đôn",
+        footerFbText: "Facebook",
+        modalCancel: "Hủy",
+        modalConfirmGps: "Đồng ý lấy vị trí",
+        modalTitleParking: "Cho phép lấy vị trí để tìm bãi đỗ xe?",
+        modalDescParking: "VimedGo cần truy cập vị trí GPS hiện tại của bạn để tìm các bãi đỗ xe và trạm sạc gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy vị trí thực tế.",
+        modalTitleHospital: "Cho phép lấy vị trí để tìm bệnh viện?",
+        modalDescHospital: "VimedGo cần truy cập vị trí GPS hiện tại của bạn để tìm các bệnh viện và cơ sở y tế gần bạn nhất. Sau khi bạn bấm Đồng ý, trình duyệt sẽ lấy vị trí thực tế.",
+        modalTitleLocate: "Cho phép lấy vị trí của bạn?",
+        modalDescLocate: "VimedGo cần vị trí GPS hiện tại của thiết bị để hiển thị vị trí của bạn trên bản đồ VIETMAP.",
+        badgeHospital: "🏥 Bệnh viện",
+        nearestSlot: "Giờ khám gần nhất",
+        dateLabel: "Ngày",
+        notSelected: "chưa chọn",
+        btnBookNow: "Đặt lịch khám",
+        btnParkingNearHosp: "Bãi đỗ quanh viện",
+        typeCharging: "Trạm sạc",
+        typeParking: "Bãi đỗ xe",
+        lblCapacity: "Sức chứa",
+        lblFee: "Phí",
+        lblOpenHours: "Giờ mở cửa",
+        lblCoords: "Tọa độ",
+        btnDirections: "🧭 Chỉ đường",
+        unnamedPlace: "Không có tên",
+        unnamedCharging: "Trạm sạc xe điện",
+        unnamedParking: "Bãi đỗ xe",
+        popupYourPos: "📍 Vị trí hiện tại của bạn",
+        popupCoords: "Tọa độ",
+        popupAccuracy: "Sai số",
+        bannerParkingNear: "Bãi đỗ quanh",
+        modalBookingTitle: "Đặt lịch khám bệnh",
+        lblPatientName: "Họ và tên bệnh nhân",
+        phPatientName: "Nhập họ và tên...",
+        lblPatientPhone: "Số điện thoại",
+        lblTimeSlot: "Khung giờ khám",
+        lblBookingVehicle: "Phương tiện đi kèm (Hỗ trợ gợi ý bãi đỗ)",
+        optNoVehicle: "Không cần gửi xe",
+        optCarVehicle: "🚗 Có đi Ô tô (Cần bãi đỗ ô tô)",
+        optMotoVehicle: "🏍️ Có đi Xe máy",
+        optEvVehicle: "⚡ Có đi Xe điện (Cần trạm sạc)",
+        btnSubmitBooking: "Xác nhận đặt lịch",
+        defaultPatient: "Khách đặt lịch",
+        defaultPhone: "Chưa cung cấp",
+        lblPatientInfo: "Bệnh nhân",
+        lblVehicleInfo: "Phương tiện",
+        btnDeleteBooking: "Hủy",
+        toastLocated: "Đã lấy vị trí GPS hiện tại của bạn!",
+        toastTrackStopped: "Đã dừng theo dõi vị trí liên tục.",
+        toastBooked: "Đặt lịch thành công! Mã phiếu",
+        toastLangChanged: "Đã chuyển sang Tiếng Việt",
+        specialties: {
+          general: "Khám tổng quát",
+          internal: "Nội khoa",
+          surgery: "Ngoại khoa",
+          pediatrics: "Nhi khoa",
+          cardiology: "Tim mạch",
+          dermatology: "Da liễu",
+          ent: "Tai - Mũi - Họng",
+          dental: "Răng - Hàm - Mặt",
+          eye: "Mắt"
+        }
+      },
+      en: {
+        pageTitle: "VimedGo - Smart Healthcare & Parking Locator",
+        brandSubtitle: "Real-time GPS Hospital & Parking Finder around you",
+        langLabel: "English",
+        langCode: "EN",
+        statusNotLocated: "📍 Location not acquired",
+        statusRequesting: "📍 Requesting permission & acquiring GPS...",
+        statusTracking: "🔄 Live tracking GPS location...",
+        statusCurrentPos: "📍 Current location",
+        statusTrackFailed: "❌ Unable to continue GPS tracking",
+        statusNoGps: "❌ Device/browser does not support GPS",
+        errDenied: "❌ Location permission denied.",
+        errUnavailable: "❌ Unable to determine GPS location.",
+        errTimeout: "❌ GPS request timed out. Please try again.",
+        errDefault: "❌ Could not get location",
+        tabHospital: "Hospitals",
+        tabParking: "Parking",
+        tabBooking: "Bookings",
+        hospitalCardTitle: "Find Nearest Hospitals",
+        lblSpecialty: "Medical Specialty",
+        lblDate: "Preferred Date",
+        lblHospitalRadius: "Search Radius from Your Location",
+        radHosp3: "Within 3 km radius",
+        radHosp5: "Within 5 km radius",
+        radHosp8: "Within 8 km radius",
+        radHosp15: "Within 15 km radius",
+        btnFindHospital: "Find Hospitals Near Me",
+        btnReload: "Refresh",
+        txtHospitalLoader: "Searching for hospitals near your location...",
+        emptyHospitalInitTitle: "Location Not Set",
+        emptyHospitalInitDesc: "Click “Find Hospitals Near Me” and grant location access to start.",
+        emptyHospitalNone: "No hospitals found within the selected search radius.",
+        errHospitalFetch: "⚠️ Could not load hospital data. Please try again.",
+        parkingCardTitle: "Nearest Parking & Charging",
+        btnBackToMyGps: "Back to my GPS",
+        lblVehicle: "Vehicle Type",
+        vehCar: "🚗 Car",
+        vehMoto: "🏍️ Motorcycle",
+        vehElectric: "⚡ EV (Charging Station)",
+        vehBike: "🚲 Bicycle",
+        lblParkingRadius: "Search Radius",
+        radPark2: "Within 2 km",
+        radPark5: "Within 5 km",
+        radPark10: "Within 10 km",
+        btnFindParking: "Find Parking Near Me",
+        txtParkingLoader: "Searching for parking lots near your location...",
+        emptyParkingInitTitle: "No Location Yet",
+        emptyParkingInitDesc: "Click “Find Parking Near Me” to confirm location access and find nearby parking.",
+        emptyParkingNone: "No suitable parking found within the search area.",
+        errParkingFetch: "⚠️ Could not load parking data. Please try again.",
+        bookingCardTitle: "My Booked Appointments",
+        emptyBookings: "No appointments booked yet.",
+        btnMyLocation: "My Location",
+        txtTrackBtn: "Live Track",
+        txtStopTrackBtn: "Stop Tracking",
+        accuracyInit: "Accuracy: --",
+        accuracyVal: "GPS Accuracy",
+        legUser: "Your Location",
+        legHospital: "Hospital",
+        legParking: "Parking / EV Charging",
+        mapProviderNote: "Powered by VIETMAP GL & OpenStreetMap",
+        footerProjectDesc: "Smart Healthcare & Parking Locator Project",
+        footerAuthorLabel: "Developed by:",
+        footerAuthorName: "Class 10A3 Students - Le Quy Don High School",
+        footerFbText: "Facebook",
+        modalCancel: "Cancel",
+        modalConfirmGps: "Allow Location",
+        modalTitleParking: "Allow location to find parking?",
+        modalDescParking: "VimedGo needs your device's real-time GPS location to find the nearest parking lots and EV charging stations around you.",
+        modalTitleHospital: "Allow location to find hospitals?",
+        modalDescHospital: "VimedGo needs your device's real-time GPS location to find the nearest hospitals and medical centers around you.",
+        modalTitleLocate: "Allow access to your location?",
+        modalDescLocate: "VimedGo needs your current GPS coordinates to display your position on the VIETMAP map.",
+        badgeHospital: "🏥 Hospital",
+        nearestSlot: "Earliest sample slot",
+        dateLabel: "Date",
+        notSelected: "not selected",
+        btnBookNow: "Book Appointment",
+        btnParkingNearHosp: "Parking Nearby",
+        typeCharging: "EV Charging",
+        typeParking: "Parking Lot",
+        lblCapacity: "Capacity",
+        lblFee: "Fee",
+        lblOpenHours: "Opening Hours",
+        lblCoords: "Coordinates",
+        btnDirections: "🧭 Get Directions",
+        unnamedPlace: "Unnamed Facility",
+        unnamedCharging: "EV Charging Station",
+        unnamedParking: "Public Parking",
+        popupYourPos: "📍 Your Current Location",
+        popupCoords: "Coordinates",
+        popupAccuracy: "Accuracy",
+        bannerParkingNear: "Parking near",
+        modalBookingTitle: "Book Medical Appointment",
+        lblPatientName: "Patient Full Name",
+        phPatientName: "Enter full name...",
+        lblPatientPhone: "Phone Number",
+        lblTimeSlot: "Time Slot",
+        lblBookingVehicle: "Accompanying Vehicle (For Parking Info)",
+        optNoVehicle: "No parking needed",
+        optCarVehicle: "🚗 Car (Requires car parking)",
+        optMotoVehicle: "🏍️ Motorcycle",
+        optEvVehicle: "⚡ Electric Vehicle (Requires EV charger)",
+        btnSubmitBooking: "Confirm Booking",
+        defaultPatient: "Guest Patient",
+        defaultPhone: "Not provided",
+        lblPatientInfo: "Patient",
+        lblVehicleInfo: "Vehicle",
+        btnDeleteBooking: "Cancel",
+        toastLocated: "Successfully updated your real GPS location!",
+        toastTrackStopped: "Stopped live GPS tracking.",
+        toastBooked: "Appointment confirmed! Booking ID",
+        toastLangChanged: "Switched to English",
+        specialties: {
+          general: "General Checkup",
+          internal: "Internal Medicine",
+          surgery: "General Surgery",
+          pediatrics: "Pediatrics",
+          cardiology: "Cardiology",
+          dermatology: "Dermatology",
+          ent: "ENT (Ear - Nose - Throat)",
+          dental: "Dentistry",
+          eye: "Ophthalmology"
+        }
       }
-    },
-    en: {
-      pageTitle: "Care & Parking Pro - Smart Healthcare & Parking Locator",
-      brandSubtitle: "Real-time GPS Hospital & Parking Finder around you",
-      langLabel: "English",
-      langCode: "EN",
-      statusNotLocated: "📍 Location not acquired",
-      statusRequesting: "📍 Requesting permission & acquiring GPS...",
-      statusTracking: "🔄 Live tracking GPS location...",
-      statusCurrentPos: "📍 Current location",
-      statusTrackFailed: "❌ Unable to continue GPS tracking",
-      statusNoGps: "❌ Device/browser does not support GPS",
-      errDenied: "❌ Location permission denied.",
-      errUnavailable: "❌ Unable to determine GPS location.",
-      errTimeout: "❌ GPS request timed out. Please try again.",
-      errDefault: "❌ Could not get location",
-      tabHospital: "Hospitals",
-      tabParking: "Parking",
-      tabBooking: "Bookings",
-      hospitalCardTitle: "Find Nearest Hospitals",
-      lblSpecialty: "Medical Specialty",
-      lblDate: "Preferred Date",
-      lblHospitalRadius: "Search Radius from Your Location",
-      radHosp3: "Within 3 km radius",
-      radHosp5: "Within 5 km radius",
-      radHosp8: "Within 8 km radius",
-      radHosp15: "Within 15 km radius",
-      btnFindHospital: "Find Hospitals Near Me",
-      btnReload: "Refresh",
-      txtHospitalLoader: "Searching for hospitals near your location...",
-      emptyHospitalInitTitle: "Location Not Set",
-      emptyHospitalInitDesc: "Click <b>“Find Hospitals Near Me”</b> and grant location access to start.",
-      emptyHospitalNone: "No hospitals found within the selected search radius.",
-      errHospitalFetch: "⚠️ Could not load hospital data. Please try again.",
-      parkingCardTitle: "Nearest Parking & Charging",
-      btnBackToMyGps: "Back to my GPS",
-      lblVehicle: "Vehicle Type",
-      vehCar: "🚗 Car",
-      vehMoto: "🏍️ Motorcycle",
-      vehElectric: "⚡ EV (Charging Station)",
-      vehBike: "🚲 Bicycle",
-      lblParkingRadius: "Search Radius",
-      radPark2: "Within 2 km",
-      radPark5: "Within 5 km",
-      radPark10: "Within 10 km",
-      btnFindParking: "Find Parking Near Me",
-      txtParkingLoader: "Searching for parking lots near your location...",
-      emptyParkingInitTitle: "No Location Yet",
-      emptyParkingInitDesc: "Click <b>“Find Parking Near Me”</b> to confirm location access and find nearby parking.",
-      emptyParkingNone: "No suitable parking found within the search area.",
-      errParkingFetch: "⚠️ Could not load parking data. Please try again.",
-      bookingCardTitle: "My Booked Appointments",
-      emptyBookings: "No appointments booked yet.",
-      btnMyLocation: "My Location",
-      txtTrackBtn: "Live Track",
-      txtStopTrackBtn: "Stop Tracking",
-      accuracyInit: "Accuracy: --",
-      accuracyVal: "GPS Accuracy",
-      legUser: "Your Location",
-      legHospital: "Hospital",
-      legParking: "Parking / EV Charging",
-      mapProviderNote: "Powered by VIETMAP GL & OpenStreetMap",
-      footerProjectDesc: "Smart Healthcare & Parking Locator Project",
-      footerAuthorLabel: "Developed by author:",
-      footerFbText: "Author's Facebook",
-      modalCancel: "Cancel",
-      modalConfirmGps: "Allow Location",
-      modalTitleParking: "Allow location to find parking?",
-      modalDescParking: "We need your device's real-time GPS location to find the nearest parking lots and EV charging stations around you.",
-      modalTitleHospital: "Allow location to find hospitals?",
-      modalDescHospital: "We need your device's real-time GPS location to find the nearest hospitals and medical centers around you.",
-      modalTitleLocate: "Allow access to your location?",
-      modalDescLocate: "This web app needs your current GPS coordinates to display your position on the VIETMAP map.",
-      badgeHospital: "🏥 Hospital",
-      nearestSlot: "Earliest sample slot",
-      dateLabel: "Date",
-      notSelected: "not selected",
-      btnBookNow: "Book Appointment",
-      btnParkingNearHosp: "Parking Nearby",
-      typeCharging: "EV Charging",
-      typeParking: "Parking Lot",
-      lblCapacity: "Capacity",
-      lblFee: "Fee",
-      lblOpenHours: "Opening Hours",
-      lblCoords: "Coordinates",
-      btnDirections: "🧭 Get Directions",
-      unnamedPlace: "Unnamed Facility",
-      unnamedCharging: "EV Charging Station",
-      unnamedParking: "Public Parking",
-      popupYourPos: "📍 Your Current Location",
-      popupCoords: "Coordinates",
-      popupAccuracy: "Accuracy",
-      bannerParkingNear: "Parking near",
-      modalBookingTitle: "Book Medical Appointment",
-      lblPatientName: "Patient Full Name",
-      phPatientName: "Enter full name...",
-      lblPatientPhone: "Phone Number",
-      lblTimeSlot: "Time Slot",
-      lblBookingVehicle: "Accompanying Vehicle (For Parking Info)",
-      optNoVehicle: "No parking needed",
-      optCarVehicle: "🚗 Car (Requires car parking)",
-      optMotoVehicle: "🏍️ Motorcycle",
-      optEvVehicle: "⚡ Electric Vehicle (Requires EV charger)",
-      btnSubmitBooking: "Confirm Booking",
-      defaultPatient: "Guest Patient",
-      defaultPhone: "Not provided",
-      lblPatientInfo: "Patient",
-      lblVehicleInfo: "Vehicle",
-      btnDeleteBooking: "Cancel",
-      toastLocated: "Successfully updated your real GPS location!",
-      toastTrackStopped: "Stopped live GPS tracking.",
-      toastBooked: "Appointment confirmed! Booking ID",
-      toastLangChanged: "Switched to English",
-      specialties: {
-        general: "General Checkup",
-        internal: "Internal Medicine",
-        surgery: "General Surgery",
-        pediatrics: "Pediatrics",
-        cardiology: "Cardiology",
-        dermatology: "Dermatology",
-        ent: "ENT (Ear - Nose - Throat)",
-        dental: "Dentistry",
-        eye: "Ophthalmology"
+    });
+
+    function t(key) {
+      return I18N[currentLang][key] ?? key;
+    }
+
+    let userLocation = null;
+    let customParkingCenter = null;
+    let map = null;
+    let userMarker = null;
+    let markers = [];
+    let watchId = null;
+    let pendingLocationAction = null;
+    let lastHospitals = [];
+    let lastParking = [];
+    let selectedHospitalForBooking = null;
+    let activeOverpassController = null;
+    let toastTimer = null;
+
+    const locationStatus = document.getElementById("locationStatus");
+    const gpsDot = document.getElementById("gpsDot");
+    const accuracyBadge = document.getElementById("accuracyBadge");
+
+    document.getElementById("date").valueAsDate = new Date();
+
+    // Bảo mật: Khử mã độc HTML (Anti-XSS)
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    // Bảo mật: Tạo mã đặt lịch ngẫu nhiên an toàn bằng Web Crypto API
+    function generateSecureBookingCode() {
+      if (window.crypto && window.crypto.getRandomValues) {
+        const arr = new Uint32Array(1);
+        window.crypto.getRandomValues(arr);
+        const num = 100000 + (arr[0] % 900000);
+        return `VMG-${num}`;
+      }
+      return `VMG-${Math.floor(100000 + Math.random() * 900000)}`;
+    }
+
+    // Bảo mật: Đọc/Ghi localStorage an toàn, chống lỗi JSON hỏng
+    function getSafeBookings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("cp_bookings");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
       }
     }
-  };
 
-  function t(key) {
-    return I18N[currentLang][key] ?? key;
-  }
+    function saveSafeBookings(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 50)));
+      } catch (e) {
+        console.warn("Storage quota exceeded", e);
+      }
+    }
 
-  let userLocation = null;
-  let customParkingCenter = null;
-  let map = null;
-  let userMarker = null;
-  let markers = [];
-  let watchId = null;
-  let pendingLocationAction = null;
-  let lastHospitals = [];
-  let lastParking = [];
-  let selectedHospitalForBooking = null;
+    function toggleLanguage() {
+      currentLang = currentLang === "vi" ? "en" : "vi";
+      document.documentElement.lang = currentLang;
+      applyTranslations();
+      showToast(t("toastLangChanged"));
+    }
 
-  const locationStatus = document.getElementById("locationStatus");
-  const gpsDot = document.getElementById("gpsDot");
-  const accuracyBadge = document.getElementById("accuracyBadge");
+    function applyTranslations() {
+      document.title = t("pageTitle");
+      document.getElementById("brandSubtitle").textContent = t("brandSubtitle");
+      document.getElementById("langLabel").textContent = t("langLabel");
+      document.getElementById("langCodeBadge").textContent = t("langCode");
 
-  document.getElementById("date").valueAsDate = new Date();
+      document.getElementById("tabHospitalTxt").textContent = t("tabHospital");
+      document.getElementById("tabParkingTxt").textContent = t("tabParking");
+      document.getElementById("tabBookingTxt").textContent = t("tabBooking");
 
-  function toggleLanguage() {
-    currentLang = currentLang === "vi" ? "en" : "vi";
-    document.documentElement.lang = currentLang;
-    applyTranslations();
-    showToast(t("toastLangChanged"));
-  }
+      document.getElementById("hospitalCardTitle").textContent = t("hospitalCardTitle");
+      document.getElementById("lblSpecialty").textContent = t("lblSpecialty");
+      document.getElementById("lblDate").textContent = t("lblDate");
+      document.getElementById("lblHospitalRadius").textContent = t("lblHospitalRadius");
+      document.getElementById("radHosp3").textContent = t("radHosp3");
+      document.getElementById("radHosp5").textContent = t("radHosp5");
+      document.getElementById("radHosp8").textContent = t("radHosp8");
+      document.getElementById("radHosp15").textContent = t("radHosp15");
+      document.getElementById("btnFindHospital").textContent = t("btnFindHospital");
+      document.getElementById("btnReloadHospital").textContent = t("btnReload");
+      document.getElementById("txtHospitalLoader").textContent = t("txtHospitalLoader");
 
-  function applyTranslations() {
-    document.title = t("pageTitle");
-    document.getElementById("brandSubtitle").textContent = t("brandSubtitle");
-    document.getElementById("langLabel").textContent = t("langLabel");
-    document.getElementById("langCodeBadge").textContent = t("langCode");
+      const specs = I18N[currentLang].specialties;
+      document.getElementById("specGeneral").textContent = specs.general;
+      document.getElementById("specInternal").textContent = specs.internal;
+      document.getElementById("specSurgery").textContent = specs.surgery;
+      document.getElementById("specPediatrics").textContent = specs.pediatrics;
+      document.getElementById("specCardiology").textContent = specs.cardiology;
+      document.getElementById("specDermatology").textContent = specs.dermatology;
+      document.getElementById("specEnt").textContent = specs.ent;
+      document.getElementById("specDental").textContent = specs.dental;
+      document.getElementById("specEye").textContent = specs.eye;
 
-    document.getElementById("tabHospitalTxt").textContent = t("tabHospital");
-    document.getElementById("tabParkingTxt").textContent = t("tabParking");
-    document.getElementById("tabBookingTxt").textContent = t("tabBooking");
+      document.getElementById("parkingCardTitle").textContent = t("parkingCardTitle");
+      document.getElementById("btnBackToMyGps").textContent = t("btnBackToMyGps");
+      document.getElementById("lblVehicle").textContent = t("lblVehicle");
+      document.getElementById("vehCar").textContent = t("vehCar");
+      document.getElementById("vehMoto").textContent = t("vehMoto");
+      document.getElementById("vehElectric").textContent = t("vehElectric");
+      document.getElementById("vehBike").textContent = t("vehBike");
+      document.getElementById("lblParkingRadius").textContent = t("lblParkingRadius");
+      document.getElementById("radPark2").textContent = t("radPark2");
+      document.getElementById("radPark5").textContent = t("radPark5");
+      document.getElementById("radPark10").textContent = t("radPark10");
+      document.getElementById("btnFindParking").textContent = t("btnFindParking");
+      document.getElementById("btnReloadParking").textContent = t("btnReload");
+      document.getElementById("txtParkingLoader").textContent = t("txtParkingLoader");
 
-    document.getElementById("hospitalCardTitle").textContent = t("hospitalCardTitle");
-    document.getElementById("lblSpecialty").textContent = t("lblSpecialty");
-    document.getElementById("lblDate").textContent = t("lblDate");
-    document.getElementById("lblHospitalRadius").textContent = t("lblHospitalRadius");
-    document.getElementById("radHosp3").textContent = t("radHosp3");
-    document.getElementById("radHosp5").textContent = t("radHosp5");
-    document.getElementById("radHosp8").textContent = t("radHosp8");
-    document.getElementById("radHosp15").textContent = t("radHosp15");
-    document.getElementById("btnFindHospital").textContent = t("btnFindHospital");
-    document.getElementById("btnReloadHospital").textContent = t("btnReload");
-    document.getElementById("txtHospitalLoader").textContent = t("txtHospitalLoader");
+      document.getElementById("bookingCardTitle").textContent = t("bookingCardTitle");
+      document.getElementById("btnMyLocation").textContent = t("btnMyLocation");
+      document.getElementById("txtTrackBtn").textContent = watchId !== null ? t("txtStopTrackBtn") : t("txtTrackBtn");
+      document.getElementById("legUser").textContent = t("legUser");
+      document.getElementById("legHospital").textContent = t("legHospital");
+      document.getElementById("legParking").textContent = t("legParking");
+      document.getElementById("mapProviderNote").textContent = t("mapProviderNote");
+      document.getElementById("footerProjectDesc").textContent = t("footerProjectDesc");
+      document.getElementById("footerAuthorLabel").textContent = t("footerAuthorLabel");
+      document.getElementById("footerAuthorName").textContent = t("footerAuthorName");
+      document.getElementById("footerFbText").textContent = t("footerFbText");
 
-    // Chuyên khoa
-    const specs = I18N[currentLang].specialties;
-    document.getElementById("specGeneral").textContent = specs.general;
-    document.getElementById("specInternal").textContent = specs.internal;
-    document.getElementById("specSurgery").textContent = specs.surgery;
-    document.getElementById("specPediatrics").textContent = specs.pediatrics;
-    document.getElementById("specCardiology").textContent = specs.cardiology;
-    document.getElementById("specDermatology").textContent = specs.dermatology;
-    document.getElementById("specEnt").textContent = specs.ent;
-    document.getElementById("specDental").textContent = specs.dental;
-    document.getElementById("specEye").textContent = specs.eye;
+      document.getElementById("btnCancelModal").textContent = t("modalCancel");
+      document.getElementById("txtConfirmModal").textContent = t("modalConfirmGps");
+      document.getElementById("modalBookingTitle").textContent = t("modalBookingTitle");
+      document.getElementById("lblPatientName").textContent = t("lblPatientName");
+      document.getElementById("patientName").placeholder = t("phPatientName");
+      document.getElementById("lblPatientPhone").textContent = t("lblPatientPhone");
+      document.getElementById("lblTimeSlot").textContent = t("lblTimeSlot");
+      document.getElementById("lblBookingVehicle").textContent = t("lblBookingVehicle");
+      document.getElementById("optNoVehicle").textContent = t("optNoVehicle");
+      document.getElementById("optCarVehicle").textContent = t("optCarVehicle");
+      document.getElementById("optMotoVehicle").textContent = t("optMotoVehicle");
+      document.getElementById("optEvVehicle").textContent = t("optEvVehicle");
+      document.getElementById("btnCancelBooking").textContent = t("modalCancel");
+      document.getElementById("btnSubmitBooking").textContent = t("btnSubmitBooking");
 
-    // Bãi đỗ xe
-    document.getElementById("parkingCardTitle").textContent = t("parkingCardTitle");
-    document.getElementById("btnBackToMyGps").textContent = t("btnBackToMyGps");
-    document.getElementById("lblVehicle").textContent = t("lblVehicle");
-    document.getElementById("vehCar").textContent = t("vehCar");
-    document.getElementById("vehMoto").textContent = t("vehMoto");
-    document.getElementById("vehElectric").textContent = t("vehElectric");
-    document.getElementById("vehBike").textContent = t("vehBike");
-    document.getElementById("lblParkingRadius").textContent = t("lblParkingRadius");
-    document.getElementById("radPark2").textContent = t("radPark2");
-    document.getElementById("radPark5").textContent = t("radPark5");
-    document.getElementById("radPark10").textContent = t("radPark10");
-    document.getElementById("btnFindParking").textContent = t("btnFindParking");
-    document.getElementById("btnReloadParking").textContent = t("btnReload");
-    document.getElementById("txtParkingLoader").textContent = t("txtParkingLoader");
+      if (!userLocation) {
+        setStatus(t("statusNotLocated"), "idle");
+        accuracyBadge.textContent = t("accuracyInit");
+      } else {
+        const acc = Math.round(userLocation.accuracy);
+        accuracyBadge.textContent = `${t("accuracyVal")}: ±${acc} m`;
+        reverseGeocodeRealLocation(userLocation.lat, userLocation.lon).then(addr => {
+          if (addr) setStatus(`📍 ${addr} (±${acc} m)`, "active");
+        });
+      }
 
-    // Đặt lịch & Bản đồ & Chân trang
-    document.getElementById("bookingCardTitle").textContent = t("bookingCardTitle");
-    document.getElementById("btnMyLocation").textContent = t("btnMyLocation");
-    document.getElementById("txtTrackBtn").textContent = watchId !== null ? t("txtStopTrackBtn") : t("txtTrackBtn");
-    document.getElementById("legUser").textContent = t("legUser");
-    document.getElementById("legHospital").textContent = t("legHospital");
-    document.getElementById("legParking").textContent = t("legParking");
-    document.getElementById("mapProviderNote").textContent = t("mapProviderNote");
-    document.getElementById("footerProjectDesc").textContent = t("footerProjectDesc");
-    document.getElementById("footerAuthorLabel").textContent = t("footerAuthorLabel");
-    document.getElementById("footerFbText").textContent = t("footerFbText");
+      if (customParkingCenter) {
+        document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> ${escapeHtml(t("bannerParkingNear"))}: <b>${escapeHtml(customParkingCenter.name)}</b>`;
+      }
 
-    document.getElementById("btnCancelModal").textContent = t("modalCancel");
-    document.getElementById("txtConfirmModal").textContent = t("modalConfirmGps");
-    document.getElementById("modalBookingTitle").textContent = t("modalBookingTitle");
-    document.getElementById("lblPatientName").textContent = t("lblPatientName");
-    document.getElementById("patientName").placeholder = t("phPatientName");
-    document.getElementById("lblPatientPhone").textContent = t("lblPatientPhone");
-    document.getElementById("lblTimeSlot").textContent = t("lblTimeSlot");
-    document.getElementById("lblBookingVehicle").textContent = t("lblBookingVehicle");
-    document.getElementById("optNoVehicle").textContent = t("optNoVehicle");
-    document.getElementById("optCarVehicle").textContent = t("optCarVehicle");
-    document.getElementById("optMotoVehicle").textContent = t("optMotoVehicle");
-    document.getElementById("optEvVehicle").textContent = t("optEvVehicle");
-    document.getElementById("btnCancelBooking").textContent = t("modalCancel");
-    document.getElementById("btnSubmitBooking").textContent = t("btnSubmitBooking");
+      if (lastHospitals.length) {
+        renderHospitals(lastHospitals);
+      } else {
+        renderEmptyHospitalInit();
+      }
 
-    if (!userLocation) {
-      setStatus(t("statusNotLocated"), "idle");
-      accuracyBadge.textContent = t("accuracyInit");
-    } else {
+      if (lastParking.length) {
+        renderParking(lastParking, document.getElementById("vehicle").value);
+      } else {
+        renderEmptyParkingInit();
+      }
+
+      renderAppointments();
+    }
+
+    function renderEmptyHospitalInit() {
+      document.getElementById("hospitalResults").innerHTML = `
+        <div class="empty">
+          <i class="fa-solid fa-location-dot"></i>
+          <b>${escapeHtml(t("emptyHospitalInitTitle"))}</b><br>
+          ${escapeHtml(t("emptyHospitalInitDesc"))}
+        </div>`;
+    }
+
+    function renderEmptyParkingInit() {
+      document.getElementById("parkingResults").innerHTML = `
+        <div class="empty">
+          <i class="fa-solid fa-square-parking"></i>
+          <b>${escapeHtml(t("emptyParkingInitTitle"))}</b><br>
+          ${escapeHtml(t("emptyParkingInitDesc"))}
+        </div>`;
+    }
+
+    function showToast(msg) {
+      const toastEl = document.getElementById("toast");
+      toastEl.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#38bdf8"></i> <span>${escapeHtml(msg)}</span>`;
+      toastEl.classList.add("show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3500);
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", next);
+      document.getElementById("themeBtn").innerHTML = next === "dark"
+        ? '<i class="fa-solid fa-sun"></i>'
+        : '<i class="fa-solid fa-moon"></i>';
+    }
+
+    function initMap() {
+      const mapEl = document.getElementById("map");
+      if (!VIETMAP_API_KEY || !window.vietmapgl) {
+        mapEl.innerHTML = `<div style="padding:30px;text-align:center;">VIETMAP GL chưa sẵn sàng.</div>`;
+        return;
+      }
+
+      map = new vietmapgl.Map({
+        container: "map",
+        style: `https://maps.vietmap.vn/maps/styles/tm/style.json?apikey=${encodeURIComponent(VIETMAP_API_KEY)}`,
+        center: [106.660, 10.762],
+        zoom: 6
+      });
+
+      map.addControl(new vietmapgl.NavigationControl(), "top-right");
+    }
+
+    function setStatus(text, state = "idle") {
+      locationStatus.textContent = text;
+      gpsDot.className = "gps-dot" + (state === "active" ? " active" : state === "error" ? " error" : "");
+    }
+
+    function openLocationPrompt(action) {
+      pendingLocationAction = action || "locate";
+      const titleEl = document.getElementById("locationModalTitle");
+      const descEl = document.getElementById("locationModalDesc");
+
+      if (action === "parking") {
+        titleEl.textContent = t("modalTitleParking");
+        descEl.textContent = t("modalDescParking");
+      } else if (action === "hospital") {
+        titleEl.textContent = t("modalTitleHospital");
+        descEl.textContent = t("modalDescHospital");
+      } else {
+        titleEl.textContent = t("modalTitleLocate");
+        descEl.textContent = t("modalDescLocate");
+      }
+
+      document.getElementById("locationModal").classList.add("show");
+    }
+
+    function closeLocationPrompt() {
+      pendingLocationAction = null;
+      document.getElementById("locationModal").classList.remove("show");
+      if (!userLocation) {
+        setStatus(t("statusNotLocated"), "idle");
+      }
+    }
+
+    function confirmLocationPermission() {
+      const action = pendingLocationAction || "locate";
+      document.getElementById("locationModal").classList.remove("show");
+      pendingLocationAction = null;
+      requestLocation(action);
+    }
+
+    function getLocationAndSearch(type) {
+      if (type === "parking") {
+        customParkingCenter = null;
+        document.getElementById("parkingContextBanner").style.display = "none";
+      }
+      openLocationPrompt(type);
+    }
+
+    function requestLocation(action) {
+      if (!navigator.geolocation) {
+        setStatus(t("statusNoGps"), "error");
+        showToast(t("statusNoGps"));
+        return;
+      }
+
+      setStatus(t("statusRequesting"), "idle");
+
+      navigator.geolocation.getCurrentPosition(
+        async position => {
+          await updateUserLocation(position);
+          if (action === "hospital") {
+            searchHospitals();
+          } else if (action === "parking") {
+            customParkingCenter = null;
+            document.getElementById("parkingContextBanner").style.display = "none";
+            searchParking();
+          } else {
+            showToast(t("toastLocated"));
+          }
+        },
+        error => {
+          const messages = {
+            1: t("errDenied"),
+            2: t("errUnavailable"),
+            3: t("errTimeout")
+          };
+          const msg = messages[error.code] || t("errDefault");
+          setStatus(msg, "error");
+          showToast(msg);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    async function reverseGeocodeRealLocation(lat, lon) {
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&accept-language=${encodeURIComponent(currentLang)}`;
+        const res = await fetch(url, { headers: { "Accept": "application/json" } });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.display_name || null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function updateUserLocation(position) {
+      userLocation = {
+        lat: Number(position.coords.latitude),
+        lon: Number(position.coords.longitude),
+        accuracy: Number(position.coords.accuracy)
+      };
+
       const acc = Math.round(userLocation.accuracy);
       accuracyBadge.textContent = `${t("accuracyVal")}: ±${acc} m`;
-      reverseGeocodeRealLocation(userLocation.lat, userLocation.lon).then(addr => {
-        if (addr) setStatus(`📍 ${addr} (±${acc} m)`, "active");
+      setStatus(
+        `${t("statusCurrentPos")}: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)} (±${acc} m)`,
+        "active"
+      );
+
+      if (map) {
+        const pos = [userLocation.lon, userLocation.lat];
+        map.flyTo({ center: pos, zoom: 16, essential: true });
+
+        const popupHtml = `<b>${escapeHtml(t("popupYourPos"))}</b><br>${escapeHtml(t("popupCoords"))}: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)}<br>${escapeHtml(t("popupAccuracy"))}: ±${acc} m`;
+
+        if (!userMarker) {
+          const el = document.createElement("div");
+          el.className = "user-gps-marker";
+          userMarker = new vietmapgl.Marker({ element: el })
+            .setLngLat(pos)
+            .setPopup(new vietmapgl.Popup({ offset: 18 }).setHTML(popupHtml))
+            .addTo(map);
+        } else {
+          userMarker.setLngLat(pos);
+          userMarker.setPopup(new vietmapgl.Popup({ offset: 18 }).setHTML(popupHtml));
+        }
+      }
+
+      const address = await reverseGeocodeRealLocation(userLocation.lat, userLocation.lon);
+      if (address) {
+        setStatus(`📍 ${address} (±${acc} m)`, "active");
+      }
+    }
+
+    function toggleTracking() {
+      if (!navigator.geolocation) {
+        setStatus(t("statusNoGps"), "error");
+        return;
+      }
+
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        document.getElementById("trackBtn").innerHTML = `<i class="fa-solid fa-satellite"></i> <span id="txtTrackBtn">${escapeHtml(t("txtTrackBtn"))}</span>`;
+        showToast(t("toastTrackStopped"));
+        return;
+      }
+
+      setStatus(t("statusTracking"), "active");
+      document.getElementById("trackBtn").innerHTML = `<i class="fa-solid fa-circle-stop" style="color:#ef4444"></i> <span id="txtTrackBtn">${escapeHtml(t("txtStopTrackBtn"))}</span>`;
+
+      watchId = navigator.geolocation.watchPosition(
+        position => updateUserLocation(position),
+        () => setStatus(t("statusTrackFailed"), "error"),
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 15000
+        }
+      );
+    }
+
+    function clearMarkers() {
+      markers.forEach(m => m.remove());
+      markers = [];
+    }
+
+    function distanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) *
+                Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function aroundBox(lat, lon, km) {
+      const dLat = km / 111;
+      const dLon = km / (111 * Math.cos(lat * Math.PI / 180));
+      return `${lat - dLat},${lon - dLon},${lat + dLat},${lon + dLon}`;
+    }
+
+    async function overpass(query) {
+      if (activeOverpassController) {
+        activeOverpassController.abort();
+      }
+      activeOverpassController = new AbortController();
+
+      const endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter"
+      ];
+
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "data=" + encodeURIComponent(query),
+            signal: activeOverpassController.signal
+          });
+          if (!response.ok) continue;
+          return await response.json();
+        } catch (e) {
+          if (e.name === "AbortError") throw e;
+          console.warn("Overpass endpoint failed:", endpoint);
+        }
+      }
+      throw new Error("Map server error");
+    }
+
+    function normalizeElements(elements, refLat, refLon) {
+      if (!Array.isArray(elements)) return [];
+      return elements.map(el => {
+        const lat = Number(el.lat ?? el.center?.lat);
+        const lon = Number(el.lon ?? el.center?.lon);
+        const tags = el.tags || {};
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+
+        const localizedName = currentLang === "en"
+          ? (tags["name:en"] || tags.name || tags["name:vi"] || t("unnamedPlace"))
+          : (tags["name:vi"] || tags.name || tags["name:en"] || t("unnamedPlace"));
+
+        return {
+          id: el.id,
+          lat,
+          lon,
+          tags,
+          name: localizedName,
+          distance: distanceKm(refLat, refLon, lat, lon)
+        };
+      }).filter(Boolean);
+    }
+
+    async function searchHospitals() {
+      if (!userLocation) {
+        getLocationAndSearch("hospital");
+        return;
+      }
+
+      const radiusKm = Number(document.getElementById("hospitalRadius").value || 8);
+      const box = aroundBox(userLocation.lat, userLocation.lon, radiusKm);
+      document.getElementById("hospitalLoader").style.display = "block";
+
+      const query = `
+        [out:json][timeout:25];
+        (
+          node["amenity"="hospital"](${box});
+          way["amenity"="hospital"](${box});
+          relation["amenity"="hospital"](${box});
+          node["healthcare"="hospital"](${box});
+          way["healthcare"="hospital"](${box});
+        );
+        out center tags;
+      `;
+
+      try {
+        const data = await overpass(query);
+        const hospitals = normalizeElements(data.elements, userLocation.lat, userLocation.lon)
+          .filter(x => x.tags.name || x.tags["name:vi"] || x.tags["name:en"])
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, 12);
+
+        lastHospitals = hospitals;
+        renderHospitals(hospitals);
+        showOnMap(hospitals, "hospital");
+      } catch (e) {
+        if (e.name === "AbortError") return;
+        document.getElementById("hospitalResults").innerHTML =
+          `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>${escapeHtml(t("errHospitalFetch"))}</div>`;
+      } finally {
+        document.getElementById("hospitalLoader").style.display = "none";
+      }
+    }
+
+    async function searchParking() {
+      const center = customParkingCenter || userLocation;
+      if (!center) {
+        getLocationAndSearch("parking");
+        return;
+      }
+
+      const vehicle = document.getElementById("vehicle").value;
+      const radiusKm = Number(document.getElementById("parkingRadius").value || 5);
+      const box = aroundBox(center.lat, center.lon, radiusKm);
+
+      document.getElementById("parkingLoader").style.display = "block";
+
+      const query = `
+        [out:json][timeout:25];
+        (
+          node["amenity"="parking"](${box});
+          way["amenity"="parking"](${box});
+          relation["amenity"="parking"](${box});
+          node["amenity"="parking_space"](${box});
+          node["amenity"="charging_station"](${box});
+        );
+        out center tags;
+      `;
+
+      try {
+        const data = await overpass(query);
+        let places = normalizeElements(data.elements, center.lat, center.lon)
+          .filter(x => x.name || x.tags.amenity === "parking" || x.tags.amenity === "charging_station");
+
+        places = places.map(p => ({
+          ...p,
+          score: parkingScore(p, vehicle)
+        }))
+        .sort((a, b) => (a.distance + a.score) - (b.distance + b.score))
+        .slice(0, 12);
+
+        lastParking = places;
+        renderParking(places, vehicle);
+        showOnMap(places, "parking");
+      } catch (e) {
+        if (e.name === "AbortError") return;
+        document.getElementById("parkingResults").innerHTML =
+          `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>${escapeHtml(t("errParkingFetch"))}</div>`;
+      } finally {
+        document.getElementById("parkingLoader").style.display = "none";
+      }
+    }
+
+    function parkingScore(p, vehicle) {
+      const tags = p.tags || {};
+      let score = 0;
+
+      if (vehicle === "motorcycle") {
+        if (tags.motorcycle === "yes" || tags["parking:motorcycle"] === "yes") score -= 2;
+        if (tags.motorcycle === "no") score += 5;
+      }
+      if (vehicle === "car") {
+        if (tags.motorcar === "yes" || tags["parking:motorcar"] === "yes") score -= 2;
+        if (tags.motorcar === "no") score += 5;
+      }
+      if (vehicle === "bicycle") {
+        if (tags.bicycle === "yes" || tags["parking:bicycle"] === "yes") score -= 2;
+        if (tags.bicycle === "no") score += 5;
+      }
+      if (vehicle === "electric") {
+        if (tags.amenity === "charging_station") score -= 4;
+        if (tags["motorcar:charging"] === "yes") score -= 3;
+        if (tags["capacity:charging"] || tags["socket:type2"] === "yes") score -= 2;
+      }
+      return score;
+    }
+
+    function getLocalizedPlaceName(item, fallbackType) {
+      const tags = item.tags || {};
+      if (currentLang === "en") {
+        return tags["name:en"] || tags.name || tags["name:vi"] || fallbackType;
+      }
+      return tags["name:vi"] || tags.name || tags["name:en"] || fallbackType;
+    }
+
+    function renderHospitals(items) {
+      const box = document.getElementById("hospitalResults");
+      if (!items.length) {
+        box.innerHTML = `<div class="empty"><i class="fa-solid fa-hospital"></i>${escapeHtml(t("emptyHospitalNone"))}</div>`;
+        return;
+      }
+
+      const specKey = document.getElementById("specialty").value;
+      const specialtyText = I18N[currentLang].specialties[specKey] || specKey;
+      const date = document.getElementById("date").value || t("notSelected");
+      const times = ["08:00", "08:30", "09:00", "09:30", "10:00"];
+
+      box.innerHTML = items.map((h, i) => {
+        const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
+        const time = times[i % times.length];
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayName + " " + h.lat + "," + h.lon)}`;
+
+        return `
+          <div class="result-card" data-action="focus-hospital" data-index="${i}">
+            <div class="result-top">
+              <h3>${escapeHtml(displayName)}</h3>
+              <span class="distance-pill">📍 ${h.distance.toFixed(2)} km</span>
+            </div>
+            <div class="badges">
+              <span class="badge">${escapeHtml(t("badgeHospital"))}</span>
+              <span class="badge"><i class="fa-solid fa-user-doctor"></i> ${escapeHtml(specialtyText)}</span>
+            </div>
+            <div class="meta">
+              ${escapeHtml(t("nearestSlot"))}: <b>${time}</b> | ${escapeHtml(t("dateLabel"))}: <b>${escapeHtml(date)}</b>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-primary" type="button" data-action="book-hospital" data-index="${i}">
+                <i class="fa-solid fa-calendar-check"></i> ${escapeHtml(t("btnBookNow"))}
+              </button>
+              <button class="btn btn-secondary" type="button" data-action="parking-near-hospital" data-index="${i}">
+                <i class="fa-solid fa-square-parking"></i> ${escapeHtml(t("btnParkingNearHosp"))}
+              </button>
+              <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
+                <i class="fa-solid fa-map-location-dot"></i> Google Maps
+              </a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderParking(items, vehicle) {
+      const box = document.getElementById("parkingResults");
+      if (!items.length) {
+        box.innerHTML = `<div class="empty"><i class="fa-solid fa-square-parking"></i>${escapeHtml(t("emptyParkingNone"))}</div>`;
+        return;
+      }
+
+      const vehicleName = {
+        car: t("vehCar"),
+        motorcycle: t("vehMoto"),
+        electric: t("vehElectric"),
+        bicycle: t("vehBike")
+      }[vehicle];
+
+      box.innerHTML = items.map((p, i) => {
+        const tags = p.tags || {};
+        const isCharging = tags.amenity === "charging_station";
+        const typeLabel = isCharging ? t("typeCharging") : t("typeParking");
+        const fallbackName = isCharging ? t("unnamedCharging") : t("unnamedParking");
+        const displayName = getLocalizedPlaceName(p, fallbackName);
+
+        const originParam = userLocation ? `&origin=${encodeURIComponent(userLocation.lat + "," + userLocation.lon)}` : "";
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${encodeURIComponent(p.lat + "," + p.lon)}`;
+
+        return `
+          <div class="result-card" data-action="focus-parking" data-index="${i}">
+            <div class="result-top">
+              <h3>${escapeHtml(displayName)}</h3>
+              <span class="distance-pill">📍 ${p.distance.toFixed(2)} km</span>
+            </div>
+            <div class="badges">
+              <span class="badge">${escapeHtml(vehicleName)}</span>
+              <span class="badge">${escapeHtml(typeLabel)}</span>
+            </div>
+            <div class="meta">
+              ${tags.capacity ? `${escapeHtml(t("lblCapacity"))}: <b>${escapeHtml(tags.capacity)}</b><br>` : ""}
+              ${tags.fee ? `${escapeHtml(t("lblFee"))}: <b>${escapeHtml(tags.fee)}</b><br>` : ""}
+              ${tags.opening_hours ? `${escapeHtml(t("lblOpenHours"))}: <b>${escapeHtml(tags.opening_hours)}</b><br>` : ""}
+              ${escapeHtml(t("lblCoords"))}: ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}
+            </div>
+            <div class="card-actions">
+              <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
+                ${escapeHtml(t("btnDirections"))}
+              </a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function showOnMap(items, type) {
+      if (!map || !window.vietmapgl) return;
+      clearMarkers();
+
+      const coords = [];
+      if (userLocation) {
+        const userPos = [userLocation.lon, userLocation.lat];
+        coords.push(userPos);
+        if (userMarker) {
+          userMarker.setLngLat(userPos);
+        }
+      }
+
+      items.forEach((p) => {
+        const color = type === "hospital" ? "#ef4444" : "#0d9488";
+        const fallback = type === "hospital" ? t("unnamedPlace") : t("unnamedParking");
+        const displayName = getLocalizedPlaceName(p, fallback);
+        const popup = new vietmapgl.Popup({ offset: 25 }).setHTML(
+          `<div style="min-width:200px;color:#0f172a">
+            <b>${escapeHtml(displayName)}</b><br>
+            ${escapeHtml(type === "hospital" ? t("badgeHospital") : "🅿️ " + t("typeParking"))}<br>
+            📍 ${p.distance.toFixed(2)} km
+          </div>`
+        );
+        const marker = new vietmapgl.Marker({ color })
+          .setLngLat([p.lon, p.lat])
+          .setPopup(popup)
+          .addTo(map);
+        markers.push(marker);
+        coords.push([p.lon, p.lat]);
+      });
+
+      if (coords.length > 1) {
+        const bounds = coords.reduce((b, c) => b.extend(c), new vietmapgl.LngLatBounds(coords[0], coords[0]));
+        map.fitBounds(bounds, { padding: 60, maxZoom: 16 });
+      } else if (coords.length === 1) {
+        map.setCenter(coords[0]);
+        map.setZoom(16);
+      }
+    }
+
+    function focusMarker(index, lat, lon) {
+      if (!map || !Number.isFinite(lat) || !Number.isFinite(lon)) return;
+      map.flyTo({ center: [lon, lat], zoom: 17, essential: true });
+      if (markers[index]) {
+        markers[index].togglePopup();
+      }
+    }
+
+    function findParkingNearHospital(lat, lon, hospitalName) {
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+      customParkingCenter = { lat, lon, name: hospitalName };
+      document.querySelector('[data-target="parkingSection"]').click();
+      const banner = document.getElementById("parkingContextBanner");
+      document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> ${escapeHtml(t("bannerParkingNear"))}: <b>${escapeHtml(hospitalName)}</b>`;
+      banner.style.display = "flex";
+      searchParking();
+    }
+
+    function openBookingModal(index) {
+      const h = lastHospitals[index];
+      if (!h) return;
+      selectedHospitalForBooking = h;
+      const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
+      document.getElementById("bookingHospitalName").textContent = `${displayName} (${h.distance.toFixed(2)} km)`;
+      document.getElementById("bookingModal").classList.add("show");
+    }
+
+    function closeBookingModal() {
+      document.getElementById("bookingModal").classList.remove("show");
+    }
+
+    function submitBooking() {
+      const rawName = document.getElementById("patientName").value.trim().slice(0, 80);
+      const rawPhone = document.getElementById("patientPhone").value.trim().slice(0, 20);
+      const name = rawName || t("defaultPatient");
+      const phone = rawPhone || t("defaultPhone");
+      const slot = document.getElementById("bookingTimeSlot").value;
+      const vehicleSelect = document.getElementById("bookingVehicle");
+      const vehicleText = vehicleSelect.options[vehicleSelect.selectedIndex].text;
+      const specKey = document.getElementById("specialty").value;
+      const date = document.getElementById("date").value || t("notSelected");
+
+      if (!selectedHospitalForBooking) return;
+
+      const code = generateSecureBookingCode();
+      const bookings = getSafeBookings();
+      bookings.unshift({
+        code,
+        hospital: getLocalizedPlaceName(selectedHospitalForBooking, t("unnamedPlace")),
+        lat: Number(selectedHospitalForBooking.lat),
+        lon: Number(selectedHospitalForBooking.lon),
+        specKey,
+        date,
+        slot,
+        patientName: name,
+        patientPhone: phone,
+        vehicle: vehicleText
+      });
+      saveSafeBookings(bookings);
+
+      closeBookingModal();
+      renderAppointments();
+      showToast(`${t("toastBooked")}: #${code}`);
+      document.querySelector('[data-target="appointmentsSection"]').click();
+    }
+
+    function renderAppointments() {
+      const bookings = getSafeBookings();
+      document.getElementById("bookingCount").textContent = bookings.length;
+      const box = document.getElementById("appointmentsList");
+
+      if (!bookings.length) {
+        box.innerHTML = `<div class="empty"><i class="fa-solid fa-ticket"></i>${escapeHtml(t("emptyBookings"))}</div>`;
+        return;
+      }
+
+      box.innerHTML = bookings.map((b, idx) => {
+        const specName = (b.specKey && I18N[currentLang].specialties[b.specKey]) || b.specialty || "";
+        return `
+          <div class="result-card">
+            <div class="result-top">
+              <h3>${escapeHtml(b.hospital)}</h3>
+              <span class="distance-pill">#${escapeHtml(b.code)}</span>
+            </div>
+            <div class="badges">
+              <span class="badge">${escapeHtml(specName)}</span>
+              <span class="badge">${escapeHtml(b.slot)} | ${escapeHtml(b.date)}</span>
+            </div>
+            <div class="meta">
+              ${escapeHtml(t("lblPatientInfo"))}: <b>${escapeHtml(b.patientName)}</b> (${escapeHtml(b.patientPhone)})<br>
+              ${escapeHtml(t("lblVehicleInfo"))}: <b>${escapeHtml(b.vehicle)}</b>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-secondary" type="button" data-action="booking-parking-near" data-index="${idx}">
+                <i class="fa-solid fa-square-parking"></i> ${escapeHtml(t("btnParkingNearHosp"))}
+              </button>
+              <button class="btn btn-secondary" type="button" style="color:var(--danger)" data-action="delete-booking" data-index="${idx}">
+                <i class="fa-solid fa-trash"></i> ${escapeHtml(t("btnDeleteBooking"))}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function deleteBooking(index) {
+      const bookings = getSafeBookings();
+      if (index < 0 || index >= bookings.length) return;
+      bookings.splice(index, 1);
+      saveSafeBookings(bookings);
+      renderAppointments();
+    }
+
+    // Event Delegation an toàn cho toàn bộ các nút và danh sách
+    function bindSecureEvents() {
+      document.getElementById("langBtn").addEventListener("click", toggleLanguage);
+      document.getElementById("themeBtn").addEventListener("click", toggleTheme);
+
+      document.getElementById("btnCancelModal").addEventListener("click", closeLocationPrompt);
+      document.getElementById("btnConfirmModal").addEventListener("click", confirmLocationPermission);
+      document.getElementById("locationModal").addEventListener("click", e => {
+        if (e.target.id === "locationModal") closeLocationPrompt();
+      });
+
+      document.getElementById("btnCancelBooking").addEventListener("click", closeBookingModal);
+      document.getElementById("btnSubmitBookingAction").addEventListener("click", submitBooking);
+      document.getElementById("bookingModal").addEventListener("click", e => {
+        if (e.target.id === "bookingModal") closeBookingModal();
+      });
+
+      document.getElementById("btnTriggerHospitalGps").addEventListener("click", () => getLocationAndSearch("hospital"));
+      document.getElementById("btnRefreshHospitals").addEventListener("click", searchHospitals);
+      document.getElementById("specialty").addEventListener("change", () => {
+        if (lastHospitals.length) renderHospitals(lastHospitals);
+      });
+      document.getElementById("date").addEventListener("change", () => {
+        if (lastHospitals.length) renderHospitals(lastHospitals);
+      });
+      document.getElementById("hospitalRadius").addEventListener("change", () => {
+        if (userLocation) searchHospitals();
+      });
+
+      document.getElementById("btnTriggerParkingGps").addEventListener("click", () => getLocationAndSearch("parking"));
+      document.getElementById("btnBackToMyGps").addEventListener("click", () => getLocationAndSearch("parking"));
+      document.getElementById("btnRefreshParking").addEventListener("click", searchParking);
+      document.getElementById("vehicle").addEventListener("change", () => {
+        if (userLocation || customParkingCenter) searchParking();
+      });
+      document.getElementById("parkingRadius").addEventListener("change", () => {
+        if (userLocation || customParkingCenter) searchParking();
+      });
+
+      document.getElementById("btnLocateMeAction").addEventListener("click", () => openLocationPrompt("locate"));
+      document.getElementById("trackBtn").addEventListener("click", toggleTracking);
+
+      // Xử lý sự kiện click trên danh sách Bệnh viện (Không dùng inline onclick)
+      document.getElementById("hospitalResults").addEventListener("click", e => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const action = btn.getAttribute("data-action");
+        const idx = Number(btn.getAttribute("data-index"));
+        const item = lastHospitals[idx];
+        if (!item) return;
+
+        if (action === "book-hospital") {
+          e.stopPropagation();
+          openBookingModal(idx);
+        } else if (action === "parking-near-hospital") {
+          e.stopPropagation();
+          const displayName = getLocalizedPlaceName(item, t("unnamedPlace"));
+          findParkingNearHospital(item.lat, item.lon, displayName);
+        } else if (action === "focus-hospital") {
+          focusMarker(idx, item.lat, item.lon);
+        }
+      });
+
+      // Xử lý sự kiện click trên danh sách Bãi đỗ xe
+      document.getElementById("parkingResults").addEventListener("click", e => {
+        if (e.target.closest("a")) return;
+        const card = e.target.closest('[data-action="focus-parking"]');
+        if (!card) return;
+        const idx = Number(card.getAttribute("data-index"));
+        const item = lastParking[idx];
+        if (item) focusMarker(idx, item.lat, item.lon);
+      });
+
+      // Xử lý sự kiện click trên danh sách Lịch hẹn
+      document.getElementById("appointmentsList").addEventListener("click", e => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const action = btn.getAttribute("data-action");
+        const idx = Number(btn.getAttribute("data-index"));
+        const bookings = getSafeBookings();
+        const b = bookings[idx];
+        if (!b) return;
+
+        if (action === "booking-parking-near") {
+          findParkingNearHospital(Number(b.lat), Number(b.lon), String(b.hospital || ""));
+        } else if (action === "delete-booking") {
+          deleteBooking(idx);
+        }
+      });
+
+      // Chuyển Tabs
+      document.querySelectorAll(".tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById(btn.dataset.target).classList.add("active");
+          setTimeout(() => { if (map) map.resize(); }, 150);
+        });
       });
     }
 
-    if (customParkingCenter) {
-      document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> ${t("bannerParkingNear")}: <b>${escapeHtml(customParkingCenter.name)}</b>`;
-    }
-
-    if (lastHospitals.length) {
-      renderHospitals(lastHospitals);
-    } else {
-      renderEmptyHospitalInit();
-    }
-
-    if (lastParking.length) {
-      renderParking(lastParking, document.getElementById("vehicle").value);
-    } else {
-      renderEmptyParkingInit();
-    }
-
-    renderAppointments();
-  }
-
-  function renderEmptyHospitalInit() {
-    document.getElementById("hospitalResults").innerHTML = `
-      <div class="empty">
-        <i class="fa-solid fa-location-dot"></i>
-        <b>${t("emptyHospitalInitTitle")}</b><br>
-        ${t("emptyHospitalInitDesc")}
-      </div>`;
-  }
-
-  function renderEmptyParkingInit() {
-    document.getElementById("parkingResults").innerHTML = `
-      <div class="empty">
-        <i class="fa-solid fa-square-parking"></i>
-        <b>${t("emptyParkingInitTitle")}</b><br>
-        ${t("emptyParkingInitDesc")}
-      </div>`;
-  }
-
-  function showToast(msg) {
-    const toastEl = document.getElementById("toast");
-    toastEl.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#38bdf8"></i> <span>${escapeHtml(msg)}</span>`;
-    toastEl.classList.add("show");
-    setTimeout(() => toastEl.classList.remove("show"), 3500);
-  }
-
-  function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    html.setAttribute("data-theme", next);
-    document.getElementById("themeBtn").innerHTML = next === "dark"
-      ? '<i class="fa-solid fa-sun"></i>'
-      : '<i class="fa-solid fa-moon"></i>';
-  }
-
-  function initMap() {
-    const mapEl = document.getElementById("map");
-    if (!VIETMAP_API_KEY || VIETMAP_API_KEY === "a") {
-      mapEl.innerHTML = `<div style="padding:30px;text-align:center;">VIETMAP_API_KEY not configured</div>`;
-      return;
-    }
-
-    map = new vietmapgl.Map({
-      container: "map",
-      style: `https://maps.vietmap.vn/maps/styles/tm/style.json?apikey=${encodeURIComponent(VIETMAP_API_KEY)}`,
-      center: [106.660, 10.762],
-      zoom: 6
+    document.addEventListener("DOMContentLoaded", () => {
+      bindSecureEvents();
+      initMap();
+      applyTranslations();
     });
-
-    map.addControl(new vietmapgl.NavigationControl(), "top-right");
-  }
-
-  function setStatus(text, state = "idle") {
-    locationStatus.textContent = text;
-    gpsDot.className = "gps-dot" + (state === "active" ? " active" : state === "error" ? " error" : "");
-  }
-
-  function openLocationPrompt(action) {
-    pendingLocationAction = action || "locate";
-    const titleEl = document.getElementById("locationModalTitle");
-    const descEl = document.getElementById("locationModalDesc");
-
-    if (action === "parking") {
-      titleEl.textContent = t("modalTitleParking");
-      descEl.textContent = t("modalDescParking");
-    } else if (action === "hospital") {
-      titleEl.textContent = t("modalTitleHospital");
-      descEl.textContent = t("modalDescHospital");
-    } else {
-      titleEl.textContent = t("modalTitleLocate");
-      descEl.textContent = t("modalDescLocate");
-    }
-
-    document.getElementById("locationModal").classList.add("show");
-  }
-
-  function closeLocationPrompt() {
-    pendingLocationAction = null;
-    document.getElementById("locationModal").classList.remove("show");
-    if (!userLocation) {
-      setStatus(t("statusNotLocated"), "idle");
-    }
-  }
-
-  function confirmLocationPermission() {
-    const action = pendingLocationAction || "locate";
-    document.getElementById("locationModal").classList.remove("show");
-    pendingLocationAction = null;
-    requestLocation(action);
-  }
-
-  function getLocationAndSearch(type) {
-    if (type === "parking") {
-      customParkingCenter = null;
-      document.getElementById("parkingContextBanner").style.display = "none";
-    }
-    openLocationPrompt(type);
-  }
-
-  function locateMe() {
-    openLocationPrompt("locate");
-  }
-
-  function requestLocation(action) {
-    if (!navigator.geolocation) {
-      setStatus(t("statusNoGps"), "error");
-      showToast(t("statusNoGps"));
-      return;
-    }
-
-    setStatus(t("statusRequesting"), "idle");
-
-    navigator.geolocation.getCurrentPosition(
-      async position => {
-        await updateUserLocation(position);
-        if (action === "hospital") {
-          searchHospitals();
-        } else if (action === "parking") {
-          customParkingCenter = null;
-          document.getElementById("parkingContextBanner").style.display = "none";
-          searchParking();
-        } else {
-          showToast(t("toastLocated"));
-        }
-      },
-      error => {
-        const messages = {
-          1: t("errDenied"),
-          2: t("errUnavailable"),
-          3: t("errTimeout")
-        };
-        const msg = messages[error.code] || t("errDefault");
-        setStatus(msg, "error");
-        showToast(msg);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-      }
-    );
-  }
-
-  async function reverseGeocodeRealLocation(lat, lon) {
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=${currentLang}`);
-      if (!res.ok) return null;
-      const data = await res.json();
-      return data.display_name || null;
-    } catch {
-      return null;
-    }
-  }
-
-  async function updateUserLocation(position) {
-    userLocation = {
-      lat: position.coords.latitude,
-      lon: position.coords.longitude,
-      accuracy: position.coords.accuracy
-    };
-
-    const acc = Math.round(userLocation.accuracy);
-    accuracyBadge.textContent = `${t("accuracyVal")}: ±${acc} m`;
-    setStatus(
-      `${t("statusCurrentPos")}: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)} (±${acc} m)`,
-      "active"
-    );
-
-    if (map) {
-      const pos = [userLocation.lon, userLocation.lat];
-      map.flyTo({ center: pos, zoom: 16, essential: true });
-
-      const popupHtml = `<b>${t("popupYourPos")}</b><br>${t("popupCoords")}: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)}<br>${t("popupAccuracy")}: ±${acc} m`;
-
-      if (!userMarker) {
-        const el = document.createElement("div");
-        el.className = "user-gps-marker";
-        userMarker = new vietmapgl.Marker({ element: el })
-          .setLngLat(pos)
-          .setPopup(new vietmapgl.Popup({ offset: 18 }).setHTML(popupHtml))
-          .addTo(map);
-      } else {
-        userMarker.setLngLat(pos);
-        userMarker.setPopup(new vietmapgl.Popup({ offset: 18 }).setHTML(popupHtml));
-      }
-    }
-
-    const address = await reverseGeocodeRealLocation(userLocation.lat, userLocation.lon);
-    if (address) {
-      setStatus(`📍 ${address} (±${acc} m)`, "active");
-    }
-  }
-
-  function toggleTracking() {
-    if (!navigator.geolocation) {
-      setStatus(t("statusNoGps"), "error");
-      return;
-    }
-
-    if (watchId !== null) {
-      navigator.geolocation.clearWatch(watchId);
-      watchId = null;
-      document.getElementById("trackBtn").innerHTML = `<i class="fa-solid fa-satellite"></i> <span id="txtTrackBtn">${t("txtTrackBtn")}</span>`;
-      showToast(t("toastTrackStopped"));
-      return;
-    }
-
-    setStatus(t("statusTracking"), "active");
-    document.getElementById("trackBtn").innerHTML = `<i class="fa-solid fa-circle-stop" style="color:#ef4444"></i> <span id="txtTrackBtn">${t("txtStopTrackBtn")}</span>`;
-
-    watchId = navigator.geolocation.watchPosition(
-      position => updateUserLocation(position),
-      () => setStatus(t("statusTrackFailed"), "error"),
-      {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 15000
-      }
-    );
-  }
-
-  function clearMarkers() {
-    markers.forEach(m => m.remove());
-    markers = [];
-  }
-
-  function distanceKm(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) ** 2 +
-              Math.cos(lat1 * Math.PI / 180) *
-              Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  }
-
-  function aroundBox(lat, lon, km) {
-    const dLat = km / 111;
-    const dLon = km / (111 * Math.cos(lat * Math.PI / 180));
-    return `${lat - dLat},${lon - dLon},${lat + dLat},${lon + dLon}`;
-  }
-
-  async function overpass(query) {
-    const endpoints = [
-      "https://overpass-api.de/api/interpreter",
-      "https://overpass.kumi.systems/api/interpreter"
-    ];
-    for (const endpoint of endpoints) {
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "data=" + encodeURIComponent(query)
-        });
-        if (!response.ok) continue;
-        return await response.json();
-      } catch (e) {
-        console.warn("Overpass endpoint failed:", endpoint, e);
-      }
-    }
-    throw new Error("Map server error");
-  }
-
-  function normalizeElements(elements, refLat, refLon) {
-    return elements.map(el => {
-      const lat = el.lat ?? el.center?.lat;
-      const lon = el.lon ?? el.center?.lon;
-      const tags = el.tags || {};
-      if (lat == null || lon == null) return null;
-
-      const localizedName = currentLang === "en"
-        ? (tags["name:en"] || tags.name || tags["name:vi"] || t("unnamedPlace"))
-        : (tags["name:vi"] || tags.name || tags["name:en"] || t("unnamedPlace"));
-
-      return {
-        id: el.id,
-        lat,
-        lon,
-        tags,
-        name: localizedName,
-        distance: distanceKm(refLat, refLon, lat, lon)
-      };
-    }).filter(Boolean);
-  }
-
-  async function searchHospitals() {
-    if (!userLocation) {
-      getLocationAndSearch("hospital");
-      return;
-    }
-
-    const radiusKm = Number(document.getElementById("hospitalRadius").value || 8);
-    const box = aroundBox(userLocation.lat, userLocation.lon, radiusKm);
-    document.getElementById("hospitalLoader").style.display = "block";
-
-    const query = `
-      [out:json][timeout:25];
-      (
-        node["amenity"="hospital"](${box});
-        way["amenity"="hospital"](${box});
-        relation["amenity"="hospital"](${box});
-        node["healthcare"="hospital"](${box});
-        way["healthcare"="hospital"](${box});
-      );
-      out center tags;
-    `;
-
-    try {
-      const data = await overpass(query);
-      const hospitals = normalizeElements(data.elements, userLocation.lat, userLocation.lon)
-        .filter(x => x.tags.name || x.tags["name:vi"] || x.tags["name:en"])
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, 12);
-
-      lastHospitals = hospitals;
-      renderHospitals(hospitals);
-      showOnMap(hospitals, "hospital");
-    } catch (e) {
-      document.getElementById("hospitalResults").innerHTML =
-        `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>${t("errHospitalFetch")}</div>`;
-    } finally {
-      document.getElementById("hospitalLoader").style.display = "none";
-    }
-  }
-
-  async function searchParking() {
-    const center = customParkingCenter || userLocation;
-    if (!center) {
-      getLocationAndSearch("parking");
-      return;
-    }
-
-    const vehicle = document.getElementById("vehicle").value;
-    const radiusKm = Number(document.getElementById("parkingRadius").value || 5);
-    const box = aroundBox(center.lat, center.lon, radiusKm);
-
-    document.getElementById("parkingLoader").style.display = "block";
-
-    const query = `
-      [out:json][timeout:25];
-      (
-        node["amenity"="parking"](${box});
-        way["amenity"="parking"](${box});
-        relation["amenity"="parking"](${box});
-        node["amenity"="parking_space"](${box});
-        node["amenity"="charging_station"](${box});
-      );
-      out center tags;
-    `;
-
-    try {
-      const data = await overpass(query);
-      let places = normalizeElements(data.elements, center.lat, center.lon)
-        .filter(x => x.name || x.tags.amenity === "parking" || x.tags.amenity === "charging_station");
-
-      places = places.map(p => ({
-        ...p,
-        score: parkingScore(p, vehicle)
-      }))
-      .sort((a, b) => (a.distance + a.score) - (b.distance + b.score))
-      .slice(0, 12);
-
-      lastParking = places;
-      renderParking(places, vehicle);
-      showOnMap(places, "parking");
-    } catch (e) {
-      document.getElementById("parkingResults").innerHTML =
-        `<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>${t("errParkingFetch")}</div>`;
-    } finally {
-      document.getElementById("parkingLoader").style.display = "none";
-    }
-  }
-
-  function parkingScore(p, vehicle) {
-    const t = p.tags || {};
-    let score = 0;
-
-    if (vehicle === "motorcycle") {
-      if (t.motorcycle === "yes" || t["parking:motorcycle"] === "yes") score -= 2;
-      if (t.motorcycle === "no") score += 5;
-    }
-    if (vehicle === "car") {
-      if (t.motorcar === "yes" || t["parking:motorcar"] === "yes") score -= 2;
-      if (t.motorcar === "no") score += 5;
-    }
-    if (vehicle === "bicycle") {
-      if (t.bicycle === "yes" || t["parking:bicycle"] === "yes") score -= 2;
-      if (t.bicycle === "no") score += 5;
-    }
-    if (vehicle === "electric") {
-      if (t.amenity === "charging_station") score -= 4;
-      if (t["motorcar:charging"] === "yes") score -= 3;
-      if (t["capacity:charging"] || t["socket:type2"] === "yes") score -= 2;
-    }
-    return score;
-  }
-
-  function getLocalizedPlaceName(item, fallbackType) {
-    const tags = item.tags || {};
-    if (currentLang === "en") {
-      return tags["name:en"] || tags.name || tags["name:vi"] || fallbackType;
-    }
-    return tags["name:vi"] || tags.name || tags["name:en"] || fallbackType;
-  }
-
-  function renderHospitals(items) {
-    const box = document.getElementById("hospitalResults");
-    if (!items.length) {
-      box.innerHTML = `<div class="empty"><i class="fa-solid fa-hospital"></i>${t("emptyHospitalNone")}</div>`;
-      return;
-    }
-
-    const specKey = document.getElementById("specialty").value;
-    const specialtyText = I18N[currentLang].specialties[specKey] || specKey;
-    const date = document.getElementById("date").value || t("notSelected");
-    const times = ["08:00", "08:30", "09:00", "09:30", "10:00"];
-
-    box.innerHTML = items.map((h, i) => {
-      const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
-      const time = times[i % times.length];
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayName + " " + h.lat + "," + h.lon)}`;
-
-      return `
-        <div class="result-card" onclick="focusMarker(${i}, ${h.lat}, ${h.lon})">
-          <div class="result-top">
-            <h3>${escapeHtml(displayName)}</h3>
-            <span class="distance-pill">📍 ${h.distance.toFixed(2)} km</span>
-          </div>
-          <div class="badges">
-            <span class="badge">${t("badgeHospital")}</span>
-            <span class="badge"><i class="fa-solid fa-user-doctor"></i> ${escapeHtml(specialtyText)}</span>
-          </div>
-          <div class="meta">
-            ${t("nearestSlot")}: <b>${time}</b> | ${t("dateLabel")}: <b>${escapeHtml(date)}</b>
-          </div>
-          <div class="card-actions" onclick="event.stopPropagation()">
-            <button class="btn btn-primary" onclick="openBookingModal(${i})">
-              <i class="fa-solid fa-calendar-check"></i> ${t("btnBookNow")}
-            </button>
-            <button class="btn btn-secondary" onclick="findParkingNearHospital(${h.lat}, ${h.lon}, '${escapeJs(displayName)}')">
-              <i class="fa-solid fa-square-parking"></i> ${t("btnParkingNearHosp")}
-            </button>
-            <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener">
-              <i class="fa-solid fa-map-location-dot"></i> Google Maps
-            </a>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function renderParking(items, vehicle) {
-    const box = document.getElementById("parkingResults");
-    if (!items.length) {
-      box.innerHTML = `<div class="empty"><i class="fa-solid fa-square-parking"></i>${t("emptyParkingNone")}</div>`;
-      return;
-    }
-
-    const vehicleName = {
-      car: t("vehCar"),
-      motorcycle: t("vehMoto"),
-      electric: t("vehElectric"),
-      bicycle: t("vehBike")
-    }[vehicle];
-
-    box.innerHTML = items.map((p, i) => {
-      const tags = p.tags || {};
-      const isCharging = tags.amenity === "charging_station";
-      const typeLabel = isCharging ? t("typeCharging") : t("typeParking");
-      const fallbackName = isCharging ? t("unnamedCharging") : t("unnamedParking");
-      const displayName = getLocalizedPlaceName(p, fallbackName);
-
-      const originParam = userLocation ? `&origin=${userLocation.lat},${userLocation.lon}` : "";
-      const mapsUrl = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${p.lat},${p.lon}`;
-
-      return `
-        <div class="result-card" onclick="focusMarker(${i}, ${p.lat}, ${p.lon})">
-          <div class="result-top">
-            <h3>${escapeHtml(displayName)}</h3>
-            <span class="distance-pill">📍 ${p.distance.toFixed(2)} km</span>
-          </div>
-          <div class="badges">
-            <span class="badge">${vehicleName}</span>
-            <span class="badge">${escapeHtml(typeLabel)}</span>
-          </div>
-          <div class="meta">
-            ${tags.capacity ? `${t("lblCapacity")}: <b>${escapeHtml(tags.capacity)}</b><br>` : ""}
-            ${tags.fee ? `${t("lblFee")}: <b>${escapeHtml(tags.fee)}</b><br>` : ""}
-            ${tags.opening_hours ? `${t("lblOpenHours")}: <b>${escapeHtml(tags.opening_hours)}</b><br>` : ""}
-            ${t("lblCoords")}: ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}
-          </div>
-          <div class="card-actions" onclick="event.stopPropagation()">
-            <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener">
-              ${t("btnDirections")}
-            </a>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function showOnMap(items, type) {
-    if (!map || !window.vietmapgl) return;
-    clearMarkers();
-
-    const coords = [];
-    if (userLocation) {
-      const userPos = [userLocation.lon, userLocation.lat];
-      coords.push(userPos);
-      if (userMarker) {
-        userMarker.setLngLat(userPos);
-      }
-    }
-
-    items.forEach((p) => {
-      const color = type === "hospital" ? "#ef4444" : "#0d9488";
-      const fallback = type === "hospital" ? t("unnamedPlace") : t("unnamedParking");
-      const displayName = getLocalizedPlaceName(p, fallback);
-      const popup = new vietmapgl.Popup({ offset: 25 }).setHTML(
-        `<div style="min-width:200px;color:#0f172a">
-          <b>${escapeHtml(displayName)}</b><br>
-          ${type === "hospital" ? t("badgeHospital") : "🅿️ " + t("typeParking")}<br>
-          📍 ${p.distance.toFixed(2)} km
-        </div>`
-      );
-      const marker = new vietmapgl.Marker({ color })
-        .setLngLat([p.lon, p.lat])
-        .setPopup(popup)
-        .addTo(map);
-      markers.push(marker);
-      coords.push([p.lon, p.lat]);
-    });
-
-    if (coords.length > 1) {
-      const bounds = coords.reduce((b, c) => b.extend(c), new vietmapgl.LngLatBounds(coords[0], coords[0]));
-      map.fitBounds(bounds, { padding: 60, maxZoom: 16 });
-    } else if (coords.length === 1) {
-      map.setCenter(coords[0]);
-      map.setZoom(16);
-    }
-  }
-
-  function focusMarker(index, lat, lon) {
-    if (!map) return;
-    map.flyTo({ center: [lon, lat], zoom: 17, essential: true });
-    if (markers[index]) {
-      markers[index].togglePopup();
-    }
-  }
-
-  function findParkingNearHospital(lat, lon, hospitalName) {
-    customParkingCenter = { lat, lon, name: hospitalName };
-    document.querySelector('[data-target="parkingSection"]').click();
-    const banner = document.getElementById("parkingContextBanner");
-    document.getElementById("parkingContextText").innerHTML = `<i class="fa-solid fa-hospital"></i> ${t("bannerParkingNear")}: <b>${escapeHtml(hospitalName)}</b>`;
-    banner.style.display = "flex";
-    searchParking();
-  }
-
-  function openBookingModal(index) {
-    const h = lastHospitals[index];
-    if (!h) return;
-    selectedHospitalForBooking = h;
-    const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
-    document.getElementById("bookingHospitalName").textContent = `${displayName} (${h.distance.toFixed(2)} km)`;
-    document.getElementById("bookingModal").classList.add("show");
-  }
-
-  function closeBookingModal() {
-    document.getElementById("bookingModal").classList.remove("show");
-  }
-
-  function submitBooking() {
-    const name = document.getElementById("patientName").value.trim() || t("defaultPatient");
-    const phone = document.getElementById("patientPhone").value.trim() || t("defaultPhone");
-    const slot = document.getElementById("bookingTimeSlot").value;
-    const vehicleSelect = document.getElementById("bookingVehicle");
-    const vehicleText = vehicleSelect.options[vehicleSelect.selectedIndex].text;
-    const specKey = document.getElementById("specialty").value;
-    const date = document.getElementById("date").value || t("notSelected");
-
-    if (!selectedHospitalForBooking) return;
-
-    const code = "CP-" + Math.floor(100000 + Math.random() * 900000);
-    const bookings = JSON.parse(localStorage.getItem("cp_bookings") || "[]");
-    bookings.unshift({
-      code,
-      hospital: getLocalizedPlaceName(selectedHospitalForBooking, t("unnamedPlace")),
-      lat: selectedHospitalForBooking.lat,
-      lon: selectedHospitalForBooking.lon,
-      specKey,
-      date,
-      slot,
-      patientName: name,
-      patientPhone: phone,
-      vehicle: vehicleText
-    });
-    localStorage.setItem("cp_bookings", JSON.stringify(bookings));
-
-    closeBookingModal();
-    renderAppointments();
-    showToast(`${t("toastBooked")}: #${code}`);
-    document.querySelector('[data-target="appointmentsSection"]').click();
-  }
-
-  function renderAppointments() {
-    const bookings = JSON.parse(localStorage.getItem("cp_bookings") || "[]");
-    document.getElementById("bookingCount").textContent = bookings.length;
-    const box = document.getElementById("appointmentsList");
-
-    if (!bookings.length) {
-      box.innerHTML = `<div class="empty"><i class="fa-solid fa-ticket"></i>${t("emptyBookings")}</div>`;
-      return;
-    }
-
-    box.innerHTML = bookings.map((b, idx) => {
-      const specName = (b.specKey && I18N[currentLang].specialties[b.specKey]) || b.specialty || "";
-      return `
-        <div class="result-card">
-          <div class="result-top">
-            <h3>${escapeHtml(b.hospital)}</h3>
-            <span class="distance-pill">#${escapeHtml(b.code)}</span>
-          </div>
-          <div class="badges">
-            <span class="badge">${escapeHtml(specName)}</span>
-            <span class="badge">${escapeHtml(b.slot)} | ${escapeHtml(b.date)}</span>
-          </div>
-          <div class="meta">
-            ${t("lblPatientInfo")}: <b>${escapeHtml(b.patientName)}</b> (${escapeHtml(b.patientPhone)})<br>
-            ${t("lblVehicleInfo")}: <b>${escapeHtml(b.vehicle)}</b>
-          </div>
-          <div class="card-actions">
-            <button class="btn btn-secondary" onclick="findParkingNearHospital(${b.lat}, ${b.lon}, '${escapeJs(b.hospital)}')">
-              <i class="fa-solid fa-square-parking"></i> ${t("btnParkingNearHosp")}
-            </button>
-            <button class="btn btn-secondary" style="color:var(--danger)" onclick="deleteBooking(${idx})">
-              <i class="fa-solid fa-trash"></i> ${t("btnDeleteBooking")}
-            </button>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function deleteBooking(index) {
-    const bookings = JSON.parse(localStorage.getItem("cp_bookings") || "[]");
-    bookings.splice(index, 1);
-    localStorage.setItem("cp_bookings", JSON.stringify(bookings));
-    renderAppointments();
-  }
-
-  document.querySelectorAll(".tab").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.target).classList.add("active");
-      setTimeout(() => { if (map) map.resize(); }, 150);
-    });
-  });
-
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function escapeJs(value) {
-    return String(value ?? "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    initMap();
-    applyTranslations();
-    document.getElementById("locationModal").addEventListener("click", event => {
-      if (event.target.id === "locationModal") closeLocationPrompt();
-    });
-  });
+  })();
 </script>
 </body>
 </html>
