@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#0284c7">
-  <meta name="description" content="VimedGo - Hệ thống Định vị Y tế & Tìm bãi đỗ xe Thông minh theo lộ trình đường đi thực tế">
+  <meta name="description" content="VimedGo - Hệ thống Định vị Y tế & Tìm bãi đỗ xe Thông minh tích hợp dẫn đường trực tiếp">
 
   <title>VimedGo - Hệ thống Y tế & Đỗ xe Thông minh</title>
 
@@ -98,7 +98,7 @@
 
     .results-list { max-height: 540px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 12px; }
     .result-card { border: 1px solid var(--border); background: var(--bg-elevated); border-radius: 14px; padding: 15px; cursor: pointer; transition: border-color 0.15s; }
-    .result-card:hover { border-color: var(--primary); background: var(--bg-surface); }
+    .result-card:hover, .result-card.active-route { border-color: var(--primary); background: var(--bg-surface); box-shadow: 0 6px 18px rgba(2,132,199,0.12); }
 
     .stagger-card { animation: cardSlideIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     @keyframes cardSlideIn {
@@ -115,13 +115,77 @@
     .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .card-actions .btn { padding: 9px 12px; font-size: 12.5px; border-radius: 9px; flex: 1; min-width: 110px; }
 
-    /* Map Panel */
+    /* Map Panel & In-App Route Navigation Box */
     .right-panel { position: sticky; top: 82px; min-width: 0; }
     .map-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); }
     .map-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
     .map-toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .btn-expand-map { display: none; }
-    #map { width: 100%; height: 640px; border-radius: 14px; overflow: hidden; background: #e2e8f0; position: relative; }
+
+    /* Hộp thông tin dẫn đường trực tiếp trên web */
+    .route-panel {
+      display: none;
+      background: var(--bg-elevated);
+      border: 1.5px solid var(--primary);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      animation: cardSlideIn 0.22s ease-out;
+    }
+    .route-panel.show { display: block; }
+    .route-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .route-title {
+      font-weight: 800;
+      font-size: 14.5px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .route-metrics {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+    .route-metric-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 12px;
+    }
+    .route-steps {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      max-height: 135px;
+      overflow-y: auto;
+      font-size: 12.5px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .route-steps.open { display: flex; }
+    .route-step-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: var(--bg-surface);
+    }
+
+    #map { width: 100%; height: 620px; border-radius: 14px; overflow: hidden; background: #e2e8f0; position: relative; }
     .map-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: 12px; color: var(--text-muted); }
     .legend { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 6px; font-weight: 600; }
@@ -154,8 +218,8 @@
     @media (max-width: 960px) {
       .workspace { grid-template-columns: 1fr; padding: 12px; gap: 14px; }
       .right-panel { position: static; order: -1; }
-      #map { height: 240px; }
-      #map.expanded-mobile { height: 430px; }
+      #map { height: 260px; }
+      #map.expanded-mobile { height: 440px; }
       .btn-expand-map { display: inline-flex; }
       .results-list { max-height: none; overflow-y: visible; padding-right: 0; }
       .footer-wrap { justify-content: center; text-align: center; flex-direction: column; }
@@ -363,7 +427,6 @@
           </button>
         </div>
 
-        <!-- Chỉ hiện đúng câu: Đang tìm kiếm bệnh viện gần nhất -->
         <div class="loader" id="hospitalLoader">
           <span class="spin"></span> <span id="txtHospitalLoader">Đang tìm kiếm bệnh viện gần nhất</span>
         </div>
@@ -433,7 +496,7 @@
     </section>
   </div>
 
-  <!-- CỘT PHẢI: BẢN ĐỒ SỐ VIETMAP -->
+  <!-- CỘT PHẢI: BẢN ĐỒ SỐ VIETMAP & HỘP CHỈ ĐƯỜNG TRỰC TIẾP TRÊN WEB -->
   <div class="right-panel" id="mapPanel">
     <div class="map-card">
       <div class="map-toolbar">
@@ -453,6 +516,25 @@
         </span>
       </div>
 
+      <!-- BẢNG DẪN ĐƯỜNG TRỰC TIẾP TRÊN WEB (KHÔNG CẦN QUA GOOGLE MAPS) -->
+      <div class="route-panel" id="inAppRoutePanel">
+        <div class="route-header">
+          <div class="route-title">
+            🧭 <span id="routeDestTitle">Đang dẫn đường...</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="btn btn-secondary" style="padding:5px 10px;font-size:11.5px;min-height:auto;" id="btnToggleRouteSteps">
+              📋 <span id="txtToggleSteps">Chi tiết rẽ</span>
+            </button>
+            <button type="button" class="btn btn-secondary" style="padding:5px 10px;font-size:11.5px;min-height:auto;color:var(--danger);" id="btnClearRoute">
+              ✕ <span id="txtClearRoute">Đóng lộ trình</span>
+            </button>
+          </div>
+        </div>
+        <div class="route-metrics" id="routeMetricsBar"></div>
+        <div class="route-steps" id="routeStepsList"></div>
+      </div>
+
       <div id="map"></div>
 
       <div class="map-footer">
@@ -461,7 +543,7 @@
           <span class="legend-item"><span class="dot" style="background:#ef4444"></span> <span id="legHospital">Bệnh viện</span></span>
           <span class="legend-item"><span class="dot" style="background:#0d9488"></span> <span id="legParking">Bãi đỗ xe / Trạm sạc</span></span>
         </div>
-        <span id="mapProviderNote">Bản đồ VIETMAP GL & Lộ trình thực tế</span>
+        <span id="mapProviderNote">Bản đồ VIETMAP GL & Dẫn đường trực tiếp</span>
       </div>
     </div>
   </div>
@@ -497,7 +579,6 @@
 
     let currentLang = "vi";
 
-    // Danh sách bổ sung các Bệnh viện & Cơ sở y tế trọng điểm đã xác thực tọa độ chuẩn (đề phòng OpenStreetMap bị thiếu dữ liệu địa phương)
     const VERIFIED_VN_HOSPITALS = [
       { id: "vn_nb_1", lat: 10.70385, lon: 106.70142, tags: { name: "Bệnh viện Đa khoa Nhà Bè", "name:en": "Nha Be General Hospital", amenity: "hospital", "addr:full": "281A Lê Văn Lương, Ấp 3, Phước Kiển, Nhà Bè, TP.HCM" } },
       { id: "vn_nb_2", lat: 10.69530, lon: 106.74050, tags: { name: "Trạm Y tế xã Phú Xuân - Nhà Bè", "name:en": "Phu Xuan Medical Station", amenity: "clinic", "addr:full": "Huỳnh Tấn Phát, Phú Xuân, Nhà Bè, TP.HCM" } },
@@ -548,7 +629,7 @@
         txtExpandMap: "Mở rộng bản đồ", txtCollapseMap: "Thu gọn bản đồ",
         accuracyInit: "Độ chính xác: --", accuracyVal: "Sai số GPS",
         legUser: "Vị trí của bạn", legHospital: "Bệnh viện", legParking: "Bãi đỗ xe / Trạm sạc",
-        mapProviderNote: "Bản đồ VIETMAP GL & Lộ trình thực tế",
+        mapProviderNote: "Bản đồ VIETMAP GL & Dẫn đường trực tiếp",
         footerProjectDesc: "Dự án Hệ thống Hỗ trợ Khám bệnh & Tìm bãi đỗ xe thông minh",
         footerAuthorLabel: "Phát triển bởi:", footerAuthorName: "Đội ngũ học sinh lớp 10a3 THPT Lê Quý Đôn", footerFbText: "Facebook",
         modalCancel: "Hủy", modalConfirmGps: "Đồng ý lấy vị trí",
@@ -564,7 +645,17 @@
         btnBookNow: "📅 Đặt lịch khám", btnParkingNearHosp: "🅿️ Bãi đỗ quanh viện",
         typeCharging: "Trạm sạc", typeParking: "Bãi đỗ xe",
         lblCapacity: "Sức chứa", lblFee: "Phí", lblOpenHours: "Giờ mở cửa", lblCoords: "Tọa độ",
-        btnDirections: "🧭 Chỉ đường",
+        btnDirections: "🧭 Chỉ đường trên web",
+        txtToggleSteps: "Chi tiết rẽ",
+        txtClearRoute: "Đóng lộ trình",
+        routeCalculating: "Đang vẽ đường đi ngắn nhất trên bản đồ...",
+        routeReadyToast: "Đã vẽ lộ trình chỉ đường trực tiếp trên bản đồ!",
+        stepStart: "Xuất phát từ vị trí của bạn",
+        stepArrive: "Đến điểm đích",
+        stepContinue: "Đi thẳng theo",
+        stepTurnLeft: "Rẽ trái vào",
+        stepTurnRight: "Rẽ phải vào",
+        stepRoadUnnamed: "tuyến đường chính",
         unnamedPlace: "Cơ sở y tế", unnamedCharging: "Trạm sạc xe điện", unnamedParking: "Bãi đỗ xe",
         popupYourPos: "📍 Vị trí hiện tại của bạn", popupCoords: "Tọa độ", popupAccuracy: "Sai số",
         bannerParkingNear: "Bãi đỗ quanh",
@@ -622,7 +713,7 @@
         txtExpandMap: "Expand Map", txtCollapseMap: "Compact Map",
         accuracyInit: "Accuracy: --", accuracyVal: "GPS Accuracy",
         legUser: "Your Location", legHospital: "Hospital", legParking: "Parking / EV Charging",
-        mapProviderNote: "Powered by VIETMAP GL & Real Road Routing",
+        mapProviderNote: "Powered by VIETMAP GL & In-App Routing",
         footerProjectDesc: "Smart Healthcare & Parking Locator Project",
         footerAuthorLabel: "Developed by:", footerAuthorName: "Class 10A3 Students - Le Quy Don High School", footerFbText: "Facebook",
         modalCancel: "Cancel", modalConfirmGps: "Allow Location",
@@ -638,7 +729,17 @@
         btnBookNow: "📅 Book Appointment", btnParkingNearHosp: "🅿️ Parking Nearby",
         typeCharging: "EV Charging", typeParking: "Parking Lot",
         lblCapacity: "Capacity", lblFee: "Fee", lblOpenHours: "Opening Hours", lblCoords: "Coordinates",
-        btnDirections: "🧭 Get Directions",
+        btnDirections: "🧭 In-App Route",
+        txtToggleSteps: "Turn Steps",
+        txtClearRoute: "Clear Route",
+        routeCalculating: "Drawing shortest route on map...",
+        routeReadyToast: "Route drawn directly on the map!",
+        stepStart: "Depart from your location",
+        stepArrive: "Arrive at destination",
+        stepContinue: "Continue along",
+        stepTurnLeft: "Turn left onto",
+        stepTurnRight: "Turn right onto",
+        stepRoadUnnamed: "main road",
         unnamedPlace: "Medical Facility", unnamedCharging: "EV Charging Station", unnamedParking: "Public Parking",
         popupYourPos: "📍 Your Current Location", popupCoords: "Coordinates", popupAccuracy: "Accuracy",
         bannerParkingNear: "Parking near",
@@ -676,7 +777,6 @@
     let currentHospitalScanId = 0;
     let currentParkingScanId = 0;
 
-    // Trạng thái quét nối tiếp (Incremental Delta Search: Đã quét 8km -> Chọn 15km chỉ quét tiếp 8km -> 15km)
     let hospitalScanState = {
       lat: null,
       lon: null,
@@ -778,6 +878,8 @@
       document.getElementById("btnMyLocation").textContent = t("btnMyLocation");
       document.getElementById("txtTrackBtn").textContent = watchId !== null ? t("txtStopTrackBtn") : t("txtTrackBtn");
       document.getElementById("txtExpandMap").textContent = isMobileMapExpanded ? t("txtCollapseMap") : t("txtExpandMap");
+      document.getElementById("txtToggleSteps").textContent = t("txtToggleSteps");
+      document.getElementById("txtClearRoute").textContent = t("txtClearRoute");
       document.getElementById("legUser").textContent = t("legUser");
       document.getElementById("legHospital").textContent = t("legHospital");
       document.getElementById("legParking").textContent = t("legParking");
@@ -884,6 +986,146 @@
         zoom: 6
       });
       map.addControl(new vietmapgl.NavigationControl(), "top-right");
+    }
+
+    // =========================================================================
+    // VẼ ĐƯỜNG ĐI & DẪN ĐƯỜNG TRỰC TIẾP TRÊN BẢN ĐỒ VIETMAP (IN-APP NAVIGATION)
+    // =========================================================================
+    function clearInAppRoute() {
+      document.getElementById("inAppRoutePanel").classList.remove("show");
+      document.getElementById("routeStepsList").classList.remove("open");
+      document.querySelectorAll(".result-card.active-route").forEach(el => el.classList.remove("active-route"));
+
+      if (!map) return;
+      try {
+        if (map.getLayer("vimedgo-route-line")) map.removeLayer("vimedgo-route-line");
+        if (map.getLayer("vimedgo-route-casing")) map.removeLayer("vimedgo-route-casing");
+        if (map.getSource("vimedgo-route-src")) map.removeSource("vimedgo-route-src");
+      } catch {}
+    }
+
+    function formatStepInstruction(step) {
+      const road = step.name ? `<b>${escapeHtml(step.name)}</b>` : escapeHtml(t("stepRoadUnnamed"));
+      const m = step.maneuver || {};
+      if (m.type === "depart") return `🚗 ${escapeHtml(t("stepStart"))} (${road})`;
+      if (m.type === "arrive") return `🏁 ${escapeHtml(t("stepArrive"))}`;
+      if (m.modifier && m.modifier.includes("left")) return `⬅️ ${escapeHtml(t("stepTurnLeft"))} ${road}`;
+      if (m.modifier && m.modifier.includes("right")) return `➡️ ${escapeHtml(t("stepTurnRight"))} ${road}`;
+      return `⬆️ ${escapeHtml(t("stepContinue"))} ${road}`;
+    }
+
+    async function drawRouteOnWebMap(destLat, destLon, destName, knownDistKm, knownMin) {
+      if (!userLocation) {
+        openLocationPrompt("locate");
+        return;
+      }
+      if (!map) return;
+
+      const panel = document.getElementById("inAppRoutePanel");
+      const titleEl = document.getElementById("routeDestTitle");
+      const metricsBar = document.getElementById("routeMetricsBar");
+      const stepsList = document.getElementById("routeStepsList");
+
+      panel.classList.add("show");
+      titleEl.textContent = destName;
+      metricsBar.innerHTML = `<span class="route-metric-badge">⏳ ${escapeHtml(t("routeCalculating"))}</span>`;
+      stepsList.innerHTML = "";
+
+      // Trên điện thoại, tự động mở rộng bản đồ và cuộn mượt lên bản đồ để người dùng xem đường đi
+      if (window.innerWidth <= 960) {
+        if (!isMobileMapExpanded) toggleMobileMapSize();
+        document.getElementById("mapPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      const startLng = userLocation.lon;
+      const startLat = userLocation.lat;
+
+      let routeCoords = [
+        [startLng, startLat],
+        [destLon, destLat]
+      ];
+      let finalDistKm = knownDistKm || straightDistanceKm(startLat, startLng, destLat, destLon) * 1.15;
+      let finalMin = knownMin || Math.max(1, Math.round(finalDistKm * 2.5));
+      let stepsHtml = "";
+
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${startLng.toFixed(6)},${startLat.toFixed(6)};${destLon.toFixed(6)},${destLat.toFixed(6)}?overview=full&geometries=geojson&steps=true`;
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 4500);
+        const res = await fetch(url, { signal: ctrl.signal });
+        clearTimeout(timer);
+
+        if (res.ok) {
+          const data = await res.json();
+          const route = data.routes && data.routes[0];
+          if (route && route.geometry && Array.isArray(route.geometry.coordinates)) {
+            routeCoords = route.geometry.coordinates;
+            const osrmKm = route.distance / 1000;
+            const airKm = straightDistanceKm(startLat, startLng, destLat, destLon);
+
+            if (osrmKm <= airKm * 1.42) {
+              finalDistKm = osrmKm;
+              finalMin = Math.max(1, Math.round(route.duration / 60));
+            }
+
+            const legs = route.legs && route.legs[0];
+            if (legs && Array.isArray(legs.steps)) {
+              stepsHtml = legs.steps.map(st => {
+                const stepDist = st.distance >= 1000
+                  ? `${(st.distance / 1000).toFixed(1)} km`
+                  : `${Math.round(st.distance)} m`;
+                return `<div class="route-step-item"><span>${formatStepInstruction(st)}</span><b>${stepDist}</b></div>`;
+              }).join("");
+            }
+          }
+        }
+      } catch {}
+
+      metricsBar.innerHTML = `
+        <span class="route-metric-badge">🛣️ ${escapeHtml(t("roadDistLabel"))}: <b>${finalDistKm.toFixed(1)} km</b></span>
+        <span class="route-metric-badge">⏱️ ~<b>${finalMin} ${escapeHtml(t("driveMinLabel"))}</b></span>
+      `;
+
+      if (stepsHtml) {
+        stepsList.innerHTML = stepsHtml;
+      } else {
+        stepsList.innerHTML = `<div class="route-step-item"><span>🚗 ${escapeHtml(t("stepStart"))} → 🏁 ${escapeHtml(destName)}</span><b>${finalDistKm.toFixed(1)} km</b></div>`;
+      }
+
+      const geojson = {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "LineString",
+          coordinates: routeCoords
+        }
+      };
+
+      try {
+        if (map.getSource("vimedgo-route-src")) {
+          map.getSource("vimedgo-route-src").setData(geojson);
+        } else {
+          map.addSource("vimedgo-route-src", { type: "geojson", data: geojson });
+          map.addLayer({
+            id: "vimedgo-route-casing",
+            type: "line",
+            source: "vimedgo-route-src",
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: { "line-color": "#ffffff", "line-width": 9, "line-opacity": 0.9 }
+          });
+          map.addLayer({
+            id: "vimedgo-route-line",
+            type: "line",
+            source: "vimedgo-route-src",
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: { "line-color": "#0284c7", "line-width": 5.5, "line-opacity": 0.95 }
+          });
+        }
+
+        const bounds = routeCoords.reduce((b, c) => b.extend(c), new vietmapgl.LngLatBounds(routeCoords[0], routeCoords[0]));
+        map.fitBounds(bounds, { padding: 55, maxZoom: 16 });
+        showToast(t("routeReadyToast"));
+      } catch {}
     }
 
     function setStatus(text, state = "idle") {
@@ -1061,14 +1303,9 @@
       };
     }
 
-    // =========================================================================
-    // KẾT HỢP 4 NGUỒN DỮ LIỆU: VIETMAP API + OVERPASS + NOMINATIM + VERIFIED DB
-    // Đảm bảo Bệnh viện Đa khoa Nhà Bè (~7.0km) luôn có mặt ngay lập tức
-    // =========================================================================
     async function fetchHospitalDataReliable(lat, lon, radiusKm) {
       const bbox = getBoundingBox(lat, lon, radiusKm);
 
-      // Nguồn 1: VIETMAP Search API chính hãng bằng Key của bạn
       const fetchVietmapSearch = async () => {
         const keywords = ["Bệnh viện", "Phòng khám", "Trạm y tế"];
         const reqs = keywords.map(kw =>
@@ -1100,7 +1337,6 @@
         return list;
       };
 
-      // Nguồn 2: Overpass OpenStreetMap
       const overpassQuery = `[out:json][timeout:8][bbox:${bbox.str}];(nwr["amenity"~"hospital|clinic|doctors"];nwr["healthcare"~"hospital|clinic|centre"];);out center tags;`;
       const fetchOverpassServer = async (baseUrl) => {
         const ctrl = new AbortController();
@@ -1116,7 +1352,6 @@
         }
       };
 
-      // Nguồn 3: Nominatim Bounded Search
       const fetchNominatimBounded = async () => {
         const viewbox = `${bbox.west},${bbox.north},${bbox.east},${bbox.south}`;
         const queries = ["Bệnh viện", "Phòng khám", "Trạm Y tế"];
@@ -1159,11 +1394,6 @@
       return [...VERIFIED_VN_HOSPITALS, ...vmElements, ...ovElements, ...nomElements];
     }
 
-    // =========================================================================
-    // ĐO ĐỘ DÀI ĐƯỜNG ĐI THỰC TẾ (ROAD DISTANCE) + HIỆU CHỈNH CẦU MỚI LÊ VĂN LƯƠNG
-    // Nếu OSRM bắt đi vòng do thiếu dữ liệu cầu Rạch Đỉa/Long Kiểng mới (> 1.42x đường thẳng),
-    // tự động tính theo lộ trình thực tế chuẩn như Google Maps (~7.0 km)
-    // =========================================================================
     async function attachRealRoadDistances(originLat, originLon, items) {
       if (!items.length) return items;
 
@@ -1186,12 +1416,10 @@
             items.forEach((item, idx) => {
               const roadMeters = dists[idx + 1];
               const durSec = durs ? durs[idx + 1] : null;
-              const realisticRoadKm = item.airDistance * 1.13; // Hệ số đường thẳng thực tế trên trục Lê Văn Lương
+              const realisticRoadKm = item.airDistance * 1.13;
 
               if (typeof roadMeters === "number" && roadMeters > 0) {
                 const osrmKm = roadMeters / 1000;
-                // Nếu OSRM tính vòng bất thường (> 1.42 lần đường chim bay do chưa cập nhật cầu mới trên đường Lê Văn Lương),
-                // hiệu chỉnh về đúng số km đường bộ thực tế giống Google Maps
                 if (osrmKm > item.airDistance * 1.42) {
                   item.distance = realisticRoadKm;
                   item.driveMinutes = Math.max(1, Math.round(realisticRoadKm * 2.5));
@@ -1263,8 +1491,6 @@
       const facilityBadge = isClinic ? t("badgeClinic") : t("badgeHospital");
       const time = times[i % times.length];
       const driveMin = h.driveMinutes || Math.max(1, Math.round(h.distance * 2.5));
-      const originParam = userLocation ? `&origin=${encodeURIComponent(userLocation.lat + "," + userLocation.lon)}` : "";
-      const mapsUrl = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${encodeURIComponent(h.lat + "," + h.lon)}`;
 
       return `
         <div class="result-card stagger-card" data-action="focus-hospital" data-index="${i}">
@@ -1287,9 +1513,9 @@
             <button class="btn btn-secondary" type="button" data-action="parking-near-hospital" data-index="${i}">
               ${escapeHtml(t("btnParkingNearHosp"))}
             </button>
-            <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
+            <button class="btn btn-teal" type="button" data-action="route-hospital" data-index="${i}">
               ${escapeHtml(t("btnDirections"))}
-            </a>
+            </button>
           </div>
         </div>
       `;
@@ -1310,9 +1536,6 @@
 
     const waitMs = (ms) => new Promise(res => setTimeout(res, ms));
 
-    // =========================================================================
-    // TÌM BỆNH VIỆN: HIỆN GẦN NHẤT TRƯỚC -> TIẾP TỤC MỞ RỘNG (NỐI TIẾP 8KM -> 15KM)
-    // =========================================================================
     async function searchHospitalsProgressive(forceReset = false) {
       if (!userLocation) {
         getLocationAndSearch("hospital");
@@ -1334,7 +1557,6 @@
       const sameOrigin = hospitalScanState.lat !== null &&
         straightDistanceKm(lat, lon, hospitalScanState.lat, hospitalScanState.lon) < 0.25;
 
-      // 1. Nếu người dùng chọn bán kính nhỏ hơn hoặc bằng mức đã quét -> Lọc tức thì
       if (!forceReset && sameOrigin && targetRadiusKm <= hospitalScanState.scannedMaxKm) {
         clearMarkers();
         lastHospitals = hospitalScanState.allItems
@@ -1358,9 +1580,9 @@
         return;
       }
 
-      // 2. Nếu quét mới hoàn toàn hoặc đổi vị trí GPS
       if (forceReset || !sameOrigin) {
         clearMarkers();
+        clearInAppRoute();
         lastHospitals = [];
         box.innerHTML = "";
         hospitalScanState = {
@@ -1371,7 +1593,6 @@
           allItems: []
         };
       } else {
-        // 3. Đã quét 8km, người dùng chọn 15km -> Giữ nguyên các bệnh viện <= 8km trên màn hình, chỉ tìm tiếp 8km -> 15km!
         const emptyEl = box.querySelector(".empty");
         if (emptyEl) emptyEl.remove();
       }
@@ -1394,7 +1615,6 @@
           const airDist = straightDistanceKm(lat, lon, elLat, elLon);
           if (airDist > targetRadiusKm) continue;
 
-          // Khử trùng lặp theo tọa độ gần nhau (~150m)
           const coordKey = `${elLat.toFixed(2)}_${elLon.toFixed(2)}`;
           if (hospitalScanState.seenKeys.has(coordKey)) continue;
           hospitalScanState.seenKeys.add(coordKey);
@@ -1409,7 +1629,6 @@
           });
         }
 
-        // Sắp xếp từ gần nhất đến xa nhất để hiện bệnh viện gần nhất trước tiên
         newCandidates.sort((a, b) => a.airDistance - b.airDistance);
 
         const batchStep = 5;
@@ -1460,9 +1679,6 @@
       }
     }
 
-    // =========================================================================
-    // TÌM BÃI ĐỖ XE THEO ĐỘ DÀI ĐƯỜNG ĐI THỰC TẾ
-    // =========================================================================
     async function fetchParkingDataReliable(lat, lon, radiusKm) {
       const bbox = getBoundingBox(lat, lon, radiusKm);
       const overpassQuery = `[out:json][timeout:8][bbox:${bbox.str}];(nwr["amenity"~"parking|charging_station"];);out center tags;`;
@@ -1515,9 +1731,6 @@
       const displayName = getLocalizedPlaceName(p, fallbackName);
       const driveMin = p.driveMinutes || Math.max(1, Math.round(p.distance * 2.5));
 
-      const originParam = userLocation ? `&origin=${encodeURIComponent(userLocation.lat + "," + userLocation.lon)}` : "";
-      const mapsUrl = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${encodeURIComponent(p.lat + "," + p.lon)}`;
-
       return `
         <div class="result-card stagger-card" data-action="focus-parking" data-index="${i}">
           <div class="result-top">
@@ -1535,9 +1748,9 @@
             ${escapeHtml(t("lblCoords"))}: ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}
           </div>
           <div class="card-actions">
-            <a class="btn btn-teal" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
+            <button class="btn btn-teal" type="button" data-action="route-parking" data-index="${i}">
               ${escapeHtml(t("btnDirections"))}
-            </a>
+            </button>
           </div>
         </div>
       `;
@@ -1762,6 +1975,9 @@
               ${escapeHtml(t("lblVehicleInfo"))}: <b>${escapeHtml(b.vehicle)}</b>
             </div>
             <div class="card-actions">
+              <button class="btn btn-teal" type="button" data-action="booking-route" data-index="${idx}">
+                ${escapeHtml(t("btnDirections"))}
+              </button>
               <button class="btn btn-secondary" type="button" data-action="booking-parking-near" data-index="${idx}">
                 ${escapeHtml(t("btnParkingNearHosp"))}
               </button>
@@ -1786,6 +2002,11 @@
       document.getElementById("langBtn").addEventListener("click", toggleLanguage);
       document.getElementById("themeBtn").addEventListener("click", toggleTheme);
       document.getElementById("btnToggleMapSize").addEventListener("click", toggleMobileMapSize);
+
+      document.getElementById("btnToggleRouteSteps").addEventListener("click", () => {
+        document.getElementById("routeStepsList").classList.toggle("open");
+      });
+      document.getElementById("btnClearRoute").addEventListener("click", clearInAppRoute);
 
       document.getElementById("btnCancelModal").addEventListener("click", closeLocationPrompt);
       document.getElementById("btnConfirmModal").addEventListener("click", confirmLocationPermission);
@@ -1836,6 +2057,7 @@
       document.getElementById("btnLocateMeAction").addEventListener("click", () => openLocationPrompt("locate"));
       document.getElementById("trackBtn").addEventListener("click", toggleTracking);
 
+      // Xử lý sự kiện trên danh sách Bệnh viện (gồm Chỉ đường trực tiếp trên web)
       document.getElementById("hospitalResults").addEventListener("click", e => {
         const btn = e.target.closest("[data-action]");
         if (!btn) return;
@@ -1844,27 +2066,48 @@
         const item = lastHospitals[idx];
         if (!item) return;
 
+        const displayName = getLocalizedPlaceName(item, t("unnamedPlace"));
+
         if (action === "book-hospital") {
           e.stopPropagation();
           openBookingModal(idx);
         } else if (action === "parking-near-hospital") {
           e.stopPropagation();
-          const displayName = getLocalizedPlaceName(item, t("unnamedPlace"));
           findParkingNearHospital(item.lat, item.lon, displayName);
+        } else if (action === "route-hospital") {
+          e.stopPropagation();
+          document.querySelectorAll(".result-card.active-route").forEach(el => el.classList.remove("active-route"));
+          const card = btn.closest(".result-card");
+          if (card) card.classList.add("active-route");
+          drawRouteOnWebMap(item.lat, item.lon, displayName, item.distance, item.driveMinutes);
         } else if (action === "focus-hospital") {
           focusMarker(idx, item.lat, item.lon);
         }
       });
 
+      // Xử lý sự kiện trên danh sách Bãi đỗ xe (gồm Chỉ đường trực tiếp trên web)
       document.getElementById("parkingResults").addEventListener("click", e => {
-        if (e.target.closest("a")) return;
-        const card = e.target.closest('[data-action="focus-parking"]');
-        if (!card) return;
-        const idx = Number(card.getAttribute("data-index"));
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const action = btn.getAttribute("data-action");
+        const idx = Number(btn.getAttribute("data-index"));
         const item = lastParking[idx];
-        if (item) focusMarker(idx, item.lat, item.lon);
+        if (!item) return;
+
+        if (action === "route-parking") {
+          e.stopPropagation();
+          document.querySelectorAll(".result-card.active-route").forEach(el => el.classList.remove("active-route"));
+          const card = btn.closest(".result-card");
+          if (card) card.classList.add("active-route");
+          const fallbackName = item.tags && item.tags.amenity === "charging_station" ? t("unnamedCharging") : t("unnamedParking");
+          const displayName = getLocalizedPlaceName(item, fallbackName);
+          drawRouteOnWebMap(item.lat, item.lon, displayName, item.distance, item.driveMinutes);
+        } else if (action === "focus-parking") {
+          focusMarker(idx, item.lat, item.lon);
+        }
       });
 
+      // Xử lý sự kiện trên danh sách Lịch hẹn
       document.getElementById("appointmentsList").addEventListener("click", e => {
         const btn = e.target.closest("[data-action]");
         if (!btn) return;
@@ -1874,7 +2117,9 @@
         const b = bookings[idx];
         if (!b) return;
 
-        if (action === "booking-parking-near") {
+        if (action === "booking-route") {
+          drawRouteOnWebMap(Number(b.lat), Number(b.lon), String(b.hospital || ""));
+        } else if (action === "booking-parking-near") {
           findParkingNearHospital(Number(b.lat), Number(b.lon), String(b.hospital || ""));
         } else if (action === "delete-booking") {
           deleteBooking(idx);
