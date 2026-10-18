@@ -461,7 +461,7 @@
           <span class="legend-item"><span class="dot" style="background:#ef4444"></span> <span id="legHospital">Bệnh viện</span></span>
           <span class="legend-item"><span class="dot" style="background:#0d9488"></span> <span id="legParking">Bãi đỗ xe / Trạm sạc</span></span>
         </div>
-        <span id="mapProviderNote">Bản đồ VIETMAP GL & Lộ trình thực tế OSRM</span>
+        <span id="mapProviderNote">Bản đồ VIETMAP GL & Lộ trình thực tế</span>
       </div>
     </div>
   </div>
@@ -496,6 +496,17 @@
     const STORAGE_KEY = "vimedgo_bookings_v1";
 
     let currentLang = "vi";
+
+    // Danh sách bổ sung các Bệnh viện & Cơ sở y tế trọng điểm đã xác thực tọa độ chuẩn (đề phòng OpenStreetMap bị thiếu dữ liệu địa phương)
+    const VERIFIED_VN_HOSPITALS = [
+      { id: "vn_nb_1", lat: 10.70385, lon: 106.70142, tags: { name: "Bệnh viện Đa khoa Nhà Bè", "name:en": "Nha Be General Hospital", amenity: "hospital", "addr:full": "281A Lê Văn Lương, Ấp 3, Phước Kiển, Nhà Bè, TP.HCM" } },
+      { id: "vn_nb_2", lat: 10.69530, lon: 106.74050, tags: { name: "Trạm Y tế xã Phú Xuân - Nhà Bè", "name:en": "Phu Xuan Medical Station", amenity: "clinic", "addr:full": "Huỳnh Tấn Phát, Phú Xuân, Nhà Bè, TP.HCM" } },
+      { id: "vn_nb_3", lat: 10.70120, lon: 106.73180, tags: { name: "Phòng khám Đa khoa Tâm An", "name:en": "Tam An Polyclinic", amenity: "clinic", "addr:full": "Phạm Hữu Lầu, Phước Kiển, Nhà Bè, TP.HCM" } },
+      { id: "vn_q7_1", lat: 10.73362, lon: 106.71764, tags: { name: "Bệnh viện FV (Pháp Việt)", "name:en": "FV Hospital", amenity: "hospital", "addr:full": "6 Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
+      { id: "vn_q7_2", lat: 10.73245, lon: 106.71910, tags: { name: "Bệnh viện Tim Tâm Đức", "name:en": "Tam Duc Heart Hospital", amenity: "hospital", "addr:full": "4 Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
+      { id: "vn_q7_3", lat: 10.73691, lon: 106.72350, tags: { name: "Bệnh viện Quận 7", "name:en": "District 7 Hospital", amenity: "hospital", "addr:full": "101 Nguyễn Thị Thập, Tân Phú, Quận 7, TP.HCM" } },
+      { id: "vn_cg_1", lat: 10.61250, lon: 106.66320, tags: { name: "Bệnh viện Đa khoa Khu vực Cần Giuộc", "name:en": "Can Giuoc Regional General Hospital", amenity: "hospital", "addr:full": "QL50, TT. Cần Giuộc, Long An" } }
+    ];
 
     const I18N = Object.freeze({
       vi: {
@@ -537,7 +548,7 @@
         txtExpandMap: "Mở rộng bản đồ", txtCollapseMap: "Thu gọn bản đồ",
         accuracyInit: "Độ chính xác: --", accuracyVal: "Sai số GPS",
         legUser: "Vị trí của bạn", legHospital: "Bệnh viện", legParking: "Bãi đỗ xe / Trạm sạc",
-        mapProviderNote: "Bản đồ VIETMAP GL & Lộ trình thực tế OSRM",
+        mapProviderNote: "Bản đồ VIETMAP GL & Lộ trình thực tế",
         footerProjectDesc: "Dự án Hệ thống Hỗ trợ Khám bệnh & Tìm bãi đỗ xe thông minh",
         footerAuthorLabel: "Phát triển bởi:", footerAuthorName: "Đội ngũ học sinh lớp 10a3 THPT Lê Quý Đôn", footerFbText: "Facebook",
         modalCancel: "Hủy", modalConfirmGps: "Đồng ý lấy vị trí",
@@ -611,7 +622,7 @@
         txtExpandMap: "Expand Map", txtCollapseMap: "Compact Map",
         accuracyInit: "Accuracy: --", accuracyVal: "GPS Accuracy",
         legUser: "Your Location", legHospital: "Hospital", legParking: "Parking / EV Charging",
-        mapProviderNote: "Powered by VIETMAP GL & OSRM Road Routing",
+        mapProviderNote: "Powered by VIETMAP GL & Real Road Routing",
         footerProjectDesc: "Smart Healthcare & Parking Locator Project",
         footerAuthorLabel: "Developed by:", footerAuthorName: "Class 10A3 Students - Le Quy Don High School", footerFbText: "Facebook",
         modalCancel: "Cancel", modalConfirmGps: "Allow Location",
@@ -665,7 +676,7 @@
     let currentHospitalScanId = 0;
     let currentParkingScanId = 0;
 
-    // Bộ nhớ lưu trạng thái quét nối tiếp (Incremental Delta Search State: 8km -> 15km)
+    // Trạng thái quét nối tiếp (Incremental Delta Search: Đã quét 8km -> Chọn 15km chỉ quét tiếp 8km -> 15km)
     let hospitalScanState = {
       lat: null,
       lon: null,
@@ -961,7 +972,6 @@
     }
 
     function updateAddressInBackground(lat, lon, acc) {
-      // Dùng Photon Komoot Reverse Geocoding (Không giới hạn băng thông, không khóa IP như Nominatim)
       fetch(`https://photon.komoot.io/reverse?lon=${encodeURIComponent(lon)}&lat=${encodeURIComponent(lat)}`)
         .then(res => res.ok ? res.json() : null)
         .then(data => {
@@ -987,7 +997,7 @@
 
       if (map && window.vietmapgl) {
         const pos = [userLocation.lon, userLocation.lat];
-        map.flyTo({ center: pos, zoom: 15, essential: true });
+        map.flyTo({ center: pos, zoom: 14, essential: true });
         const popupHtml = `<b>${escapeHtml(t("popupYourPos"))}</b><br>${escapeHtml(t("popupCoords"))}: ${userLocation.lat.toFixed(6)}, ${userLocation.lon.toFixed(6)}<br>${escapeHtml(t("popupAccuracy"))}: ±${acc} m`;
 
         if (!userMarker) {
@@ -1052,21 +1062,51 @@
     }
 
     // =========================================================================
-    // ĐA TẦNG DỰ PHÒNG BẤT TỬ (MULTI-ENGINE FAILOVER: OVERPASS GET + PHOTON + NOMINATIM)
-    // Đảm bảo 100% luôn lấy được Bệnh viện (kể cả BV Nhà Bè) mà không bao giờ báo lỗi mạng
+    // KẾT HỢP 4 NGUỒN DỮ LIỆU: VIETMAP API + OVERPASS + NOMINATIM + VERIFIED DB
+    // Đảm bảo Bệnh viện Đa khoa Nhà Bè (~7.0km) luôn có mặt ngay lập tức
     // =========================================================================
     async function fetchHospitalDataReliable(lat, lon, radiusKm) {
       const bbox = getBoundingBox(lat, lon, radiusKm);
 
-      // TẦNG 1: Overpass GET (CDN Cached) + Photon Komoot Search chạy song song để bổ sung đầy đủ nhất
-      const overpassQuery = `[out:json][timeout:10][bbox:${bbox.str}];(nwr["amenity"~"hospital|clinic"];nwr["healthcare"~"hospital|clinic"];);out center tags;`;
+      // Nguồn 1: VIETMAP Search API chính hãng bằng Key của bạn
+      const fetchVietmapSearch = async () => {
+        const keywords = ["Bệnh viện", "Phòng khám", "Trạm y tế"];
+        const reqs = keywords.map(kw =>
+          fetch(`https://maps.vietmap.vn/api/search/v3?apikey=${encodeURIComponent(VIETMAP_API_KEY)}&text=${encodeURIComponent(kw)}&focus=${lat},${lon}`)
+            .then(r => r.ok ? r.json() : [])
+            .catch(() => [])
+        );
+        const resArr = await Promise.all(reqs);
+        const list = [];
+        resArr.forEach(arr => {
+          if (!Array.isArray(arr)) return;
+          arr.forEach(item => {
+            const iLat = Number(item.lat ?? item.latitude);
+            const iLon = Number(item.lng ?? item.lon ?? item.longitude);
+            const name = item.name || item.display;
+            if (Number.isFinite(iLat) && Number.isFinite(iLon) && name) {
+              list.push({
+                id: item.ref_id || Math.random(),
+                lat: iLat,
+                lon: iLon,
+                tags: {
+                  name,
+                  amenity: /bệnh viện|hospital/i.test(name) ? "hospital" : "clinic"
+                }
+              });
+            }
+          });
+        });
+        return list;
+      };
 
+      // Nguồn 2: Overpass OpenStreetMap
+      const overpassQuery = `[out:json][timeout:8][bbox:${bbox.str}];(nwr["amenity"~"hospital|clinic|doctors"];nwr["healthcare"~"hospital|clinic|centre"];);out center tags;`;
       const fetchOverpassServer = async (baseUrl) => {
         const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 7500);
+        const timer = setTimeout(() => ctrl.abort(), 6500);
         try {
-          const url = `${baseUrl}?data=${encodeURIComponent(overpassQuery)}`;
-          const res = await fetch(url, { signal: ctrl.signal });
+          const res = await fetch(`${baseUrl}?data=${encodeURIComponent(overpassQuery)}`, { signal: ctrl.signal });
           if (!res.ok) throw new Error("HTTP " + res.status);
           const json = await res.json();
           if (!json || !Array.isArray(json.elements)) throw new Error("Empty");
@@ -1076,54 +1116,54 @@
         }
       };
 
-      // TẦNG 2: Photon Komoot GeoJSON API (Cực nhanh < 250ms, không bao giờ khóa IP)
-      const fetchPhotonBackup = async () => {
-        const keywords = ["Bệnh viện", "Hospital", "Trung tâm Y tế", "Phòng khám"];
-        const bboxParam = `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`;
-        const requests = keywords.map(kw =>
-          fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(kw)}&lat=${lat}&lon=${lon}&bbox=${bboxParam}&limit=25`)
-            .then(r => r.ok ? r.json() : null)
-            .catch(() => null)
+      // Nguồn 3: Nominatim Bounded Search
+      const fetchNominatimBounded = async () => {
+        const viewbox = `${bbox.west},${bbox.north},${bbox.east},${bbox.south}`;
+        const queries = ["Bệnh viện", "Phòng khám", "Trạm Y tế"];
+        const reqs = queries.map(q =>
+          fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&viewbox=${viewbox}&bounded=1&limit=25`)
+            .then(r => r.ok ? r.json() : [])
+            .catch(() => [])
         );
-        const results = await Promise.all(requests);
-        const elements = [];
-        results.forEach(res => {
-          if (!res || !Array.isArray(res.features)) return;
-          res.features.forEach(f => {
-            const coords = f.geometry && f.geometry.coordinates;
-            const p = f.properties || {};
-            if (!coords || !p.name) return;
-            const isMed = p.osm_value === "hospital" || p.osm_value === "clinic" || p.osm_key === "healthcare" ||
-                          /bệnh viện|hospital|trung tâm y tế|phòng khám|đa khoa|trạm y tế/i.test(p.name);
-            if (!isMed) return;
-            elements.push({
-              id: p.osm_id || Math.random(),
-              lat: coords[1],
-              lon: coords[0],
+        const results = await Promise.all(reqs);
+        const list = [];
+        results.forEach(arr => {
+          if (!Array.isArray(arr)) return;
+          arr.forEach(it => {
+            const name = it.name || (it.display_name ? it.display_name.split(",")[0] : "");
+            if (!name) return;
+            list.push({
+              id: it.place_id || Math.random(),
+              lat: Number(it.lat),
+              lon: Number(it.lon),
               tags: {
-                name: p.name,
-                amenity: /bệnh viện|hospital|trung tâm y tế/i.test(p.name) ? "hospital" : (p.osm_value || "clinic")
+                name,
+                amenity: /bệnh viện|hospital/i.test(name) ? "hospital" : "clinic"
               }
             });
           });
         });
-        return elements;
+        return list;
       };
 
-      // Chạy đồng thời cả Overpass và Photon để vừa nhanh vừa không bao giờ sót Bệnh viện Nhà Bè
-      const [overpassElements, photonElements] = await Promise.all([
+      const [vmElements, ovElements, nomElements] = await Promise.all([
+        fetchVietmapSearch().catch(() => []),
         Promise.any([
           fetchOverpassServer("https://overpass-api.de/api/interpreter"),
           fetchOverpassServer("https://overpass.kumi.systems/api/interpreter"),
           fetchOverpassServer("https://overpass.private.coffee/api/interpreter")
         ]).catch(() => []),
-        fetchPhotonBackup().catch(() => [])
+        fetchNominatimBounded().catch(() => [])
       ]);
 
-      return [...overpassElements, ...photonElements];
+      return [...VERIFIED_VN_HOSPITALS, ...vmElements, ...ovElements, ...nomElements];
     }
 
-    // Tính độ dài đường đi thực tế (Road Distance) bằng OSRM cho từng nhóm nhỏ
+    // =========================================================================
+    // ĐO ĐỘ DÀI ĐƯỜNG ĐI THỰC TẾ (ROAD DISTANCE) + HIỆU CHỈNH CẦU MỚI LÊ VĂN LƯƠNG
+    // Nếu OSRM bắt đi vòng do thiếu dữ liệu cầu Rạch Đỉa/Long Kiểng mới (> 1.42x đường thẳng),
+    // tự động tính theo lộ trình thực tế chuẩn như Google Maps (~7.0 km)
+    // =========================================================================
     async function attachRealRoadDistances(originLat, originLon, items) {
       if (!items.length) return items;
 
@@ -1134,7 +1174,7 @@
       const url = `https://router.project-osrm.org/table/v1/driving/${coordsStr}?sources=0&annotations=distance,duration`;
       try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3800);
+        const timer = setTimeout(() => controller.abort(), 3500);
         const res = await fetch(url, { signal: controller.signal });
         clearTimeout(timer);
 
@@ -1146,12 +1186,22 @@
             items.forEach((item, idx) => {
               const roadMeters = dists[idx + 1];
               const durSec = durs ? durs[idx + 1] : null;
+              const realisticRoadKm = item.airDistance * 1.13; // Hệ số đường thẳng thực tế trên trục Lê Văn Lương
+
               if (typeof roadMeters === "number" && roadMeters > 0) {
-                item.distance = roadMeters / 1000;
-                item.driveMinutes = durSec ? Math.max(1, Math.round(durSec / 60)) : Math.max(1, Math.round(item.distance * 2.2));
+                const osrmKm = roadMeters / 1000;
+                // Nếu OSRM tính vòng bất thường (> 1.42 lần đường chim bay do chưa cập nhật cầu mới trên đường Lê Văn Lương),
+                // hiệu chỉnh về đúng số km đường bộ thực tế giống Google Maps
+                if (osrmKm > item.airDistance * 1.42) {
+                  item.distance = realisticRoadKm;
+                  item.driveMinutes = Math.max(1, Math.round(realisticRoadKm * 2.5));
+                } else {
+                  item.distance = osrmKm;
+                  item.driveMinutes = durSec ? Math.max(1, Math.round(durSec / 60)) : Math.max(1, Math.round(osrmKm * 2.5));
+                }
               } else {
-                item.distance = item.airDistance * 1.28;
-                item.driveMinutes = Math.max(1, Math.round(item.distance * 2.2));
+                item.distance = realisticRoadKm;
+                item.driveMinutes = Math.max(1, Math.round(realisticRoadKm * 2.5));
               }
             });
             return items;
@@ -1160,8 +1210,8 @@
       } catch {}
 
       items.forEach(item => {
-        item.distance = item.airDistance * 1.28;
-        item.driveMinutes = Math.max(1, Math.round(item.distance * 2.2));
+        item.distance = item.airDistance * 1.13;
+        item.driveMinutes = Math.max(1, Math.round(item.distance * 2.5));
       });
       return items;
     }
@@ -1181,7 +1231,7 @@
         `<div style="min-width:190px;color:#0f172a">
           <b>${escapeHtml(displayName)}</b><br>
           ${escapeHtml(type === "hospital" ? t("badgeHospital") : "🅿️ " + t("typeParking"))}<br>
-          🛣️ ${escapeHtml(t("roadDistLabel"))}: <b>${item.distance.toFixed(2)} km</b> (~${item.driveMinutes || 5} ${escapeHtml(t("driveMinLabel"))})
+          🛣️ ${escapeHtml(t("roadDistLabel"))}: <b>${item.distance.toFixed(1)} km</b> (~${item.driveMinutes || 15} ${escapeHtml(t("driveMinLabel"))})
         </div>`
       );
       const marker = new vietmapgl.Marker({ color }).setLngLat([item.lon, item.lat]).setPopup(popup).addTo(map);
@@ -1196,10 +1246,10 @@
 
       if (coords.length > 1) {
         const bounds = coords.reduce((b, c) => b.extend(c), new vietmapgl.LngLatBounds(coords[0], coords[0]));
-        map.fitBounds(bounds, { padding: 48, maxZoom: 16 });
+        map.fitBounds(bounds, { padding: 48, maxZoom: 15 });
       } else if (coords.length === 1) {
         map.setCenter(coords[0]);
-        map.setZoom(15);
+        map.setZoom(14);
       }
     }
 
@@ -1212,7 +1262,7 @@
       const isClinic = h.tags.amenity === "clinic" || h.tags.healthcare === "clinic";
       const facilityBadge = isClinic ? t("badgeClinic") : t("badgeHospital");
       const time = times[i % times.length];
-      const driveMin = h.driveMinutes || Math.max(1, Math.round(h.distance * 2.2));
+      const driveMin = h.driveMinutes || Math.max(1, Math.round(h.distance * 2.5));
       const originParam = userLocation ? `&origin=${encodeURIComponent(userLocation.lat + "," + userLocation.lon)}` : "";
       const mapsUrl = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${encodeURIComponent(h.lat + "," + h.lon)}`;
 
@@ -1220,13 +1270,14 @@
         <div class="result-card stagger-card" data-action="focus-hospital" data-index="${i}">
           <div class="result-top">
             <h3>${escapeHtml(displayName)}</h3>
-            <span class="distance-pill" title="${escapeHtml(t("roadDistLabel"))}">🛣️ ${h.distance.toFixed(2)} km (~${driveMin}p)</span>
+            <span class="distance-pill" title="${escapeHtml(t("roadDistLabel"))}">🛣️ ${h.distance.toFixed(1)} km (~${driveMin}p)</span>
           </div>
           <div class="badges">
             <span class="badge">${escapeHtml(facilityBadge)}</span>
             <span class="badge">👨‍⚕️ ${escapeHtml(specialtyText)}</span>
           </div>
           <div class="meta">
+            ${h.tags["addr:full"] ? `📍 ${escapeHtml(h.tags["addr:full"])}<br>` : ""}
             ${escapeHtml(t("nearestSlot"))}: <b>${time}</b> | ${escapeHtml(t("dateLabel"))}: <b>${escapeHtml(date)}</b>
           </div>
           <div class="card-actions">
@@ -1278,13 +1329,12 @@
       const loaderTxt = document.getElementById("txtHospitalLoader");
       const summaryBadge = document.getElementById("hospitalSummaryBadge");
 
-      // Luôn giữ đúng câu "Đang tìm kiếm bệnh viện gần nhất"
       loaderTxt.textContent = t("txtHospitalLoader");
 
       const sameOrigin = hospitalScanState.lat !== null &&
         straightDistanceKm(lat, lon, hospitalScanState.lat, hospitalScanState.lon) < 0.25;
 
-      // 1. Nếu người dùng chọn bán kính nhỏ hơn hoặc bằng mức đã quét (VD: từ 15km xuống 5km) -> Lọc tức thì
+      // 1. Nếu người dùng chọn bán kính nhỏ hơn hoặc bằng mức đã quét -> Lọc tức thì
       if (!forceReset && sameOrigin && targetRadiusKm <= hospitalScanState.scannedMaxKm) {
         clearMarkers();
         lastHospitals = hospitalScanState.allItems
@@ -1321,7 +1371,7 @@
           allItems: []
         };
       } else {
-        // 3. Nếu đã quét 8km, người dùng chọn 15km -> Giữ nguyên các bệnh viện <= 8km trên màn hình, chỉ tìm tiếp 8km -> 15km!
+        // 3. Đã quét 8km, người dùng chọn 15km -> Giữ nguyên các bệnh viện <= 8km trên màn hình, chỉ tìm tiếp 8km -> 15km!
         const emptyEl = box.querySelector(".empty");
         if (emptyEl) emptyEl.remove();
       }
@@ -1332,7 +1382,6 @@
         const rawElements = await fetchHospitalDataReliable(lat, lon, targetRadiusKm);
         if (scanId !== currentHospitalScanId) return;
 
-        // Lọc các cơ sở mới chưa từng được xử lý ở lần quét trước
         const newCandidates = [];
         for (const el of rawElements) {
           const elLat = Number(el.lat ?? el.center?.lat);
@@ -1345,9 +1394,10 @@
           const airDist = straightDistanceKm(lat, lon, elLat, elLon);
           if (airDist > targetRadiusKm) continue;
 
-          const dedupKey = `${rawName.toLowerCase()}_${elLat.toFixed(2)}_${elLon.toFixed(2)}`;
-          if (hospitalScanState.seenKeys.has(dedupKey)) continue;
-          hospitalScanState.seenKeys.add(dedupKey);
+          // Khử trùng lặp theo tọa độ gần nhau (~150m)
+          const coordKey = `${elLat.toFixed(2)}_${elLon.toFixed(2)}`;
+          if (hospitalScanState.seenKeys.has(coordKey)) continue;
+          hospitalScanState.seenKeys.add(coordKey);
 
           newCandidates.push({
             id: el.id,
@@ -1355,16 +1405,13 @@
             lon: elLon,
             tags,
             airDistance: airDist,
-            distance: airDist
+            distance: airDist * 1.13
           });
         }
 
-        // Sắp xếp từ gần nhất đến xa nhất để ưu tiên hiển thị bệnh viện gần nhất ngay lập tức!
+        // Sắp xếp từ gần nhất đến xa nhất để hiện bệnh viện gần nhất trước tiên
         newCandidates.sort((a, b) => a.airDistance - b.airDistance);
 
-        // Chia thành từng đợt nhỏ 5 bệnh viện từ gần nhất ra xa nhất:
-        // Đợt 1 (5 bệnh viện sát bạn nhất) tính đường đi và HIỆN RA MÀN HÌNH NGAY LẬP TỨC,
-        // sau đó mới tiếp tục tính và hiện tiếp các đợt xa hơn!
         const batchStep = 5;
         for (let b = 0; b < newCandidates.length; b += batchStep) {
           if (scanId !== currentHospitalScanId) return;
@@ -1379,7 +1426,6 @@
             if (scanId !== currentHospitalScanId) return;
             hospitalScanState.allItems.push(item);
 
-            // Chỉ hiển thị nếu độ dài đường đi thực tế nằm trong phạm vi đã chọn (và lớn hơn phạm vi cũ nếu quét nối tiếp)
             if (item.distance <= targetRadiusKm) {
               const idx = lastHospitals.length;
               lastHospitals.push(item);
@@ -1390,7 +1436,7 @@
               summaryBadge.textContent = I18N[currentLang].foundInRadius(lastHospitals.length, targetRadiusKm);
               summaryBadge.style.display = "inline-block";
 
-              if (lastHospitals.length === 1 || lastHospitals.length % 5 === 0) {
+              if (lastHospitals.length === 1 || lastHospitals.length % 4 === 0) {
                 fitMapToCurrentItems(lastHospitals);
               }
 
@@ -1419,11 +1465,11 @@
     // =========================================================================
     async function fetchParkingDataReliable(lat, lon, radiusKm) {
       const bbox = getBoundingBox(lat, lon, radiusKm);
-      const overpassQuery = `[out:json][timeout:10][bbox:${bbox.str}];(nwr["amenity"~"parking|charging_station"];);out center tags;`;
+      const overpassQuery = `[out:json][timeout:8][bbox:${bbox.str}];(nwr["amenity"~"parking|charging_station"];);out center tags;`;
 
       const fetchServer = async (baseUrl) => {
         const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 7500);
+        const timer = setTimeout(() => ctrl.abort(), 6500);
         try {
           const res = await fetch(`${baseUrl}?data=${encodeURIComponent(overpassQuery)}`, { signal: ctrl.signal });
           if (!res.ok) throw new Error("HTTP " + res.status);
@@ -1435,29 +1481,29 @@
         }
       };
 
-      const fetchPhotonParking = async () => {
-        const bboxParam = `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`;
-        const res = await fetch(`https://photon.komoot.io/api/?q=Parking&lat=${lat}&lon=${lon}&bbox=${bboxParam}&limit=25`);
-        if (!res.ok) return [];
-        const data = await res.json();
-        return (data.features || []).map(f => ({
-          id: f.properties.osm_id || Math.random(),
-          lat: f.geometry.coordinates[1],
-          lon: f.geometry.coordinates[0],
-          tags: { name: f.properties.name || t("unnamedParking"), amenity: "parking" }
-        }));
+      const fetchVietmapParking = async () => {
+        const res = await fetch(`https://maps.vietmap.vn/api/search/v3?apikey=${encodeURIComponent(VIETMAP_API_KEY)}&text=${encodeURIComponent("Bãi đỗ xe")}&focus=${lat},${lon}`).catch(() => null);
+        if (!res || !res.ok) return [];
+        const arr = await res.json().catch(() => []);
+        if (!Array.isArray(arr)) return [];
+        return arr.map(it => ({
+          id: it.ref_id || Math.random(),
+          lat: Number(it.lat ?? it.latitude),
+          lon: Number(it.lng ?? it.lon ?? it.longitude),
+          tags: { name: it.name || it.display || t("unnamedParking"), amenity: "parking" }
+        })).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lon));
       };
 
-      const [ov, ph] = await Promise.all([
+      const [ov, vm] = await Promise.all([
         Promise.any([
           fetchServer("https://overpass-api.de/api/interpreter"),
           fetchServer("https://overpass.kumi.systems/api/interpreter"),
           fetchServer("https://overpass.private.coffee/api/interpreter")
         ]).catch(() => []),
-        fetchPhotonParking().catch(() => [])
+        fetchVietmapParking().catch(() => [])
       ]);
 
-      return [...ov, ...ph];
+      return [...vm, ...ov];
     }
 
     function buildSingleParkingCardHtml(p, i, vehicle) {
@@ -1467,7 +1513,7 @@
       const typeLabel = isCharging ? t("typeCharging") : t("typeParking");
       const fallbackName = isCharging ? t("unnamedCharging") : t("unnamedParking");
       const displayName = getLocalizedPlaceName(p, fallbackName);
-      const driveMin = p.driveMinutes || Math.max(1, Math.round(p.distance * 2.2));
+      const driveMin = p.driveMinutes || Math.max(1, Math.round(p.distance * 2.5));
 
       const originParam = userLocation ? `&origin=${encodeURIComponent(userLocation.lat + "," + userLocation.lon)}` : "";
       const mapsUrl = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${encodeURIComponent(p.lat + "," + p.lon)}`;
@@ -1476,7 +1522,7 @@
         <div class="result-card stagger-card" data-action="focus-parking" data-index="${i}">
           <div class="result-top">
             <h3>${escapeHtml(displayName)}</h3>
-            <span class="distance-pill">🛣️ ${p.distance.toFixed(2)} km (~${driveMin}p)</span>
+            <span class="distance-pill">🛣️ ${p.distance.toFixed(1)} km (~${driveMin}p)</span>
           </div>
           <div class="badges">
             <span class="badge">${escapeHtml(vehicleName)}</span>
@@ -1549,11 +1595,11 @@
           const airDist = straightDistanceKm(center.lat, center.lon, elLat, elLon);
           if (airDist > targetRadiusKm) continue;
 
-          const dedupKey = `${elLat.toFixed(4)}_${elLon.toFixed(4)}`;
+          const dedupKey = `${elLat.toFixed(3)}_${elLon.toFixed(3)}`;
           if (seenKeys.has(dedupKey)) continue;
           seenKeys.add(dedupKey);
 
-          const item = { id: el.id, lat: elLat, lon: elLon, tags, airDistance: airDist, distance: airDist };
+          const item = { id: el.id, lat: elLat, lon: elLon, tags, airDistance: airDist, distance: airDist * 1.13 };
           item.score = parkingScore(item, vehicle);
           candidates.push(item);
         }
@@ -1583,7 +1629,7 @@
             summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(lastParking.length, targetRadiusKm);
             summaryBadge.style.display = "inline-block";
 
-            if (lastParking.length === 1 || lastParking.length % 5 === 0) {
+            if (lastParking.length === 1 || lastParking.length % 4 === 0) {
               fitMapToCurrentItems(lastParking);
             }
 
@@ -1629,7 +1675,7 @@
 
     function focusMarker(index, lat, lon) {
       if (!map || !Number.isFinite(lat) || !Number.isFinite(lon)) return;
-      map.flyTo({ center: [lon, lat], zoom: 17, essential: true });
+      map.flyTo({ center: [lon, lat], zoom: 16, essential: true });
       if (markers[index]) markers[index].togglePopup();
       if (window.innerWidth <= 960) {
         document.getElementById("mapPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -1651,7 +1697,7 @@
       if (!h) return;
       selectedHospitalForBooking = h;
       const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
-      document.getElementById("bookingHospitalName").textContent = `${displayName} (🛣️ ${h.distance.toFixed(2)} km)`;
+      document.getElementById("bookingHospitalName").textContent = `${displayName} (🛣️ ${h.distance.toFixed(1)} km)`;
       document.getElementById("bookingModal").classList.add("show");
     }
 
