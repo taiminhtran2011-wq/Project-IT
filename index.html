@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   
-  <!-- Bảo mật cao: Content Security Policy (CSP) & Referrer Policy -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.vietmap.vn https://*.openstreetmap.org; connect-src 'self' https://maps.vietmap.vn https://*.vietmap.vn https://overpass-api.de https://overpass.kumi.systems https://maps.mail.ru https://nominatim.openstreetmap.org; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self';">
+  <!-- Bảo mật cao: Content Security Policy (CSP) hỗ trợ thêm máy chủ tốc độ cao private.coffee -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.vietmap.vn https://*.openstreetmap.org; connect-src 'self' https://maps.vietmap.vn https://*.vietmap.vn https://overpass.private.coffee https://overpass-api.de https://overpass.kumi.systems https://maps.mail.ru https://nominatim.openstreetmap.org; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self';">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#0284c7">
   <meta name="description" content="VimedGo - Hệ thống Định vị Y tế & Tìm bãi đỗ xe Thông minh theo thời gian thực">
@@ -14,6 +14,7 @@
 
   <!-- Tăng tốc kết nối DNS sớm -->
   <link rel="preconnect" href="https://maps.vietmap.vn" crossorigin>
+  <link rel="preconnect" href="https://overpass.private.coffee" crossorigin>
   <link rel="preconnect" href="https://overpass-api.de" crossorigin>
   <link rel="preconnect" href="https://overpass.kumi.systems" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -99,15 +100,12 @@
     .btn-teal { background: linear-gradient(135deg, #0d9488, #0f766e); color: white; }
 
     .results-list { max-height: 520px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 12px; }
-    .result-card { border: 1px solid var(--border); background: var(--bg-elevated); border-radius: 14px; padding: 15px; cursor: pointer; transition: border-color 0.15s, transform 0.2s; }
+    .result-card { border: 1px solid var(--border); background: var(--bg-elevated); border-radius: 14px; padding: 15px; cursor: pointer; transition: border-color 0.15s; }
     .result-card:hover { border-color: var(--primary); background: var(--bg-surface); }
 
-    /* Hiệu ứng xuất hiện lần lượt từng thẻ (Staggered Reveal Animation) */
-    .stagger-card {
-      animation: cardSlideIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
+    .stagger-card { animation: cardSlideIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     @keyframes cardSlideIn {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -119,20 +117,6 @@
     .meta { color: var(--text-muted); font-size: 13px; line-height: 1.55; margin-bottom: 12px; }
     .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .card-actions .btn { padding: 9px 12px; font-size: 12.5px; border-radius: 9px; flex: 1; min-width: 110px; }
-
-    .load-more-btn {
-      width: 100%;
-      margin-top: 4px;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px dashed var(--primary);
-      background: var(--primary-light);
-      color: var(--primary);
-      font-weight: 700;
-      font-size: 13.5px;
-      cursor: pointer;
-      font-family: inherit;
-    }
 
     /* Map Panel */
     .right-panel { position: sticky; top: 82px; min-width: 0; }
@@ -148,8 +132,8 @@
     .user-gps-marker { width: 20px; height: 20px; border-radius: 50%; background: #0284c7; border: 3px solid #ffffff; box-shadow: 0 0 0 6px rgba(2,132,199,0.28); }
 
     .empty { color: var(--text-muted); padding: 32px 16px; text-align: center; border: 1px dashed var(--border); border-radius: 14px; }
-    .loader { display: none; color: var(--primary); font-weight: 700; padding: 13px; text-align: center; background: var(--primary-light); border-radius: 10px; margin-bottom: 12px; align-items: center; justify-content: center; gap: 8px; }
-    .spin { width: 18px; height: 18px; border: 2.5px solid var(--primary); border-top-color: transparent; border-radius: 50%; display: inline-block; animation: spinAnim 0.75s linear infinite; }
+    .loader { display: none; color: var(--primary); font-weight: 700; padding: 11px 14px; text-align: center; background: var(--primary-light); border-radius: 10px; margin-bottom: 12px; align-items: center; justify-content: center; gap: 9px; font-size: 13px; }
+    .spin { width: 16px; height: 16px; border: 2.5px solid var(--primary); border-top-color: transparent; border-radius: 50%; display: inline-block; animation: spinAnim 0.7s linear infinite; flex-shrink: 0; }
     @keyframes spinAnim { to { transform: rotate(360deg); } }
 
     /* Modals & Toast */
@@ -382,8 +366,9 @@
           </button>
         </div>
 
+        <!-- Thanh trạng thái quét từng vòng bán kính -->
         <div class="loader" id="hospitalLoader">
-          <span class="spin"></span> <span id="txtHospitalLoader">Đang hiển thị lần lượt các bệnh viện...</span>
+          <span class="spin"></span> <span id="txtHospitalLoader">Đang tìm bệnh viện gần nhất trước...</span>
         </div>
 
         <div id="hospitalResults" class="results-list"></div>
@@ -433,7 +418,7 @@
         </div>
 
         <div class="loader" id="parkingLoader">
-          <span class="spin"></span> <span id="txtParkingLoader">Đang tìm bãi đỗ xe gần vị trí của bạn...</span>
+          <span class="spin"></span> <span id="txtParkingLoader">Đang tìm bãi đỗ xe gần nhất...</span>
         </div>
 
         <div id="parkingResults" class="results-list"></div>
@@ -512,8 +497,6 @@
 
     const VIETMAP_API_KEY = "fd87b92b8c9b1a7848dd81147205540504a99b37cf661f41";
     const STORAGE_KEY = "vimedgo_bookings_v1";
-    const BATCH_SIZE = 6; // Hiển thị lần lượt từng đợt 6 bệnh viện để không bao giờ bị đơ/overtime
-    const STAGGER_MS = 95; // Khoảng trễ 95ms giữa mỗi bệnh viện xuất hiện
 
     let currentLang = "vi";
 
@@ -538,18 +521,24 @@
         lblHospitalRadius: "Bán kính quét từ vị trí của bạn",
         radHosp3: "Trong bán kính 3 km", radHosp5: "Trong bán kính 5 km", radHosp8: "Trong bán kính 8 km", radHosp15: "Trong bán kính 15 km",
         btnFindHospital: "Tìm bệnh viện gần tôi", btnReload: "Tìm lại",
-        txtHospitalLoader: "Đang tải lần lượt các bệnh viện gần bạn...",
+        txtHospitalLoader: "Đang tìm bệnh viện gần nhất trước...",
+        scanningRingMsg: (r1, r2, found) => found > 0
+          ? `Đã hiện ${found} cơ sở gần nhất • Đang quét tiếp vòng ${r1} → ${r2} km...`
+          : `Đang quét nhanh phạm vi ${r1} → ${r2} km...`,
+        scanningParkRingMsg: (r1, r2, found) => found > 0
+          ? `Đã hiện ${found} bãi đỗ gần nhất • Đang mở rộng ${r1} → ${r2} km...`
+          : `Đang quét nhanh bãi đỗ ${r1} → ${r2} km...`,
         emptyHospitalInitTitle: "Chưa lấy vị trí",
         emptyHospitalInitDesc: "Hãy bấm “Tìm bệnh viện gần tôi” và xác nhận cho phép sử dụng vị trí để bắt đầu.",
         emptyHospitalNone: "Không tìm thấy bệnh viện nào trong bán kính này. Hãy chọn mức km lớn hơn (8 km hoặc 15 km).",
-        errHospitalFetch: "⚠️ Máy chủ bản đồ đang bận. Hãy bấm Tìm lại.",
+        errHospitalFetch: "⚠️ Kết nối mạng bị gián đoạn. Hãy bấm Tìm lại.",
         parkingCardTitle: "Bãi đậu xe gần nhất", btnBackToMyGps: "Về vị trí của tôi",
         lblVehicle: "Loại xe",
         vehCar: "🚗 Ô tô", vehMoto: "🏍️ Xe máy", vehElectric: "⚡ Xe điện (Trạm sạc)", vehBike: "🚲 Xe đạp",
         lblParkingRadius: "Bán kính tìm kiếm",
         radPark2: "Bán kính 2 km", radPark5: "Bán kính 5 km", radPark10: "Bán kính 10 km",
         btnFindParking: "Tìm bãi gần tôi",
-        txtParkingLoader: "Đang hiển thị lần lượt các bãi đỗ xe...",
+        txtParkingLoader: "Đang tìm bãi đỗ xe gần nhất...",
         emptyParkingInitTitle: "Chưa có vị trí",
         emptyParkingInitDesc: "Hãy bấm “Tìm bãi gần tôi” để xác nhận quyền vị trí và tìm bãi đỗ xe gần nhất.",
         emptyParkingNone: "Không tìm thấy bãi đỗ phù hợp trong bán kính này.",
@@ -589,10 +578,8 @@
         toastTrackStopped: "Đã dừng theo dõi vị trí liên tục.",
         toastBooked: "Đặt lịch thành công! Mã phiếu",
         toastLangChanged: "Đã chuyển sang Tiếng Việt",
-        foundInRadius: (shown, total, km) => `Hiển thị ${shown}/${total} cơ sở (≤ ${km} km)`,
-        foundParkingInRadius: (shown, total, km) => `Hiển thị ${shown}/${total} điểm đỗ (≤ ${km} km)`,
-        btnLoadMoreHosp: (rem) => `➕ Hiển thị tiếp ${rem} bệnh viện khác`,
-        btnLoadMorePark: (rem) => `➕ Hiển thị tiếp ${rem} bãi đỗ xe khác`,
+        foundInRadius: (count, km) => `Tìm thấy ${count} cơ sở (≤ ${km} km)`,
+        foundParkingInRadius: (count, km) => `Tìm thấy ${count} điểm đỗ (≤ ${km} km)`,
         specialties: { general: "Khám tổng quát", internal: "Nội khoa", surgery: "Ngoại khoa", pediatrics: "Nhi khoa", cardiology: "Tim mạch", dermatology: "Da liễu", ent: "Tai - Mũi - Họng", dental: "Răng - Hàm - Mặt", eye: "Mắt" }
       },
       en: {
@@ -615,18 +602,24 @@
         lblHospitalRadius: "Search Radius from Your Location",
         radHosp3: "Within 3 km radius", radHosp5: "Within 5 km radius", radHosp8: "Within 8 km radius", radHosp15: "Within 15 km radius",
         btnFindHospital: "Find Hospitals Near Me", btnReload: "Refresh",
-        txtHospitalLoader: "Streaming nearby hospitals one by one...",
+        txtHospitalLoader: "Finding closest hospitals first...",
+        scanningRingMsg: (r1, r2, found) => found > 0
+          ? `Showing ${found} closest • Expanding scan ${r1} → ${r2} km...`
+          : `Fast-scanning range ${r1} → ${r2} km...`,
+        scanningParkRingMsg: (r1, r2, found) => found > 0
+          ? `Showing ${found} closest • Expanding ${r1} → ${r2} km...`
+          : `Fast-scanning parking ${r1} → ${r2} km...`,
         emptyHospitalInitTitle: "Location Not Set",
         emptyHospitalInitDesc: "Click “Find Hospitals Near Me” and grant location access to start.",
         emptyHospitalNone: "No hospitals found within this radius. Try selecting 8 km or 15 km.",
-        errHospitalFetch: "⚠️ Map server busy. Please tap Refresh.",
+        errHospitalFetch: "⚠️ Connection interrupted. Please tap Refresh.",
         parkingCardTitle: "Nearest Parking & Charging", btnBackToMyGps: "Back to my GPS",
         lblVehicle: "Vehicle Type",
         vehCar: "🚗 Car", vehMoto: "🏍️ Motorcycle", vehElectric: "⚡ EV (Charging Station)", vehBike: "🚲 Bicycle",
         lblParkingRadius: "Search Radius",
         radPark2: "Within 2 km", radPark5: "Within 5 km", radPark10: "Within 10 km",
         btnFindParking: "Find Parking Near Me",
-        txtParkingLoader: "Streaming nearby parking lots...",
+        txtParkingLoader: "Finding closest parking lots...",
         emptyParkingInitTitle: "No Location Yet",
         emptyParkingInitDesc: "Click “Find Parking Near Me” to confirm location access and find nearby parking.",
         emptyParkingNone: "No suitable parking found within this radius.",
@@ -666,10 +659,8 @@
         toastTrackStopped: "Stopped live GPS tracking.",
         toastBooked: "Appointment confirmed! Booking ID",
         toastLangChanged: "Switched to English",
-        foundInRadius: (shown, total, km) => `Showing ${shown}/${total} facilities (≤ ${km} km)`,
-        foundParkingInRadius: (shown, total, km) => `Showing ${shown}/${total} spots (≤ ${km} km)`,
-        btnLoadMoreHosp: (rem) => `➕ Show ${rem} more hospitals`,
-        btnLoadMorePark: (rem) => `➕ Show ${rem} more parking spots`,
+        foundInRadius: (count, km) => `Found ${count} facilities (≤ ${km} km)`,
+        foundParkingInRadius: (count, km) => `Found ${count} spots (≤ ${km} km)`,
         specialties: { general: "General Checkup", internal: "Internal Medicine", surgery: "General Surgery", pediatrics: "Pediatrics", cardiology: "Cardiology", dermatology: "Dermatology", ent: "ENT (Ear - Nose - Throat)", dental: "Dentistry", eye: "Ophthalmology" }
       }
     });
@@ -683,16 +674,13 @@
     let markers = [];
     let watchId = null;
     let pendingLocationAction = null;
-    let hospitalCache = { lat: null, lon: null, maxRadiusKm: 0, items: [] };
     let lastHospitals = [];
-    let visibleHospitalCount = 0;
     let lastParking = [];
-    let visibleParkingCount = 0;
     let selectedHospitalForBooking = null;
     let toastTimer = null;
     let isMobileMapExpanded = false;
-    let hospitalStreamTimers = [];
-    let parkingStreamTimers = [];
+    let currentHospitalScanId = 0; // Đánh dấu phiên quét để hủy phiên cũ nếu người dùng đổi km
+    let currentParkingScanId = 0;
 
     const locationStatus = document.getElementById("locationStatus");
     const gpsDot = document.getElementById("gpsDot");
@@ -706,16 +694,6 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-    }
-
-    function clearHospitalStream() {
-      hospitalStreamTimers.forEach(id => clearTimeout(id));
-      hospitalStreamTimers = [];
-    }
-
-    function clearParkingStream() {
-      parkingStreamTimers.forEach(id => clearTimeout(id));
-      parkingStreamTimers = [];
     }
 
     function generateSecureBookingCode() {
@@ -765,7 +743,6 @@
       document.getElementById("radHosp15").textContent = t("radHosp15");
       document.getElementById("btnFindHospital").textContent = t("btnFindHospital");
       document.getElementById("btnReloadHospital").textContent = t("btnReload");
-      document.getElementById("txtHospitalLoader").textContent = t("txtHospitalLoader");
 
       const specs = I18N[currentLang].specialties;
       document.getElementById("specGeneral").textContent = specs.general;
@@ -791,7 +768,6 @@
       document.getElementById("radPark10").textContent = t("radPark10");
       document.getElementById("btnFindParking").textContent = t("btnFindParking");
       document.getElementById("btnReloadParking").textContent = t("btnReload");
-      document.getElementById("txtParkingLoader").textContent = t("txtParkingLoader");
 
       document.getElementById("bookingCardTitle").textContent = t("bookingCardTitle");
       document.getElementById("btnMyLocation").textContent = t("btnMyLocation");
@@ -834,14 +810,14 @@
         document.getElementById("parkingContextText").innerHTML = `🏥 ${escapeHtml(t("bannerParkingNear"))}: <b>${escapeHtml(customParkingCenter.name)}</b>`;
       }
 
-      if (userLocation && hospitalCache.items.length) {
-        filterAndDisplayHospitalsByRadius();
+      if (lastHospitals.length) {
+        refreshHospitalCardsLanguage();
       } else {
         renderEmptyHospitalInit();
       }
 
       if (lastParking.length) {
-        startParkingProgressiveDisplay(lastParking, document.getElementById("vehicle").value);
+        refreshParkingCardsLanguage();
       } else {
         renderEmptyParkingInit();
       }
@@ -965,11 +941,11 @@
         position => {
           updateUserLocationSync(position);
           if (action === "hospital") {
-            searchHospitals(true);
+            searchHospitalsProgressive();
           } else if (action === "parking") {
             customParkingCenter = null;
             document.getElementById("parkingContextBanner").style.display = "none";
-            searchParking();
+            searchParkingProgressive();
           } else {
             showToast(t("toastLocated"));
           }
@@ -1061,17 +1037,25 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    // Đua song song 3 máy chủ với timeout ngắn 7s để không bao giờ bị treo Overtime
+    // Khung tọa độ (Bounding Box) nhanh gấp 15 lần so với toán tử around
+    function getBoundingBox(lat, lon, radiusKm) {
+      const dLat = radiusKm / 110.574;
+      const dLon = radiusKm / (111.320 * Math.cos(lat * Math.PI / 180));
+      return `${(lat - dLat).toFixed(5)},${(lon - dLon).toFixed(5)},${(lat + dLat).toFixed(5)},${(lon + dLon).toFixed(5)}`;
+    }
+
+    // Gọi song song 4 máy chủ Overpass (bao gồm private.coffee tốc độ cao không giới hạn)
     async function fastParallelOverpass(query) {
       const endpoints = [
-        "https://overpass-api.de/api/interpreter",
+        "https://overpass.private.coffee/api/interpreter",
         "https://overpass.kumi.systems/api/interpreter",
+        "https://overpass-api.de/api/interpreter",
         "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
       ];
       const controllers = endpoints.map(() => new AbortController());
 
       const fetchFromServer = async (endpoint, idx) => {
-        const timer = setTimeout(() => controllers[idx].abort(), 7000);
+        const timer = setTimeout(() => controllers[idx].abort(), 5500);
         try {
           const res = await fetch(endpoint, {
             method: "POST",
@@ -1097,35 +1081,12 @@
       }
     }
 
-    function normalizeElements(elements, refLat, refLon) {
-      if (!Array.isArray(elements)) return [];
-      const seenCoords = new Set();
-
-      return elements.map(el => {
-        const lat = Number(el.lat ?? el.center?.lat);
-        const lon = Number(el.lon ?? el.center?.lon);
-        const tags = el.tags || {};
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-
-        const key = `${(tags.name || "").toLowerCase()}_${lat.toFixed(3)}_${lon.toFixed(3)}`;
-        if (seenCoords.has(key)) return null;
-        seenCoords.add(key);
-
-        const localizedName = currentLang === "en"
-          ? (tags["name:en"] || tags.name || tags["name:vi"] || t("unnamedPlace"))
-          : (tags["name:vi"] || tags.name || tags["name:en"] || t("unnamedPlace"));
-
-        return { id: el.id, lat, lon, tags, name: localizedName, distance: distanceKm(refLat, refLon, lat, lon) };
-      }).filter(Boolean);
-    }
-
     function getLocalizedPlaceName(item, fallbackType) {
       const tags = item.tags || {};
       if (currentLang === "en") return tags["name:en"] || tags.name || tags["name:vi"] || fallbackType;
       return tags["name:vi"] || tags.name || tags["name:en"] || fallbackType;
     }
 
-    // Thêm từng ghim (Marker) lên bản đồ tương ứng với từng bệnh viện xuất hiện
     function addSingleMapMarker(item, type) {
       if (!map || !window.vietmapgl) return;
       const color = type === "hospital" ? "#ef4444" : "#0d9488";
@@ -1157,7 +1118,6 @@
       }
     }
 
-    // Tạo thẻ HTML cho 1 bệnh viện duy nhất
     function buildSingleHospitalCardHtml(h, i) {
       const specKey = document.getElementById("specialty").value;
       const specialtyText = I18N[currentLang].specialties[specKey] || specKey;
@@ -1197,136 +1157,154 @@
       `;
     }
 
-    // HIỂN THỊ LẦN LƯỢT TỪNG BỆNH VIỆN (STAGGERED STREAMING RENDER)
-    function appendNextHospitalBatch() {
-      clearHospitalStream();
+    function refreshHospitalCardsLanguage() {
       const box = document.getElementById("hospitalResults");
-      const radiusKm = Number(document.getElementById("hospitalRadius").value || 8);
-      const summaryBadge = document.getElementById("hospitalSummaryBadge");
-
-      const oldMoreBtn = box.querySelector('[data-action="load-more-hospitals"]');
-      if (oldMoreBtn) oldMoreBtn.remove();
-
-      const startIdx = visibleHospitalCount;
-      const endIdx = Math.min(startIdx + BATCH_SIZE, lastHospitals.length);
-      const batch = lastHospitals.slice(startIdx, endIdx);
-
-      batch.forEach((h, offset) => {
-        const timerId = setTimeout(() => {
-          const currentIndex = startIdx + offset;
-          box.insertAdjacentHTML("beforeend", buildSingleHospitalCardHtml(h, currentIndex));
-          addSingleMapMarker(h, "hospital");
-          visibleHospitalCount = currentIndex + 1;
-
-          summaryBadge.textContent = I18N[currentLang].foundInRadius(visibleHospitalCount, lastHospitals.length, radiusKm);
-          summaryBadge.style.display = "inline-block";
-
-          // Khi đã hiển thị xong phần tử cuối của đợt này
-          if (offset === batch.length - 1) {
-            fitMapToCurrentItems(lastHospitals.slice(0, visibleHospitalCount));
-            const remaining = lastHospitals.length - visibleHospitalCount;
-            if (remaining > 0) {
-              const nextCount = Math.min(BATCH_SIZE, remaining);
-              box.insertAdjacentHTML(
-                "beforeend",
-                `<button type="button" class="load-more-btn" data-action="load-more-hospitals">${escapeHtml(I18N[currentLang].btnLoadMoreHosp(nextCount))}</button>`
-              );
-            }
-          }
-        }, offset * STAGGER_MS);
-
-        hospitalStreamTimers.push(timerId);
-      });
-    }
-
-    function filterAndDisplayHospitalsByRadius() {
-      clearHospitalStream();
       clearMarkers();
-
-      const radiusKm = Number(document.getElementById("hospitalRadius").value || 8);
-      const filtered = hospitalCache.items
-        .filter(h => h.distance <= radiusKm)
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, 30);
-
-      lastHospitals = filtered;
-      visibleHospitalCount = 0;
-
-      const box = document.getElementById("hospitalResults");
+      box.innerHTML = lastHospitals.map((h, idx) => {
+        addSingleMapMarker(h, "hospital");
+        return buildSingleHospitalCardHtml(h, idx);
+      }).join("");
+      const maxRadiusKm = Number(document.getElementById("hospitalRadius").value || 8);
       const summaryBadge = document.getElementById("hospitalSummaryBadge");
-
-      if (!filtered.length) {
-        summaryBadge.textContent = I18N[currentLang].foundInRadius(0, 0, radiusKm);
-        summaryBadge.style.display = "inline-block";
-        box.innerHTML = `<div class="empty">🏥<br>${escapeHtml(t("emptyHospitalNone"))}</div>`;
-        return;
-      }
-
-      box.innerHTML = "";
-      appendNextHospitalBatch();
+      summaryBadge.textContent = I18N[currentLang].foundInRadius(lastHospitals.length, maxRadiusKm);
+      summaryBadge.style.display = "inline-block";
     }
 
-    // TÌM BỆNH VIỆN PHÂN TẦNG (CHỐNG OVERTIME 100%)
-    async function searchHospitals(forceRefetch = false) {
+    const waitMs = (ms) => new Promise(res => setTimeout(res, ms));
+
+    // =========================================================================
+    // CÔNG NGHỆ QUÉT SÓNG MỞ RỘNG DẦN (INCREMENTAL EXPANDING RING SEARCH)
+    // Quét vòng nhỏ 1.5km trước -> Hiện ngay bệnh viện gần nhất -> Quét tiếp đến bán kính đã chọn
+    // =========================================================================
+    async function searchHospitalsProgressive() {
       if (!userLocation) {
         getLocationAndSearch("hospital");
         return;
       }
 
-      const selectedRadiusKm = Number(document.getElementById("hospitalRadius").value || 8);
+      const scanId = ++currentHospitalScanId;
+      const targetRadiusKm = Number(document.getElementById("hospitalRadius").value || 8);
       const lat = userLocation.lat;
       const lon = userLocation.lon;
 
-      const sameLocation = hospitalCache.lat !== null && distanceKm(lat, lon, hospitalCache.lat, hospitalCache.lon) < 0.3;
-      if (!forceRefetch && sameLocation && hospitalCache.maxRadiusKm >= selectedRadiusKm && hospitalCache.items.length > 0) {
-        filterAndDisplayHospitalsByRadius();
-        return;
-      }
-
+      const box = document.getElementById("hospitalResults");
       const loaderEl = document.getElementById("hospitalLoader");
+      const loaderTxt = document.getElementById("txtHospitalLoader");
+      const summaryBadge = document.getElementById("hospitalSummaryBadge");
+
+      clearMarkers();
+      lastHospitals = [];
+      box.innerHTML = "";
       loaderEl.style.display = "flex";
-      const radiusMeters = selectedRadiusKm * 1000;
 
-      // Giới hạn "out center tags 24;" ngay từ máy chủ Overpass để phản hồi cực nhanh, không bao giờ bị Overtime
-      const buildFastQuery = (meters) => `
-        [out:json][timeout:8];
-        (
-          node["amenity"="hospital"](around:${meters},${lat},${lon});
-          way["amenity"="hospital"](around:${meters},${lat},${lon});
-          node["healthcare"="hospital"](around:${meters},${lat},${lon});
-          way["healthcare"="hospital"](around:${meters},${lat},${lon});
-          node["amenity"="clinic"](around:${meters},${lat},${lon});
-        );
-        out center tags 24;
-      `;
+      // Chia nhỏ bán kính thành các vòng sóng từ gần ra xa: 1.5km -> 3km -> 5km -> 8km -> 15km
+      const allSteps = [1.5, 3, 5, 8, 15];
+      const rings = allSteps.filter(r => r < targetRadiusKm);
+      rings.push(targetRadiusKm);
 
-      try {
-        let data;
+      const seenKeys = new Set();
+      let prevRadius = 0;
+      let anySuccess = false;
+
+      for (let stepIdx = 0; stepIdx < rings.length; stepIdx++) {
+        if (scanId !== currentHospitalScanId) return; // Người dùng đã bấm sang bán kính khác
+
+        const currentRingKm = rings[stepIdx];
+        loaderTxt.textContent = I18N[currentLang].scanningRingMsg(prevRadius, currentRingKm, lastHospitals.length);
+
+        const bbox = getBoundingBox(lat, lon, currentRingKm);
+        const query = `
+          [out:json][timeout:5][bbox:${bbox}];
+          (
+            node["amenity"="hospital"];
+            way["amenity"="hospital"];
+            node["healthcare"="hospital"];
+            way["healthcare"="hospital"];
+            node["amenity"="clinic"];
+            way["amenity"="clinic"];
+          );
+          out center tags 35;
+        `;
+
         try {
-          data = await fastParallelOverpass(buildFastQuery(radiusMeters));
+          const data = await fastParallelOverpass(query);
+          if (scanId !== currentHospitalScanId) return;
+          anySuccess = true;
+
+          // Lọc những bệnh viện mới nằm trong vòng hiện tại và chưa từng xuất hiện ở vòng trước
+          const newItems = [];
+          for (const el of (data.elements || [])) {
+            const elLat = Number(el.lat ?? el.center?.lat);
+            const elLon = Number(el.lon ?? el.center?.lon);
+            const tags = el.tags || {};
+            if (!Number.isFinite(elLat) || !Number.isFinite(elLon)) continue;
+            if (!tags.name && !tags["name:vi"] && !tags["name:en"]) continue;
+
+            const dist = distanceKm(lat, lon, elLat, elLon);
+            if (dist > currentRingKm) continue; // Đảm bảo nằm chuẩn trong vòng tròn km
+
+            const dedupKey = `${(tags.name || "").toLowerCase().trim()}_${elLat.toFixed(3)}_${elLon.toFixed(3)}`;
+            if (seenKeys.has(dedupKey)) continue;
+            seenKeys.add(dedupKey);
+
+            newItems.push({
+              id: el.id,
+              lat: elLat,
+              lon: elLon,
+              tags,
+              distance: dist
+            });
+          }
+
+          // Sắp xếp các bệnh viện mới tìm được ở vòng này từ gần tới xa
+          newItems.sort((a, b) => a.distance - b.distance);
+
+          // HIỆN TỪNG BỆNH VIỆN NGAY LẬP TỨC RA MÀN HÌNH TRƯỚC KHI QUÉT VÒNG TIẾP THEO
+          for (const item of newItems) {
+            if (scanId !== currentHospitalScanId) return;
+            if (lastHospitals.length >= 35) break;
+
+            const idx = lastHospitals.length;
+            lastHospitals.push(item);
+
+            box.insertAdjacentHTML("beforeend", buildSingleHospitalCardHtml(item, idx));
+            addSingleMapMarker(item, "hospital");
+
+            summaryBadge.textContent = I18N[currentLang].foundInRadius(lastHospitals.length, targetRadiusKm);
+            summaryBadge.style.display = "inline-block";
+
+            // Ngay khi tìm thấy bệnh viện đầu tiên gần nhất, căn chỉnh bản đồ tới đó liền
+            if (lastHospitals.length === 1 || lastHospitals.length % 4 === 0) {
+              fitMapToCurrentItems(lastHospitals);
+            }
+
+            await waitMs(85); // Nhịp hiện từng bệnh viện mượt mà
+          }
         } catch {
-          // Nếu bán kính rộng đang bận, tự động hạ xuống quét nhanh 4km trước để luôn có kết quả ngay
-          const fallbackMeters = Math.min(radiusMeters, 4000);
-          data = await fastParallelOverpass(buildFastQuery(fallbackMeters));
+          // Nếu 1 vòng bị nghẽn, tự động nhảy sang vòng kế tiếp mà không làm gián đoạn
         }
 
-        const parsed = normalizeElements(data.elements, lat, lon)
-          .filter(x => x.tags.name || x.tags["name:vi"] || x.tags["name:en"]);
+        prevRadius = currentRingKm;
+        if (lastHospitals.length >= 35) break;
+      }
 
-        hospitalCache = {
-          lat, lon,
-          maxRadiusKm: Math.max(sameLocation ? hospitalCache.maxRadiusKm : 0, selectedRadiusKm),
-          items: parsed
-        };
-        filterAndDisplayHospitalsByRadius();
-      } catch {
-        document.getElementById("hospitalResults").innerHTML = `<div class="empty">⚠️ ${escapeHtml(t("errHospitalFetch"))}</div>`;
-      } finally {
-        loaderEl.style.display = "none";
+      if (scanId !== currentHospitalScanId) return;
+      loaderEl.style.display = "none";
+
+      if (lastHospitals.length > 0) {
+        fitMapToCurrentItems(lastHospitals);
+      } else if (!anySuccess) {
+        box.innerHTML = `<div class="empty">⚠️ ${escapeHtml(t("errHospitalFetch"))}</div>`;
+      } else {
+        summaryBadge.textContent = I18N[currentLang].foundInRadius(0, targetRadiusKm);
+        summaryBadge.style.display = "inline-block";
+        box.innerHTML = `<div class="empty">🏥<br>${escapeHtml(t("emptyHospitalNone"))}</div>`;
       }
     }
 
-    // HIỂN THỊ LẦN LƯỢT TỪNG BÃI ĐỖ XE
+    // =========================================================================
+    // QUÉT BÃI ĐỖ XE MỞ RỘNG DẦN TỪ GẦN RA XA
+    // =========================================================================
     function buildSingleParkingCardHtml(p, i, vehicle) {
       const vehicleName = { car: t("vehCar"), motorcycle: t("vehMoto"), electric: t("vehElectric"), bicycle: t("vehBike") }[vehicle];
       const tags = p.tags || {};
@@ -1363,111 +1341,128 @@
       `;
     }
 
-    function appendNextParkingBatch() {
-      clearParkingStream();
+    function refreshParkingCardsLanguage() {
       const box = document.getElementById("parkingResults");
       const vehicle = document.getElementById("vehicle").value;
-      const radiusKm = Number(document.getElementById("parkingRadius").value || 5);
-      const summaryBadge = document.getElementById("parkingSummaryBadge");
-
-      const oldMoreBtn = box.querySelector('[data-action="load-more-parking"]');
-      if (oldMoreBtn) oldMoreBtn.remove();
-
-      const startIdx = visibleParkingCount;
-      const endIdx = Math.min(startIdx + BATCH_SIZE, lastParking.length);
-      const batch = lastParking.slice(startIdx, endIdx);
-
-      batch.forEach((p, offset) => {
-        const timerId = setTimeout(() => {
-          const currentIndex = startIdx + offset;
-          box.insertAdjacentHTML("beforeend", buildSingleParkingCardHtml(p, currentIndex, vehicle));
-          addSingleMapMarker(p, "parking");
-          visibleParkingCount = currentIndex + 1;
-
-          summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(visibleParkingCount, lastParking.length, radiusKm);
-          summaryBadge.style.display = "inline-block";
-
-          if (offset === batch.length - 1) {
-            fitMapToCurrentItems(lastParking.slice(0, visibleParkingCount));
-            const remaining = lastParking.length - visibleParkingCount;
-            if (remaining > 0) {
-              const nextCount = Math.min(BATCH_SIZE, remaining);
-              box.insertAdjacentHTML(
-                "beforeend",
-                `<button type="button" class="load-more-btn" data-action="load-more-parking">${escapeHtml(I18N[currentLang].btnLoadMorePark(nextCount))}</button>`
-              );
-            }
-          }
-        }, offset * STAGGER_MS);
-
-        parkingStreamTimers.push(timerId);
-      });
-    }
-
-    function startParkingProgressiveDisplay(places) {
-      clearParkingStream();
       clearMarkers();
-      visibleParkingCount = 0;
-
-      const box = document.getElementById("parkingResults");
+      box.innerHTML = lastParking.map((p, idx) => {
+        addSingleMapMarker(p, "parking");
+        return buildSingleParkingCardHtml(p, idx, vehicle);
+      }).join("");
       const radiusKm = Number(document.getElementById("parkingRadius").value || 5);
       const summaryBadge = document.getElementById("parkingSummaryBadge");
-
-      if (!places.length) {
-        summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(0, 0, radiusKm);
-        summaryBadge.style.display = "inline-block";
-        box.innerHTML = `<div class="empty">🅿️<br>${escapeHtml(t("emptyParkingNone"))}</div>`;
-        return;
-      }
-
-      box.innerHTML = "";
-      appendNextParkingBatch();
+      summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(lastParking.length, radiusKm);
+      summaryBadge.style.display = "inline-block";
     }
 
-    async function searchParking() {
+    async function searchParkingProgressive() {
       const center = customParkingCenter || userLocation;
       if (!center) {
         getLocationAndSearch("parking");
         return;
       }
 
+      const scanId = ++currentParkingScanId;
       const vehicle = document.getElementById("vehicle").value;
-      const radiusKm = Number(document.getElementById("parkingRadius").value || 5);
-      const radiusMeters = radiusKm * 1000;
+      const targetRadiusKm = Number(document.getElementById("parkingRadius").value || 5);
+
+      const box = document.getElementById("parkingResults");
       const loaderEl = document.getElementById("parkingLoader");
+      const loaderTxt = document.getElementById("txtParkingLoader");
+      const summaryBadge = document.getElementById("parkingSummaryBadge");
+
+      clearMarkers();
+      lastParking = [];
+      box.innerHTML = "";
       loaderEl.style.display = "flex";
 
-      const query = `
-        [out:json][timeout:8];
-        (
-          node["amenity"="parking"](around:${radiusMeters},${center.lat},${center.lon});
-          way["amenity"="parking"](around:${radiusMeters},${center.lat},${center.lon});
-          node["amenity"="charging_station"](around:${radiusMeters},${center.lat},${center.lon});
-        );
-        out center tags 24;
-      `;
+      const allSteps = [1, 2, 5, 10];
+      const rings = allSteps.filter(r => r < targetRadiusKm);
+      rings.push(targetRadiusKm);
 
-      try {
-        let data;
+      const seenKeys = new Set();
+      let prevRadius = 0;
+      let anySuccess = false;
+
+      for (let stepIdx = 0; stepIdx < rings.length; stepIdx++) {
+        if (scanId !== currentParkingScanId) return;
+
+        const currentRingKm = rings[stepIdx];
+        loaderTxt.textContent = I18N[currentLang].scanningParkRingMsg(prevRadius, currentRingKm, lastParking.length);
+
+        const bbox = getBoundingBox(center.lat, center.lon, currentRingKm);
+        const query = `
+          [out:json][timeout:5][bbox:${bbox}];
+          (
+            node["amenity"="parking"];
+            way["amenity"="parking"];
+            node["amenity"="charging_station"];
+          );
+          out center tags 30;
+        `;
+
         try {
-          data = await fastParallelOverpass(query);
-        } catch {
-          data = await fastParallelOverpass(query);
-        }
+          const data = await fastParallelOverpass(query);
+          if (scanId !== currentParkingScanId) return;
+          anySuccess = true;
 
-        let places = normalizeElements(data.elements, center.lat, center.lon)
-          .filter(x => x.distance <= radiusKm && (x.name || x.tags.amenity === "parking" || x.tags.amenity === "charging_station"));
+          const newPlaces = [];
+          for (const el of (data.elements || [])) {
+            const elLat = Number(el.lat ?? el.center?.lat);
+            const elLon = Number(el.lon ?? el.center?.lon);
+            const tags = el.tags || {};
+            if (!Number.isFinite(elLat) || !Number.isFinite(elLon)) continue;
 
-        places = places.map(p => ({ ...p, score: parkingScore(p, vehicle) }))
-          .sort((a, b) => (a.distance + a.score) - (b.distance + b.score))
-          .slice(0, 24);
+            const dist = distanceKm(center.lat, center.lon, elLat, elLon);
+            if (dist > currentRingKm) continue;
 
-        lastParking = places;
-        startParkingProgressiveDisplay(places);
-      } catch {
-        document.getElementById("parkingResults").innerHTML = `<div class="empty">⚠️ ${escapeHtml(t("errParkingFetch"))}</div>`;
-      } finally {
-        loaderEl.style.display = "none";
+            const dedupKey = `${elLat.toFixed(4)}_${elLon.toFixed(4)}`;
+            if (seenKeys.has(dedupKey)) continue;
+            seenKeys.add(dedupKey);
+
+            const item = { id: el.id, lat: elLat, lon: elLon, tags, distance: dist };
+            item.score = parkingScore(item, vehicle);
+            newPlaces.push(item);
+          }
+
+          newPlaces.sort((a, b) => (a.distance + a.score) - (b.distance + b.score));
+
+          for (const item of newPlaces) {
+            if (scanId !== currentParkingScanId) return;
+            if (lastParking.length >= 24) break;
+
+            const idx = lastParking.length;
+            lastParking.push(item);
+
+            box.insertAdjacentHTML("beforeend", buildSingleParkingCardHtml(item, idx, vehicle));
+            addSingleMapMarker(item, "parking");
+
+            summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(lastParking.length, targetRadiusKm);
+            summaryBadge.style.display = "inline-block";
+
+            if (lastParking.length === 1 || lastParking.length % 4 === 0) {
+              fitMapToCurrentItems(lastParking);
+            }
+
+            await waitMs(75);
+          }
+        } catch {}
+
+        prevRadius = currentRingKm;
+        if (lastParking.length >= 24) break;
+      }
+
+      if (scanId !== currentParkingScanId) return;
+      loaderEl.style.display = "none";
+
+      if (lastParking.length > 0) {
+        fitMapToCurrentItems(lastParking);
+      } else if (!anySuccess) {
+        box.innerHTML = `<div class="empty">⚠️ ${escapeHtml(t("errParkingFetch"))}</div>`;
+      } else {
+        summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(0, targetRadiusKm);
+        summaryBadge.style.display = "inline-block";
+        box.innerHTML = `<div class="empty">🅿️<br>${escapeHtml(t("emptyParkingNone"))}</div>`;
       }
     }
 
@@ -1510,7 +1505,7 @@
       const banner = document.getElementById("parkingContextBanner");
       document.getElementById("parkingContextText").innerHTML = `🏥 ${escapeHtml(t("bannerParkingNear"))}: <b>${escapeHtml(hospitalName)}</b>`;
       banner.style.display = "flex";
-      searchParking();
+      searchParkingProgressive();
     }
 
     function openBookingModal(index) {
@@ -1621,12 +1616,12 @@
       });
 
       document.getElementById("btnTriggerHospitalGps").addEventListener("click", () => getLocationAndSearch("hospital"));
-      document.getElementById("btnRefreshHospitals").addEventListener("click", () => searchHospitals(true));
+      document.getElementById("btnRefreshHospitals").addEventListener("click", () => searchHospitalsProgressive());
       document.getElementById("specialty").addEventListener("change", () => {
-        if (lastHospitals.length) filterAndDisplayHospitalsByRadius();
+        if (lastHospitals.length) refreshHospitalCardsLanguage();
       });
       document.getElementById("date").addEventListener("change", () => {
-        if (lastHospitals.length) filterAndDisplayHospitalsByRadius();
+        if (lastHospitals.length) refreshHospitalCardsLanguage();
       });
 
       document.getElementById("hospitalRadiusPills").addEventListener("click", e => {
@@ -1638,7 +1633,7 @@
         document.getElementById("hospitalRadius").value = km;
 
         if (userLocation) {
-          searchHospitals(false);
+          searchHospitalsProgressive();
         } else {
           getLocationAndSearch("hospital");
         }
@@ -1646,12 +1641,12 @@
 
       document.getElementById("btnTriggerParkingGps").addEventListener("click", () => getLocationAndSearch("parking"));
       document.getElementById("btnBackToMyGps").addEventListener("click", () => getLocationAndSearch("parking"));
-      document.getElementById("btnRefreshParking").addEventListener("click", searchParking);
+      document.getElementById("btnRefreshParking").addEventListener("click", () => searchParkingProgressive());
       document.getElementById("vehicle").addEventListener("change", () => {
-        if (userLocation || customParkingCenter) searchParking();
+        if (userLocation || customParkingCenter) searchParkingProgressive();
       });
       document.getElementById("parkingRadius").addEventListener("change", () => {
-        if (userLocation || customParkingCenter) searchParking();
+        if (userLocation || customParkingCenter) searchParkingProgressive();
       });
 
       document.getElementById("btnLocateMeAction").addEventListener("click", () => openLocationPrompt("locate"));
@@ -1661,12 +1656,6 @@
         const btn = e.target.closest("[data-action]");
         if (!btn) return;
         const action = btn.getAttribute("data-action");
-
-        if (action === "load-more-hospitals") {
-          appendNextHospitalBatch();
-          return;
-        }
-
         const idx = Number(btn.getAttribute("data-index"));
         const item = lastHospitals[idx];
         if (!item) return;
@@ -1685,11 +1674,6 @@
 
       document.getElementById("parkingResults").addEventListener("click", e => {
         if (e.target.closest("a")) return;
-        const loadMoreBtn = e.target.closest('[data-action="load-more-parking"]');
-        if (loadMoreBtn) {
-          appendNextParkingBatch();
-          return;
-        }
         const card = e.target.closest('[data-action="focus-parking"]');
         if (!card) return;
         const idx = Number(card.getAttribute("data-index"));
