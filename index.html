@@ -1,3 +1,50 @@
+
+Gemini
+
+Cuộc trò chuyện mới
+Thư viện
+Đã lên lịch
+Tuỳ chỉnh
+Video
+Sổ ghi chú mới
+Thay đổi nút đặt lịch khám
+Trò chuyện với Gemini
+hiện tại tôi đang có 1 trang web như thế này , hãy chuyển "đặt lịch" thành liên hệ cho bệnh viện , sẽ chuyển đến trang trên gg map của của bệnh viện đó . Bỏ luôn trang "lịch hẹn"
+
+Tệp HTML của bạn đã sẵn sàng:
+
+Biểu tượng HTML
+vimedgo-updated
+ HTML 
+Tôi đã cập nhật lại mã nguồn trang web VimedGo theo đúng yêu cầu của bạn với các thay đổi cụ thể như sau:   
+HTML
+
+Chuyển nút "Đặt lịch khám" thành "Liên hệ bệnh viện" (Mở Google Maps):
+
+Đổi tên nút trên từng thẻ bệnh viện thành 📞 Liên hệ bệnh viện (và 📞 Contact Hospital khi chuyển sang Tiếng Anh).   
+HTML
+
+Khi người dùng bấm vào nút này, trình duyệt sẽ mở trực tiếp trang thông tin của bệnh viện đó trên Google Maps ([https://www.google.com/maps/search/?api=1&query=](https://www.google.com/maps/search/?api=1&query=)... kết hợp tên bệnh viện và địa chỉ/tọa độ thực tế) trong tab mới để xem số điện thoại tổng đài, website, giờ làm việc và đánh giá.
+
+Loại bỏ hoàn toàn trang "Lịch hẹn" và hộp thoại Đặt lịch:
+
+Đã xóa nút tab 🎟️ Lịch hẹn trên thanh chuyển tab và chỉnh bố cục .tabs từ 3 cột (1fr 1fr 1fr) về 2 cột cân đối (1fr 1fr) cho Bệnh viện và Bãi đỗ xe.   
+HTML
+
+Đã xóa phần giao diện #appointmentsSection (Danh sách phiếu khám đã đặt) và hộp thoại #bookingModal.   
+HTML
+
+Đã dọn dẹp các hàm và sự kiện JavaScript liên quan đến lưu/xóa lịch hẹn để trang web gọn nhẹ và không phát sinh lỗi ngầm.
+
+Argon có thể đòi hỏi mức sử dụng cao hơn
+Hãy dùng mô hình này cho các vấn đề khó và dùng Flash để được trợ giúp hằng ngày.
+
+
+
+
+Gemini là một AI và có thể mắc sai sót.
+
+Đã xử lý và phân tích bằng mã
 <!DOCTYPE html>
 <html lang="vi" data-theme="light">
 <head>
@@ -70,7 +117,7 @@
     /* Workspace */
     .workspace { max-width: 1400px; width: 100%; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 520px 1fr; gap: 22px; align-items: start; flex: 1; }
     .left-panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-    .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; background: var(--bg-surface); padding: 6px; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); gap: 6px; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-surface); padding: 6px; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); gap: 6px; }
     .tab { border: 0; padding: 11px 10px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 13.5px; background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; white-space: nowrap; }
     .tab.active { background: linear-gradient(135deg, #0284c7, #0d9488); color: white; box-shadow: 0 4px 12px rgba(2,132,199,0.25); }
 
@@ -396,51 +443,6 @@
   </div>
 </div>
 
-<!-- Modal Đặt lịch khám -->
-<div class="modal-backdrop" id="bookingModal" role="dialog" aria-modal="true">
-  <div class="modal-dialog">
-    <h2>📅 <span id="modalBookingTitle">Đặt lịch khám bệnh</span></h2>
-    <p id="bookingHospitalName" style="font-weight:700;color:var(--primary);margin-bottom:14px;"></p>
-    
-    <div class="field" style="margin-bottom:12px;">
-      <label id="lblPatientName" for="patientName">Họ và tên bệnh nhân</label>
-      <input type="text" id="patientName" maxlength="80" autocomplete="name" placeholder="Nhập họ và tên...">
-    </div>
-    <div class="filter-grid">
-      <div class="field">
-        <label id="lblPatientPhone" for="patientPhone">Số điện thoại</label>
-        <input type="tel" id="patientPhone" maxlength="20" autocomplete="tel" placeholder="09xx xxx xxx">
-      </div>
-      <div class="field">
-        <label id="lblTimeSlot" for="bookingTimeSlot">Khung giờ khám</label>
-        <select id="bookingTimeSlot">
-          <option value="07:30 - 08:30">07:30 - 08:30</option>
-          <option value="08:30 - 09:30">08:30 - 09:30</option>
-          <option value="09:30 - 10:30">09:30 - 10:30</option>
-          <option value="13:30 - 14:30">13:30 - 14:30</option>
-          <option value="15:00 - 16:00">15:00 - 16:00</option>
-        </select>
-      </div>
-    </div>
-    <div class="field" style="margin-bottom:16px;">
-      <label id="lblBookingVehicle" for="bookingVehicle">Phương tiện đi kèm (Hỗ trợ gợi ý bãi đỗ)</label>
-      <select id="bookingVehicle">
-        <option value="none" id="optNoVehicle">Không cần gửi xe</option>
-        <option value="car" id="optCarVehicle">🚗 Có đi Ô tô (Cần bãi đỗ ô tô)</option>
-        <option value="motorcycle" id="optMotoVehicle">🏍️ Có đi Xe máy</option>
-        <option value="electric" id="optEvVehicle">⚡ Có đi Xe điện (Cần trạm sạc)</option>
-      </select>
-    </div>
-
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-secondary" type="button" id="btnCancelBooking" style="flex:1">Hủy</button>
-      <button class="btn btn-primary" type="button" id="btnSubmitBookingAction" style="flex:1">
-        <span id="btnSubmitBooking">Xác nhận đặt lịch</span>
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- Thanh điều hướng VimedGo -->
 <header class="navbar">
   <div class="nav-wrap">
@@ -494,9 +496,6 @@
       </button>
       <button class="tab" type="button" data-target="parkingSection">
         🅿️ <span id="tabParkingTxt">Bãi đỗ xe</span>
-      </button>
-      <button class="tab" type="button" data-target="appointmentsSection">
-        🎟️ <span id="tabBookingTxt">Lịch hẹn</span> (<span id="bookingCount">0</span>)
       </button>
     </div>
 
@@ -635,15 +634,6 @@
       </div>
     </section>
 
-    <!-- TAB 3: LỊCH HẸN -->
-    <section id="appointmentsSection" class="section">
-      <div class="card">
-        <div class="card-header">
-          <h2>📋 <span id="bookingCardTitle">Phiếu khám đã đặt</span></h2>
-        </div>
-        <div id="appointmentsList" class="results-list"></div>
-      </div>
-    </section>
   </div>
 
   <!-- CỘT PHẢI: BẢN ĐỒ SỐ VIETMAP & GIAO DIỆN DẪN ĐƯỜNG NHƯ GOOGLE MAPS -->
@@ -876,7 +866,7 @@
         badgeHospital: "🏥 Bệnh viện", badgeClinic: "🩺 Phòng khám / Trạm y tế",
         nearestSlot: "Giờ khám gần nhất", dateLabel: "Ngày", notSelected: "chưa chọn",
         roadDistLabel: "Đường đi", driveMinLabel: "phút đi xe",
-        btnBookNow: "📅 Đặt lịch khám", btnParkingNearHosp: "🅿️ Bãi đỗ quanh viện",
+        btnBookNow: "📞 Liên hệ bệnh viện", btnParkingNearHosp: "🅿️ Bãi đỗ quanh viện",
         typeCharging: "Trạm sạc", typeParking: "Bãi đỗ xe",
         lblCapacity: "Sức chứa", lblFee: "Phí", lblOpenHours: "Giờ mở cửa", lblCoords: "Tọa độ",
         btnDirections: "🧭 Chỉ đường",
@@ -968,7 +958,7 @@
         badgeHospital: "🏥 Hospital", badgeClinic: "🩺 Polyclinic / Medical Station",
         nearestSlot: "Earliest sample slot", dateLabel: "Date", notSelected: "not selected",
         roadDistLabel: "Road", driveMinLabel: "min drive",
-        btnBookNow: "📅 Book Appointment", btnParkingNearHosp: "🅿️ Parking Nearby",
+        btnBookNow: "📞 Contact Hospital", btnParkingNearHosp: "🅿️ Parking Nearby",
         typeCharging: "EV Charging", typeParking: "Parking Lot",
         lblCapacity: "Capacity", lblFee: "Fee", lblOpenHours: "Opening Hours", lblCoords: "Coordinates",
         btnDirections: "🧭 Directions",
@@ -1175,7 +1165,6 @@
       document.getElementById("langCodeBadge").textContent = t("langCode");
       document.getElementById("tabHospitalTxt").textContent = t("tabHospital");
       document.getElementById("tabParkingTxt").textContent = t("tabParking");
-      document.getElementById("tabBookingTxt").textContent = t("tabBooking");
       document.getElementById("hospitalCardTitle").textContent = t("hospitalCardTitle");
       document.getElementById("lblSpecialty").textContent = t("lblSpecialty");
       document.getElementById("lblDate").textContent = t("lblDate");
@@ -1222,7 +1211,6 @@
       document.getElementById("btnReloadParking").textContent = t("btnReload");
       document.getElementById("txtParkingLoader").textContent = t("txtParkingLoader");
 
-      document.getElementById("bookingCardTitle").textContent = t("bookingCardTitle");
       document.getElementById("btnMyLocation").textContent = t("btnMyLocation");
       document.getElementById("txtTrackBtn").textContent = watchId !== null ? t("txtStopTrackBtn") : t("txtTrackBtn");
       document.getElementById("txtExpandMap").textContent = isMobileMapExpanded ? t("txtCollapseMap") : t("txtExpandMap");
@@ -1241,18 +1229,6 @@
 
       document.getElementById("btnCancelModal").textContent = t("modalCancel");
       document.getElementById("txtConfirmModal").textContent = t("modalConfirmGps");
-      document.getElementById("modalBookingTitle").textContent = t("modalBookingTitle");
-      document.getElementById("lblPatientName").textContent = t("lblPatientName");
-      document.getElementById("patientName").placeholder = t("phPatientName");
-      document.getElementById("lblPatientPhone").textContent = t("lblPatientPhone");
-      document.getElementById("lblTimeSlot").textContent = t("lblTimeSlot");
-      document.getElementById("lblBookingVehicle").textContent = t("lblBookingVehicle");
-      document.getElementById("optNoVehicle").textContent = t("optNoVehicle");
-      document.getElementById("optCarVehicle").textContent = t("optCarVehicle");
-      document.getElementById("optMotoVehicle").textContent = t("optMotoVehicle");
-      document.getElementById("optEvVehicle").textContent = t("optEvVehicle");
-      document.getElementById("btnCancelBooking").textContent = t("modalCancel");
-      document.getElementById("btnSubmitBooking").textContent = t("btnSubmitBooking");
 
       if (!userLocation) {
         setStatus(t("statusNotLocated"), "idle");
@@ -1278,7 +1254,6 @@
         renderEmptyParkingInit();
       }
 
-      renderAppointments();
     }
 
     function renderEmptyHospitalInit() {
@@ -2177,6 +2152,8 @@
       const time = times[i % times.length];
       const driveMin = h.driveMinutes || Math.max(1, Math.round(h.distance * 2.5));
       const addressStr = getFacilityAddress(h.tags);
+      const gmapQuery = [displayName, addressStr].filter(Boolean).join(", ");
+      const gmapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gmapQuery || `${h.lat},${h.lon}`)}`;
 
       return `
         <div class="result-card stagger-card" data-action="focus-hospital" data-index="${i}">
@@ -2193,9 +2170,9 @@
             ${escapeHtml(t("nearestSlot"))}: <b>${time}</b> | ${escapeHtml(t("dateLabel"))}: <b>${escapeHtml(date)}</b>
           </div>
           <div class="card-actions">
-            <button class="btn btn-primary" type="button" data-action="book-hospital" data-index="${i}">
+            <a class="btn btn-primary" href="${escapeHtml(gmapUrl)}" target="_blank" rel="noopener noreferrer" data-action="contact-hospital" data-index="${i}">
               ${escapeHtml(t("btnBookNow"))}
-            </button>
+            </a>
             <button class="btn btn-secondary" type="button" data-action="parking-near-hospital" data-index="${i}">
               ${escapeHtml(t("btnParkingNearHosp"))}
             </button>
@@ -2640,97 +2617,14 @@
       searchParkingProgressive();
     }
 
-    function openBookingModal(index) {
+    function openHospitalOnGoogleMaps(index) {
       const h = lastHospitals[index];
       if (!h) return;
-      selectedHospitalForBooking = h;
       const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
-      document.getElementById("bookingHospitalName").textContent = `${displayName} (🛣️ ${h.distance.toFixed(1)} km)`;
-      document.getElementById("bookingModal").classList.add("show");
-    }
-
-    function closeBookingModal() {
-      document.getElementById("bookingModal").classList.remove("show");
-    }
-
-    function submitBooking() {
-      const rawName = document.getElementById("patientName").value.trim().slice(0, 80);
-      const rawPhone = document.getElementById("patientPhone").value.trim().slice(0, 20);
-      const name = rawName || t("defaultPatient");
-      const phone = rawPhone || t("defaultPhone");
-      const slot = document.getElementById("bookingTimeSlot").value;
-      const vehicleSelect = document.getElementById("bookingVehicle");
-      const vehicleText = vehicleSelect.options[vehicleSelect.selectedIndex].text;
-      const specKey = document.getElementById("specialty").value;
-      const date = document.getElementById("date").value || t("notSelected");
-
-      if (!selectedHospitalForBooking) return;
-
-      const code = generateSecureBookingCode();
-      const bookings = getSafeBookings();
-      bookings.unshift({
-        code,
-        hospital: getLocalizedPlaceName(selectedHospitalForBooking, t("unnamedPlace")),
-        lat: Number(selectedHospitalForBooking.lat),
-        lon: Number(selectedHospitalForBooking.lon),
-        specKey, date, slot, patientName: name, patientPhone: phone, vehicle: vehicleText
-      });
-      saveSafeBookings(bookings);
-
-      closeBookingModal();
-      renderAppointments();
-      showToast(`${t("toastBooked")}: #${code}`);
-      document.querySelector('[data-target="appointmentsSection"]').click();
-    }
-
-    function renderAppointments() {
-      const bookings = getSafeBookings();
-      document.getElementById("bookingCount").textContent = bookings.length;
-      const box = document.getElementById("appointmentsList");
-
-      if (!bookings.length) {
-        box.innerHTML = `<div class="empty">🎟️<br>${escapeHtml(t("emptyBookings"))}</div>`;
-        return;
-      }
-
-      box.innerHTML = bookings.map((b, idx) => {
-        const specName = (b.specKey && I18N[currentLang].specialties[b.specKey]) || b.specialty || "";
-        return `
-          <div class="result-card stagger-card">
-            <div class="result-top">
-              <h3>${escapeHtml(b.hospital)}</h3>
-              <span class="distance-pill">#${escapeHtml(b.code)}</span>
-            </div>
-            <div class="badges">
-              <span class="badge">${escapeHtml(specName)}</span>
-              <span class="badge">${escapeHtml(b.slot)} | ${escapeHtml(b.date)}</span>
-            </div>
-            <div class="meta">
-              ${escapeHtml(t("lblPatientInfo"))}: <b>${escapeHtml(b.patientName)}</b> (${escapeHtml(b.patientPhone)})<br>
-              ${escapeHtml(t("lblVehicleInfo"))}: <b>${escapeHtml(b.vehicle)}</b>
-            </div>
-            <div class="card-actions">
-              <button class="btn btn-teal" type="button" data-action="booking-route" data-index="${idx}">
-                ${escapeHtml(t("btnDirections"))}
-              </button>
-              <button class="btn btn-secondary" type="button" data-action="booking-parking-near" data-index="${idx}">
-                ${escapeHtml(t("btnParkingNearHosp"))}
-              </button>
-              <button class="btn btn-secondary" type="button" style="color:var(--danger)" data-action="delete-booking" data-index="${idx}">
-                ${escapeHtml(t("btnDeleteBooking"))}
-              </button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function deleteBooking(index) {
-      const bookings = getSafeBookings();
-      if (index < 0 || index >= bookings.length) return;
-      bookings.splice(index, 1);
-      saveSafeBookings(bookings);
-      renderAppointments();
+      const addressStr = getFacilityAddress(h.tags);
+      const gmapQuery = [displayName, addressStr].filter(Boolean).join(", ");
+      const gmapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gmapQuery || `${h.lat},${h.lon}`)}`;
+      window.open(gmapUrl, "_blank", "noopener,noreferrer");
     }
 
     function bindSecureEvents() {
@@ -2747,12 +2641,6 @@
       document.getElementById("btnConfirmModal").addEventListener("click", confirmLocationPermission);
       document.getElementById("locationModal").addEventListener("click", e => {
         if (e.target.id === "locationModal") closeLocationPrompt();
-      });
-
-      document.getElementById("btnCancelBooking").addEventListener("click", closeBookingModal);
-      document.getElementById("btnSubmitBookingAction").addEventListener("click", submitBooking);
-      document.getElementById("bookingModal").addEventListener("click", e => {
-        if (e.target.id === "bookingModal") closeBookingModal();
       });
 
       document.getElementById("btnTriggerHospitalGps").addEventListener("click", () => getLocationAndSearch("hospital"));
@@ -2808,9 +2696,8 @@
 
         const displayName = getLocalizedPlaceName(item, t("unnamedPlace"));
 
-        if (action === "book-hospital") {
+        if (action === "contact-hospital") {
           e.stopPropagation();
-          openBookingModal(idx);
         } else if (action === "parking-near-hospital") {
           e.stopPropagation();
           findParkingNearHospital(item.lat, item.lon, displayName);
@@ -2846,24 +2733,6 @@
         }
       });
 
-      document.getElementById("appointmentsList").addEventListener("click", e => {
-        const btn = e.target.closest("[data-action]");
-        if (!btn) return;
-        const action = btn.getAttribute("data-action");
-        const idx = Number(btn.getAttribute("data-index"));
-        const bookings = getSafeBookings();
-        const b = bookings[idx];
-        if (!b) return;
-
-        if (action === "booking-route") {
-          drawRouteOnWebMap(Number(b.lat), Number(b.lon), String(b.hospital || ""));
-        } else if (action === "booking-parking-near") {
-          findParkingNearHospital(Number(b.lat), Number(b.lon), String(b.hospital || ""));
-        } else if (action === "delete-booking") {
-          deleteBooking(idx);
-        }
-      });
-
       document.querySelectorAll(".tab").forEach(btn => {
         btn.addEventListener("click", () => {
           document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
@@ -2884,3 +2753,5 @@
 </script>
 </body>
 </html>
+vimedgo-updated.html
+Đang hiển thị vimedgo-updated.html.
