@@ -86,7 +86,7 @@
     select, input { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; background: var(--bg-elevated); color: var(--text-main); font-size: 14px; font-family: inherit; font-weight: 600; outline: none; }
     select:focus, input:focus { border-color: var(--primary); }
 
-    .radius-pills { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 14px; }
+    .radius-pills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
     .radius-pill { border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-main); padding: 9px 4px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; }
     .radius-pill.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
 
@@ -508,15 +508,13 @@
             <button type="button" class="radius-pill active" data-radius="5">5 km</button>
             <button type="button" class="radius-pill" data-radius="8">8 km</button>
             <button type="button" class="radius-pill" data-radius="15">15 km</button>
-            <button type="button" class="radius-pill" data-radius="30">30 km (Toàn TP)</button>
-          </div>
+                      </div>
           <select id="hospitalRadius" style="display:none;">
             <option value="3" id="radHosp3">Trong phạm vi 3 km</option>
             <option value="5" selected id="radHosp5">Trong phạm vi 5 km</option>
             <option value="8" id="radHosp8">Trong phạm vi 8 km</option>
             <option value="15" id="radHosp15">Trong phạm vi 15 km</option>
-            <option value="30" id="radHosp30">Trong phạm vi 30 km (Toàn thành phố)</option>
-          </select>
+                      </select>
         </div>
 
         <div class="controls">
@@ -1169,8 +1167,7 @@
       document.getElementById("radHosp5").textContent = t("radHosp5");
       document.getElementById("radHosp8").textContent = t("radHosp8");
       document.getElementById("radHosp15").textContent = t("radHosp15");
-      document.getElementById("radHosp30").textContent = t("radHosp30");
-      document.getElementById("btnFindHospital").textContent = t("btnFindHospital");
+            document.getElementById("btnFindHospital").textContent = t("btnFindHospital");
       document.getElementById("btnReloadHospital").textContent = t("btnReload");
       document.getElementById("txtHospitalLoader").textContent = t("txtHospitalLoader");
 
@@ -2284,11 +2281,6 @@
           const elLon = Number(el.lon ?? el.center?.lon);
           const tags = el.tags || {};
           if (!Number.isFinite(elLat) || !Number.isFinite(elLon)) continue;
-
-          // Bộ lọc: Loại bỏ các bãi đỗ xe thuộc về bệnh viện
-          const rawName = tags.name || tags["name:en"] || tags["name:vi"] || "";
-          const nameClean = removeVietnameseTones(rawName).toLowerCase();
-          if (nameClean.includes("benh vien") || nameClean.includes("hospital") || nameClean.includes(" bv ")) continue;
           const rawName = (tags.name || tags["name:vi"] || tags["name:en"] || "").trim();
           if (!rawName) continue;
 
@@ -2565,8 +2557,8 @@
           if (!Number.isFinite(elLat) || !Number.isFinite(elLon)) continue;
 
           // Bộ lọc: Loại bỏ các bãi đỗ xe thuộc về bệnh viện
-          const rawName = tags.name || tags["name:en"] || tags["name:vi"] || "";
-          const nameClean = removeVietnameseTones(rawName).toLowerCase();
+          const checkName = tags.name || tags["name:en"] || tags["name:vi"] || "";
+          const nameClean = removeVietnameseTones(checkName).toLowerCase();
           if (nameClean.includes("benh vien") || nameClean.includes("hospital") || nameClean.includes(" bv ")) continue;
 
           const airDist = straightDistanceKm(center.lat, center.lon, elLat, elLon);
@@ -2590,39 +2582,26 @@
           candidates.push(item);
         }
 
-        // [NÂNG CẤP DÀNH CHO DỰ ÁN TRƯỜNG] Tự động tạo bãi đỗ xe giả lập quanh vị trí người dùng
-        // Nếu API hoặc dữ liệu OSM không có bãi thật ở khu vực này, hệ thống tự sinh ra bãi đỗ để ĐẢM BẢO luôn có kết quả báo cáo
+        // Nếu bán kính nhỏ (VD: 2km ở vùng ven) chưa có điểm nào trong OSM, lấy 6 điểm gần nhất trong 12km để người dùng luôn có lựa chọn
         if (candidates.length === 0) {
-          const mockNames = ["Bãi giữ xe tư nhân (Có mái che)", "Bãi giữ xe máy qua đêm", "Bãi đỗ xe Ô tô ngoài trời", "Trạm sạc VinFast 24/7"];
-          const mockTypes = ["parking", "parking", "parking", "charging_station"];
-          
-          for (let j = 0; j < 4; j++) {
-            // Random khoảng cách từ 0.3km đến 1.5km
-            const angle = Math.random() * Math.PI * 2;
-            const distKm = 0.3 + Math.random() * 1.2;
-            const dLat = distKm / 110.574;
-            const dLon = distKm / (111.320 * Math.cos(center.lat * Math.PI / 180));
-            const mLat = center.lat + dLat * Math.cos(angle);
-            const mLon = center.lon + dLon * Math.sin(angle);
-            
+          for (const el of rawElements) {
+            const elLat = Number(el.lat ?? el.center?.lat);
+            const elLon = Number(el.lon ?? el.center?.lon);
+            const tags = el.tags || {};
+            if (!Number.isFinite(elLat) || !Number.isFinite(elLon)) continue;
+            const airDist = straightDistanceKm(center.lat, center.lon, elLat, elLon);
+            if (airDist > Math.max(targetRadiusKm * 2.5, 12)) continue;
+            const dedupKey = `${elLat.toFixed(3)}_${elLon.toFixed(3)}`;
+            if (seenKeys.has(dedupKey)) continue;
+            seenKeys.add(dedupKey);
             const item = {
-              id: "mock_" + Math.random(),
-              lat: mLat,
-              lon: mLon,
-              tags: {
-                name: mockNames[j],
-                amenity: mockTypes[j],
-                capacity: (20 + Math.floor(Math.random() * 80)) + " chỗ",
-                fee: "5.000đ - 15.000đ",
-                opening_hours: "06:00 - 22:30",
-                motorcar: (j === 2 || j === 3) ? "yes" : "no",
-                motorcycle: (j === 0 || j === 1) ? "yes" : "no",
-                "motorcar:charging": j === 3 ? "yes" : "no",
-                "addr:full": "Bãi đỗ xe khu vực lân cận"
-              },
-              airDistance: distKm,
-              distance: distKm * 1.2,
-              driveMinutes: Math.max(1, Math.round(distKm * 1.2 * 2.5))
+              id: el.id || Math.random(),
+              lat: elLat,
+              lon: elLon,
+              tags,
+              airDistance: airDist,
+              distance: airDist * 1.2,
+              driveMinutes: Math.max(1, Math.round(airDist * 1.2 * 2.5))
             };
             item.score = parkingScore(item, vehicle);
             candidates.push(item);
