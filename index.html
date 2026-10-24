@@ -467,26 +467,19 @@
 
         <div class="filter-grid">
           <div class="field">
-            <label for="specialty" id="lblSpecialty">Chuyên khoa khám</label>
+            <label for="specialty" id="lblSpecialty">Chuyên khoa ưu tiên</label>
             <select id="specialty">
-              <option value="general" id="specGeneral">Khám tổng quát</option>
+              <option value="general" id="specGeneral">Khám tổng quát / Đa khoa</option>
               <option value="internal" id="specInternal">Nội khoa</option>
-              <option value="surgery" id="specSurgery">Ngoại khoa</option>
-              <option value="pediatrics" id="specPediatrics">Nhi khoa</option>
+              <option value="surgery" id="specSurgery">Ngoại khoa / Chấn thương</option>
+              <option value="pediatrics" id="specPediatrics">Nhi khoa (Trẻ em)</option>
               <option value="cardiology" id="specCardiology">Tim mạch</option>
               <option value="dermatology" id="specDermatology">Da liễu</option>
               <option value="ent" id="specEnt">Tai - Mũi - Họng</option>
               <option value="dental" id="specDental">Răng - Hàm - Mặt</option>
-              <option value="eye" id="specEye">Mắt</option>
+              <option value="eye" id="specEye">Mắt (Nhãn khoa)</option>
             </select>
           </div>
-          <div class="field">
-            <label for="date" id="lblDate">Ngày khám dự kiến</label>
-            <input type="date" id="date">
-          </div>
-        </div>
-
-        <div class="filter-grid">
           <div class="field">
             <label for="facilityTypeFilter" id="lblFacilityType">Loại cơ sở y tế</label>
             <select id="facilityTypeFilter">
@@ -495,10 +488,11 @@
               <option value="all_medical" id="optTypeAllMedical">📋 Tất cả (Gồm cả Trạm y tế xã/phường)</option>
             </select>
           </div>
-          <div class="field">
-            <label for="hospitalKeyword" id="lblHospitalKeyword">Tìm theo tên / Quận huyện</label>
-            <input type="search" id="hospitalKeyword" placeholder="VD: Chợ Rẫy, Quận 7, Nhà Bè...">
-          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:12px;">
+          <label for="hospitalKeyword" id="lblHospitalKeyword">Tìm nhanh theo tên cơ sở / Quận huyện</label>
+          <input type="search" id="hospitalKeyword" placeholder="VD: Chợ Rẫy, Quận 7, Nhà Bè, Cần Giuộc...">
         </div>
 
         <div class="field" style="margin-bottom:8px;">
@@ -508,13 +502,13 @@
             <button type="button" class="radius-pill active" data-radius="5">5 km</button>
             <button type="button" class="radius-pill" data-radius="8">8 km</button>
             <button type="button" class="radius-pill" data-radius="15">15 km</button>
-          </div>
+                      </div>
           <select id="hospitalRadius" style="display:none;">
             <option value="3" id="radHosp3">Trong phạm vi 3 km</option>
             <option value="5" selected id="radHosp5">Trong phạm vi 5 km</option>
             <option value="8" id="radHosp8">Trong phạm vi 8 km</option>
             <option value="15" id="radHosp15">Trong phạm vi 15 km</option>
-          </select>
+                      </select>
         </div>
 
         <div class="controls">
@@ -687,111 +681,107 @@
     "use strict";
 
     const VIETMAP_API_KEY = "fd87b92b8c9b1a7848dd81147205540504a99b37cf661f41";
-    const STORAGE_KEY = "vimedgo_bookings_v1";
 
     let currentLang = "vi";
 
-    // Danh sách Bệnh viện chuẩn xác kèm Số điện thoại trên Google Maps tại TP.HCM và vùng ven
+    // Danh sách Bệnh viện chuẩn xác kèm Số điện thoại & Chuyên khoa thế mạnh tại TP.HCM và vùng ven
     const VERIFIED_VN_HOSPITALS = [
       // Khu vực Trung tâm: Quận 1, Quận 3, Quận 4, Quận 5, Quận 10
-      { id: "vn_q5_cr", lat: 10.75780, lon: 106.65960, tags: { name: "Bệnh viện Chợ Rẫy", "name:en": "Cho Ray Hospital", amenity: "hospital", phone: "02838554137", "addr:full": "201B Nguyễn Chí Thanh, Phường 12, Quận 5, TP.HCM" } },
-      { id: "vn_q5_yd1", lat: 10.75540, lon: 106.66440, tags: { name: "Bệnh viện Đại học Y Dược TP.HCM", "name:en": "UMC Hospital", amenity: "hospital", phone: "02838554269", "addr:full": "215 Hồng Bàng, Phường 11, Quận 5, TP.HCM" } },
-      { id: "vn_q5_hv", lat: 10.75590, lon: 106.66150, tags: { name: "Bệnh viện Hùng Vương", "name:en": "Hung Vuong Hospital", amenity: "hospital", phone: "02838558532", "addr:full": "128 Hồng Bàng, Phường 12, Quận 5, TP.HCM" } },
-      { id: "vn_q5_304", lat: 10.75470, lon: 106.67130, tags: { name: "Bệnh viện 30-4 Bộ Công An", "name:en": "30-4 Hospital", amenity: "hospital", phone: "02839234323", "addr:full": "9 Sư Vạn Hạnh, Phường 9, Quận 5, TP.HCM" } },
-      { id: "vn_q5_nd", lat: 10.75240, lon: 106.67880, tags: { name: "Bệnh viện Bệnh Nhiệt Đới", "name:en": "Hospital for Tropical Diseases", amenity: "hospital", phone: "02839235804", "addr:full": "764 Võ Văn Kiệt, Phường 1, Quận 5, TP.HCM" } },
-      { id: "vn_q5_nt", lat: 10.75380, lon: 106.66720, tags: { name: "Bệnh viện Nguyễn Tri Phương", "name:en": "Nguyen Tri Phuong Hospital", amenity: "hospital", phone: "02839234332", "addr:full": "468 Nguyễn Trãi, Phường 8, Quận 5, TP.HCM" } },
-      { id: "vn_q5_ctch", lat: 10.75430, lon: 106.67610, tags: { name: "Bệnh viện Chấn thương Chỉnh hình TP.HCM", "name:en": "HCMC Hospital for Traumatology and Orthopaedics", amenity: "hospital", phone: "02839235791", "addr:full": "929 Trần Hưng Đạo, Phường 1, Quận 5, TP.HCM" } },
-      { id: "vn_q1_td", lat: 10.76860, lon: 106.68440, tags: { name: "Bệnh viện Từ Dũ", "name:en": "Tu Du Hospital", amenity: "hospital", phone: "02854042829", "addr:full": "284 Cống Quỳnh, Phường Phạm Ngũ Lão, Quận 1, TP.HCM" } },
-      { id: "vn_q1_nd2", lat: 10.78010, lon: 106.70160, tags: { name: "Bệnh viện Nhi Đồng 2", "name:en": "Children's Hospital 2", amenity: "hospital", phone: "02838295723", "addr:full": "14 Lý Tự Trọng, Phường Bến Nghé, Quận 1, TP.HCM" } },
-      { id: "vn_q1_dk", lat: 10.77160, lon: 106.69830, tags: { name: "Bệnh viện Đa khoa Sài Gòn", "name:en": "Saigon General Hospital", amenity: "hospital", phone: "02838291711", "addr:full": "125 Lê Lợi, Phường Bến Thành, Quận 1, TP.HCM" } },
-      { id: "vn_q1_q1", lat: 10.79050, lon: 106.68970, tags: { name: "Bệnh viện Quận 1", "name:en": "District 1 Hospital", amenity: "hospital", phone: "02838200880", "addr:full": "338 Hai Bà Trưng, Phường Tân Định, Quận 1, TP.HCM" } },
-      { id: "vn_q1_rhm", lat: 10.76640, lon: 106.69290, tags: { name: "Bệnh viện Răng Hàm Mặt TP.HCM", "name:en": "HCMC Odonto-Stomatology Hospital", amenity: "hospital", phone: "02838360191", "addr:full": "263-265 Trần Hưng Đạo, Phường Cô Giang, Quận 1, TP.HCM" } },
-      { id: "vn_q3_bd", lat: 10.77380, lon: 106.68080, tags: { name: "Bệnh viện Bình Dân", "name:en": "Binh Dan Hospital", amenity: "hospital", phone: "02838394747", "addr:full": "371 Điện Biên Phủ, Phường 4, Quận 3, TP.HCM" } },
-      { id: "vn_q3_dl", lat: 10.77660, lon: 106.68690, tags: { name: "Bệnh viện Da Liễu TP.HCM", "name:en": "HCMC Hospital of Dermato-Venereology", amenity: "hospital", phone: "02839308131", "addr:full": "2 Nguyễn Thông, Phường Võ Thị Sáu, Quận 3, TP.HCM" } },
-      { id: "vn_q3_mat", lat: 10.77970, lon: 106.68520, tags: { name: "Bệnh viện Mắt TP.HCM", "name:en": "HCMC Eye Hospital", amenity: "hospital", phone: "02839325364", "addr:full": "280 Điện Biên Phủ, Phường Võ Thị Sáu, Quận 3, TP.HCM" } },
-      { id: "vn_q3_tmh", lat: 10.78650, lon: 106.68110, tags: { name: "Bệnh viện Tai Mũi Họng TP.HCM", "name:en": "HCMC ENT Hospital", amenity: "hospital", phone: "02839317381", "addr:full": "155-157 Trần Quốc Thảo, Phường 9, Quận 3, TP.HCM" } },
-      { id: "vn_q10_115", lat: 10.77530, lon: 106.66690, tags: { name: "Bệnh viện Nhân dân 115", "name:en": "People's Hospital 115", amenity: "hospital", phone: "02838652368", "addr:full": "527 Sư Vạn Hạnh, Phường 12, Quận 10, TP.HCM" } },
-      { id: "vn_q10_nd1", lat: 10.76870, lon: 106.66990, tags: { name: "Bệnh viện Nhi Đồng 1", "name:en": "Children's Hospital 1", amenity: "hospital", phone: "02839271119", "addr:full": "341 Sư Vạn Hạnh, Phường 10, Quận 10, TP.HCM" } },
-      { id: "vn_q10_vdt", lat: 10.77450, lon: 106.66820, tags: { name: "Viện Tim TP.HCM", "name:en": "Heart Institute of HCMC", amenity: "hospital", phone: "02838651586", "addr:full": "04 Dương Quang Trung, Phường 12, Quận 10, TP.HCM" } },
-      { id: "vn_q10_tv", lat: 10.76540, lon: 106.66310, tags: { name: "Bệnh viện Trưng Vương", "name:en": "Trung Vuong Hospital", amenity: "hospital", phone: "02854484949", "addr:full": "266 Lý Thường Kiệt, Phường 14, Quận 10, TP.HCM" } },
-      { id: "vn_q4_q4", lat: 10.76050, lon: 106.70420, tags: { name: "Bệnh viện Quận 4", "name:en": "District 4 Hospital", amenity: "hospital", phone: "02838261568", "addr:full": "65 Bến Vân Đồn, Phường 12, Quận 4, TP.HCM" } },
+      { id: "vn_q5_cr", lat: 10.75780, lon: 106.65960, tags: { name: "Bệnh viện Chợ Rẫy", "name:en": "Cho Ray Hospital", amenity: "hospital", phone: "02838554137", specialties: ["general", "internal", "surgery", "cardiology"], emergency: "24/7", "addr:full": "201B Nguyễn Chí Thanh, Phường 12, Quận 5, TP.HCM" } },
+      { id: "vn_q5_yd1", lat: 10.75540, lon: 106.66440, tags: { name: "Bệnh viện Đại học Y Dược TP.HCM", "name:en": "UMC Hospital", amenity: "hospital", phone: "02838554269", specialties: ["general", "internal", "surgery", "cardiology", "ent"], emergency: "24/7", "addr:full": "215 Hồng Bàng, Phường 11, Quận 5, TP.HCM" } },
+      { id: "vn_q5_hv", lat: 10.75590, lon: 106.66150, tags: { name: "Bệnh viện Hùng Vương", "name:en": "Hung Vuong Hospital", amenity: "hospital", phone: "02838558532", specialties: ["general", "surgery"], emergency: "24/7", "addr:full": "128 Hồng Bàng, Phường 12, Quận 5, TP.HCM" } },
+      { id: "vn_q5_304", lat: 10.75470, lon: 106.67130, tags: { name: "Bệnh viện 30-4 Bộ Công An", "name:en": "30-4 Hospital", amenity: "hospital", phone: "02839234323", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "9 Sư Vạn Hạnh, Phường 9, Quận 5, TP.HCM" } },
+      { id: "vn_q5_nd", lat: 10.75240, lon: 106.67880, tags: { name: "Bệnh viện Bệnh Nhiệt Đới", "name:en": "Hospital for Tropical Diseases", amenity: "hospital", phone: "02839235804", specialties: ["internal", "general", "pediatrics"], emergency: "24/7", "addr:full": "764 Võ Văn Kiệt, Phường 1, Quận 5, TP.HCM" } },
+      { id: "vn_q5_nt", lat: 10.75380, lon: 106.66720, tags: { name: "Bệnh viện Nguyễn Tri Phương", "name:en": "Nguyen Tri Phuong Hospital", amenity: "hospital", phone: "02839234332", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "468 Nguyễn Trãi, Phường 8, Quận 5, TP.HCM" } },
+      { id: "vn_q5_ctch", lat: 10.75430, lon: 106.67610, tags: { name: "Bệnh viện Chấn thương Chỉnh hình TP.HCM", "name:en": "HCMC Hospital for Traumatology and Orthopaedics", amenity: "hospital", phone: "02839235791", specialties: ["surgery"], emergency: "24/7", "addr:full": "929 Trần Hưng Đạo, Phường 1, Quận 5, TP.HCM" } },
+      { id: "vn_q1_td", lat: 10.76860, lon: 106.68440, tags: { name: "Bệnh viện Từ Dũ", "name:en": "Tu Du Hospital", amenity: "hospital", phone: "02854042829", specialties: ["general", "surgery"], emergency: "24/7", "addr:full": "284 Cống Quỳnh, Phường Phạm Ngũ Lão, Quận 1, TP.HCM" } },
+      { id: "vn_q1_nd2", lat: 10.78010, lon: 106.70160, tags: { name: "Bệnh viện Nhi Đồng 2", "name:en": "Children's Hospital 2", amenity: "hospital", phone: "02838295723", specialties: ["pediatrics"], emergency: "24/7", "addr:full": "14 Lý Tự Trọng, Phường Bến Nghé, Quận 1, TP.HCM" } },
+      { id: "vn_q1_dk", lat: 10.77160, lon: 106.69830, tags: { name: "Bệnh viện Đa khoa Sài Gòn", "name:en": "Saigon General Hospital", amenity: "hospital", phone: "02838291711", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "125 Lê Lợi, Phường Bến Thành, Quận 1, TP.HCM" } },
+      { id: "vn_q1_q1", lat: 10.79050, lon: 106.68970, tags: { name: "Bệnh viện Quận 1", "name:en": "District 1 Hospital", amenity: "hospital", phone: "02838200880", specialties: ["general", "internal"], emergency: "24/7", "addr:full": "338 Hai Bà Trưng, Phường Tân Định, Quận 1, TP.HCM" } },
+      { id: "vn_q1_rhm", lat: 10.76640, lon: 106.69290, tags: { name: "Bệnh viện Răng Hàm Mặt TP.HCM", "name:en": "HCMC Odonto-Stomatology Hospital", amenity: "hospital", phone: "02838360191", specialties: ["dental"], emergency: "24/7", "addr:full": "263-265 Trần Hưng Đạo, Phường Cô Giang, Quận 1, TP.HCM" } },
+      { id: "vn_q3_bd", lat: 10.77380, lon: 106.68080, tags: { name: "Bệnh viện Bình Dân", "name:en": "Binh Dan Hospital", amenity: "hospital", phone: "02838394747", specialties: ["surgery", "general"], emergency: "24/7", "addr:full": "371 Điện Biên Phủ, Phường 4, Quận 3, TP.HCM" } },
+      { id: "vn_q3_dl", lat: 10.77660, lon: 106.68690, tags: { name: "Bệnh viện Da Liễu TP.HCM", "name:en": "HCMC Hospital of Dermato-Venereology", amenity: "hospital", phone: "02839308131", specialties: ["dermatology"], emergency: "06:00 - 18:30", "addr:full": "2 Nguyễn Thông, Phường Võ Thị Sáu, Quận 3, TP.HCM" } },
+      { id: "vn_q3_mat", lat: 10.77970, lon: 106.68520, tags: { name: "Bệnh viện Mắt TP.HCM", "name:en": "HCMC Eye Hospital", amenity: "hospital", phone: "02839325364", specialties: ["eye"], emergency: "24/7", "addr:full": "280 Điện Biên Phủ, Phường Võ Thị Sáu, Quận 3, TP.HCM" } },
+      { id: "vn_q3_tmh", lat: 10.78650, lon: 106.68110, tags: { name: "Bệnh viện Tai Mũi Họng TP.HCM", "name:en": "HCMC ENT Hospital", amenity: "hospital", phone: "02839317381", specialties: ["ent"], emergency: "24/7", "addr:full": "155-157 Trần Quốc Thảo, Phường 9, Quận 3, TP.HCM" } },
+      { id: "vn_q10_115", lat: 10.77530, lon: 106.66690, tags: { name: "Bệnh viện Nhân dân 115", "name:en": "People's Hospital 115", amenity: "hospital", phone: "02838652368", specialties: ["general", "internal", "surgery", "cardiology"], emergency: "24/7", "addr:full": "527 Sư Vạn Hạnh, Phường 12, Quận 10, TP.HCM" } },
+      { id: "vn_q10_nd1", lat: 10.76870, lon: 106.66990, tags: { name: "Bệnh viện Nhi Đồng 1", "name:en": "Children's Hospital 1", amenity: "hospital", phone: "02839271119", specialties: ["pediatrics"], emergency: "24/7", "addr:full": "341 Sư Vạn Hạnh, Phường 10, Quận 10, TP.HCM" } },
+      { id: "vn_q10_vdt", lat: 10.77450, lon: 106.66820, tags: { name: "Viện Tim TP.HCM", "name:en": "Heart Institute of HCMC", amenity: "hospital", phone: "02838651586", specialties: ["cardiology"], emergency: "24/7", "addr:full": "04 Dương Quang Trung, Phường 12, Quận 10, TP.HCM" } },
+      { id: "vn_q10_tv", lat: 10.76540, lon: 106.66310, tags: { name: "Bệnh viện Trưng Vương", "name:en": "Trung Vuong Hospital", amenity: "hospital", phone: "02854484949", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "266 Lý Thường Kiệt, Phường 14, Quận 10, TP.HCM" } },
+      { id: "vn_q4_q4", lat: 10.76050, lon: 106.70420, tags: { name: "Bệnh viện Quận 4", "name:en": "District 4 Hospital", amenity: "hospital", phone: "02838261568", specialties: ["general", "internal"], emergency: "24/7", "addr:full": "65 Bến Vân Đồn, Phường 12, Quận 4, TP.HCM" } },
 
       // Khu vực Bình Thạnh, Phú Nhuận, Tân Bình, Gò Vấp
-      { id: "vn_bt_gd", lat: 10.80330, lon: 106.69460, tags: { name: "Bệnh viện Nhân dân Gia Định", "name:en": "Gia Dinh People's Hospital", amenity: "hospital", phone: "02838412692", "addr:full": "1 Nơ Trang Long, Phường 7, Bình Thạnh, TP.HCM" } },
-      { id: "vn_bt_ub", lat: 10.80410, lon: 106.69530, tags: { name: "Bệnh viện Ung Bướu TP.HCM", "name:en": "HCMC Oncology Hospital", amenity: "hospital", phone: "02838433021", "addr:full": "3 Nơ Trang Long, Phường 7, Bình Thạnh, TP.HCM" } },
-      { id: "vn_bt_vin", lat: 10.79590, lon: 106.72180, tags: { name: "Bệnh viện Đa khoa Quốc tế Vinmec Central Park", "name:en": "Vinmec Central Park International Hospital", amenity: "hospital", phone: "02836221166", "addr:full": "208 Nguyễn Hữu Cảnh, Phường 22, Bình Thạnh, TP.HCM" } },
-      { id: "vn_bt_qbt", lat: 10.80160, lon: 106.69890, tags: { name: "Bệnh viện Quận Bình Thạnh", "name:en": "Binh Thanh District Hospital", amenity: "hospital", phone: "02835108966", "addr:full": "132 Lê Văn Duyệt, Phường 1, Bình Thạnh, TP.HCM" } },
-      { id: "vn_pn_hm", lat: 10.79980, lon: 106.68410, tags: { name: "Bệnh viện Đa khoa Hoàn Mỹ Sài Gòn", "name:en": "Hoan My Saigon Hospital", amenity: "hospital", phone: "02839902468", "addr:full": "60-60A Phan Xích Long, Phường 1, Phú Nhuận, TP.HCM" } },
-      { id: "vn_tb_tn", lat: 10.79240, lon: 106.65290, tags: { name: "Bệnh viện Thống Nhất", "name:en": "Thong Nhat Hospital", amenity: "hospital", phone: "02838690277", "addr:full": "1 Lý Thường Kiệt, Phường 7, Tân Bình, TP.HCM" } },
-      { id: "vn_tb_ta", lat: 10.80910, lon: 106.66690, tags: { name: "Bệnh viện Đa khoa Tâm Anh TP.HCM", "name:en": "Tam Anh General Hospital HCMC", amenity: "hospital", phone: "02871026789", "addr:full": "2B Phổ Quang, Phường 2, Tân Bình, TP.HCM" } },
-      { id: "vn_gv_175", lat: 10.81720, lon: 106.67980, tags: { name: "Bệnh viện Quân y 175", "name:en": "Military Hospital 175", amenity: "hospital", phone: "19001175", "addr:full": "786 Nguyễn Kiệm, Phường 3, Gò Vấp, TP.HCM" } },
-      { id: "vn_gv_qgv", lat: 10.83840, lon: 106.66530, tags: { name: "Bệnh viện Quận Gò Vấp", "name:en": "Go Vap District Hospital", amenity: "hospital", phone: "02838945098", "addr:full": "641 Quang Trung, Phường 11, Gò Vấp, TP.HCM" } },
+      { id: "vn_bt_gd", lat: 10.80330, lon: 106.69460, tags: { name: "Bệnh viện Nhân dân Gia Định", "name:en": "Gia Dinh People's Hospital", amenity: "hospital", phone: "02838412692", specialties: ["general", "internal", "surgery", "cardiology"], emergency: "24/7", "addr:full": "1 Nơ Trang Long, Phường 7, Bình Thạnh, TP.HCM" } },
+      { id: "vn_bt_ub", lat: 10.80410, lon: 106.69530, tags: { name: "Bệnh viện Ung Bướu TP.HCM", "name:en": "HCMC Oncology Hospital", amenity: "hospital", phone: "02838433021", specialties: ["surgery", "internal"], emergency: "24/7", "addr:full": "3 Nơ Trang Long, Phường 7, Bình Thạnh, TP.HCM" } },
+      { id: "vn_bt_vin", lat: 10.79590, lon: 106.72180, tags: { name: "Bệnh viện Đa khoa Quốc tế Vinmec Central Park", "name:en": "Vinmec Central Park International Hospital", amenity: "hospital", phone: "02836221166", specialties: ["general", "internal", "surgery", "cardiology", "pediatrics"], emergency: "24/7", "addr:full": "208 Nguyễn Hữu Cảnh, Phường 22, Bình Thạnh, TP.HCM" } },
+      { id: "vn_bt_qbt", lat: 10.80160, lon: 106.69890, tags: { name: "Bệnh viện Quận Bình Thạnh", "name:en": "Binh Thanh District Hospital", amenity: "hospital", phone: "02835108966", specialties: ["general", "internal"], emergency: "24/7", "addr:full": "132 Lê Văn Duyệt, Phường 1, Bình Thạnh, TP.HCM" } },
+      { id: "vn_pn_hm", lat: 10.79980, lon: 106.68410, tags: { name: "Bệnh viện Đa khoa Hoàn Mỹ Sài Gòn", "name:en": "Hoan My Saigon Hospital", amenity: "hospital", phone: "02839902468", specialties: ["general", "internal", "surgery", "cardiology"], emergency: "24/7", "addr:full": "60-60A Phan Xích Long, Phường 1, Phú Nhuận, TP.HCM" } },
+      { id: "vn_tb_tn", lat: 10.79240, lon: 106.65290, tags: { name: "Bệnh viện Thống Nhất", "name:en": "Thong Nhat Hospital", amenity: "hospital", phone: "02838690277", specialties: ["general", "internal", "surgery", "cardiology"], emergency: "24/7", "addr:full": "1 Lý Thường Kiệt, Phường 7, Tân Bình, TP.HCM" } },
+      { id: "vn_tb_ta", lat: 10.80910, lon: 106.66690, tags: { name: "Bệnh viện Đa khoa Tâm Anh TP.HCM", "name:en": "Tam Anh General Hospital HCMC", amenity: "hospital", phone: "02871026789", specialties: ["general", "internal", "surgery", "cardiology", "pediatrics", "ent"], emergency: "24/7", "addr:full": "2B Phổ Quang, Phường 2, Tân Bình, TP.HCM" } },
+      { id: "vn_gv_175", lat: 10.81720, lon: 106.67980, tags: { name: "Bệnh viện Quân y 175", "name:en": "Military Hospital 175", amenity: "hospital", phone: "19001175", specialties: ["general", "internal", "surgery", "cardiology"], emergency: "24/7", "addr:full": "786 Nguyễn Kiệm, Phường 3, Gò Vấp, TP.HCM" } },
+      { id: "vn_gv_qgv", lat: 10.83840, lon: 106.66530, tags: { name: "Bệnh viện Quận Gò Vấp", "name:en": "Go Vap District Hospital", amenity: "hospital", phone: "02838945098", specialties: ["general", "internal"], emergency: "24/7", "addr:full": "641 Quang Trung, Phường 11, Gò Vấp, TP.HCM" } },
 
       // Khu vực Nam Sài Gòn: Quận 7, Quận 8, Nhà Bè, Bình Chánh, Cần Giuộc
-      { id: "vn_q7_1", lat: 10.73362, lon: 106.71764, tags: { name: "Bệnh viện FV (Pháp Việt)", "name:en": "FV Hospital", amenity: "hospital", phone: "02854113333", "addr:full": "6 Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
-      { id: "vn_q7_2", lat: 10.73245, lon: 106.71910, tags: { name: "Bệnh viện Tim Tâm Đức", "name:en": "Tam Duc Heart Hospital", amenity: "hospital", phone: "02854110036", "addr:full": "4 Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
-      { id: "vn_q7_3", lat: 10.73691, lon: 106.72350, tags: { name: "Bệnh viện Quận 7", "name:en": "District 7 Hospital", amenity: "hospital", phone: "02838733420", "addr:full": "101 Nguyễn Thị Thập, Tân Phú, Quận 7, TP.HCM" } },
-      { id: "vn_q8_q8", lat: 10.73860, lon: 106.66640, tags: { name: "Bệnh viện Quận 8", "name:en": "District 8 Hospital", amenity: "hospital", phone: "02838506130", "addr:full": "82 Cao Lỗ, Phường 4, Quận 8, TP.HCM" } },
-      { id: "vn_bc_ndtp", lat: 10.72790, lon: 106.57120, tags: { name: "Bệnh viện Nhi Đồng Thành Phố", "name:en": "City Children's Hospital", amenity: "hospital", phone: "02822536688", "addr:full": "15 Võ Trần Chí, Tân Kiên, Bình Chánh, TP.HCM" } },
-      { id: "vn_bc_hbc", lat: 10.69240, lon: 106.59110, tags: { name: "Bệnh viện Huyện Bình Chánh", "name:en": "Binh Chanh District Hospital", amenity: "hospital", phone: "02837602895", "addr:full": "Số 1 Đường số 1, Khu trung tâm hành chính, Tân Túc, Bình Chánh, TP.HCM" } },
-      { id: "vn_bt_giaan", lat: 10.74950, lon: 106.61110, tags: { name: "Bệnh viện Gia An 115", "name:en": "Gia An 115 Hospital", amenity: "hospital", phone: "02862885886", "addr:full": "Số 05 Đường 17A, Bình Trị Đông B, Bình Tân, TP.HCM" } },
-      { id: "vn_bt_cih", lat: 10.74780, lon: 106.61260, tags: { name: "Bệnh viện Quốc tế City (CIH)", "name:en": "City International Hospital", amenity: "hospital", phone: "02862803333", "addr:full": "Số 3 Đường 17A, Bình Trị Đông B, Bình Tân, TP.HCM" } },
-      { id: "vn_bt_qbtan", lat: 10.76180, lon: 106.60220, tags: { name: "Bệnh viện Quận Bình Tân", "name:en": "Binh Tan District Hospital", amenity: "hospital", phone: "02837502955", "addr:full": "809 Hương Lộ 2, Bình Trị Đông A, Bình Tân, TP.HCM" } },
-      { id: "vn_nb_1", lat: 10.70435, lon: 106.70142, tags: { name: "Bệnh viện Đa khoa Nhà Bè", "name:en": "Nha Be General Hospital", amenity: "hospital", phone: "02837815558", "addr:full": "281A Lê Văn Lương, Ấp 3, Phước Kiển, Nhà Bè, TP.HCM" } },
-      { id: "vn_nb_nd", lat: 10.67620, lon: 106.70580, tags: { name: "Trạm Y tế xã Nhơn Đức", "name:en": "Nhon Duc Medical Station", amenity: "clinic", phone: "02837810207", "addr:full": "Lê Văn Lương, Nhơn Đức, Nhà Bè, TP.HCM" } },
-      { id: "vn_nb_pk", lat: 10.69290, lon: 106.70160, tags: { name: "Trạm Y tế xã Phước Kiển", "name:en": "Phuoc Kien Medical Station", amenity: "clinic", phone: "02837815642", "addr:full": "Lê Văn Lương, Phước Kiển, Nhà Bè, TP.HCM" } },
-      { id: "vn_nb_pl", lat: 10.69180, lon: 106.67890, tags: { name: "Trạm Y tế xã Phước Lộc", "name:en": "Phuoc Loc Medical Station", amenity: "clinic", phone: "02837817761", "addr:full": "Phước Lộc, Nhà Bè, TP.HCM" } },
-      { id: "vn_nb_lt", lat: 10.65450, lon: 106.71920, tags: { name: "Trạm Y tế xã Long Thới", "name:en": "Long Thoi Medical Station", amenity: "clinic", phone: "02837801025", "addr:full": "Nguyễn Văn Tạo, Long Thới, Nhà Bè, TP.HCM" } },
-      { id: "vn_nb_px", lat: 10.68080, lon: 106.73760, tags: { name: "Trạm Y tế xã Phú Xuân - Nhà Bè", "name:en": "Phu Xuan Medical Station", amenity: "clinic", phone: "02837770262", "addr:full": "Huỳnh Tấn Phát, Phú Xuân, Nhà Bè, TP.HCM" } },
-      { id: "vn_nb_ta", lat: 10.69390, lon: 106.72790, tags: { name: "Phòng khám Đa khoa Tâm An", "name:en": "Tam An Polyclinic", amenity: "clinic", phone: "02837851618", "addr:full": "Phạm Hữu Lầu, Phước Kiển, Nhà Bè, TP.HCM" } },
-      { id: "vn_cg_1", lat: 10.61250, lon: 106.66320, tags: { name: "Bệnh viện Đa khoa Khu vực Cần Giuộc", "name:en": "Can Giuoc Regional General Hospital", amenity: "hospital", phone: "02723874210", "addr:full": "QL50, TT. Cần Giuộc, Long An" } },
-      { id: "vn_cg_lh", lat: 10.63520, lon: 106.69540, tags: { name: "Trạm Y tế xã Long Hậu", "name:en": "Long Hau Medical Station", amenity: "clinic", phone: "02723874951", "addr:full": "Long Hậu, Cần Giuộc, Long An" } },
-      { id: "vn_bc_qd", lat: 10.65910, lon: 106.65280, tags: { name: "Trạm Y tế xã Quy Đức", "name:en": "Quy Duc Medical Station", amenity: "clinic", phone: "02837790115", "addr:full": "QL50, Quy Đức, Bình Chánh, TP.HCM" } },
+      { id: "vn_q7_1", lat: 10.73362, lon: 106.71764, tags: { name: "Bệnh viện FV (Pháp Việt)", "name:en": "FV Hospital", amenity: "hospital", phone: "02854113333", specialties: ["general", "internal", "surgery", "cardiology", "pediatrics", "eye", "ent"], emergency: "24/7", "addr:full": "6 Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
+      { id: "vn_q7_2", lat: 10.73245, lon: 106.71910, tags: { name: "Bệnh viện Tim Tâm Đức", "name:en": "Tam Duc Heart Hospital", amenity: "hospital", phone: "02854110036", specialties: ["cardiology"], emergency: "24/7", "addr:full": "4 Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
+      { id: "vn_q7_3", lat: 10.73691, lon: 106.72350, tags: { name: "Bệnh viện Quận 7", "name:en": "District 7 Hospital", amenity: "hospital", phone: "02838733420", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "101 Nguyễn Thị Thập, Tân Phú, Quận 7, TP.HCM" } },
+      { id: "vn_q8_q8", lat: 10.73860, lon: 106.66640, tags: { name: "Bệnh viện Quận 8", "name:en": "District 8 Hospital", amenity: "hospital", phone: "02838506130", specialties: ["general", "internal"], emergency: "24/7", "addr:full": "82 Cao Lỗ, Phường 4, Quận 8, TP.HCM" } },
+      { id: "vn_bc_ndtp", lat: 10.72790, lon: 106.57120, tags: { name: "Bệnh viện Nhi Đồng Thành Phố", "name:en": "City Children's Hospital", amenity: "hospital", phone: "02822536688", specialties: ["pediatrics"], emergency: "24/7", "addr:full": "15 Võ Trần Chí, Tân Kiên, Bình Chánh, TP.HCM" } },
+      { id: "vn_bc_hbc", lat: 10.69240, lon: 106.59110, tags: { name: "Bệnh viện Huyện Bình Chánh", "name:en": "Binh Chanh District Hospital", amenity: "hospital", phone: "02837602895", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "Số 1 Đường số 1, Khu trung tâm hành chính, Tân Túc, Bình Chánh, TP.HCM" } },
+      { id: "vn_bt_giaan", lat: 10.74950, lon: 106.61110, tags: { name: "Bệnh viện Gia An 115", "name:en": "Gia An 115 Hospital", amenity: "hospital", phone: "02862885886", specialties: ["general", "internal", "surgery", "cardiology"], emergency: "24/7", "addr:full": "Số 05 Đường 17A, Bình Trị Đông B, Bình Tân, TP.HCM" } },
+      { id: "vn_bt_cih", lat: 10.74780, lon: 106.61260, tags: { name: "Bệnh viện Quốc tế City (CIH)", "name:en": "City International Hospital", amenity: "hospital", phone: "02862803333", specialties: ["general", "internal", "surgery", "pediatrics"], emergency: "24/7", "addr:full": "Số 3 Đường 17A, Bình Trị Đông B, Bình Tân, TP.HCM" } },
+      { id: "vn_bt_qbtan", lat: 10.76180, lon: 106.60220, tags: { name: "Bệnh viện Quận Bình Tân", "name:en": "Binh Tan District Hospital", amenity: "hospital", phone: "02837502955", specialties: ["general", "internal"], emergency: "24/7", "addr:full": "809 Hương Lộ 2, Bình Trị Đông A, Bình Tân, TP.HCM" } },
+      { id: "vn_nb_1", lat: 10.70435, lon: 106.70142, tags: { name: "Bệnh viện Đa khoa Nhà Bè", "name:en": "Nha Be General Hospital", amenity: "hospital", phone: "02837815558", specialties: ["general", "internal", "surgery", "pediatrics", "ent", "dental", "eye"], emergency: "24/7", "addr:full": "281A Lê Văn Lương, Ấp 3, Phước Kiển, Nhà Bè, TP.HCM" } },
+      { id: "vn_nb_nd", lat: 10.67620, lon: 106.70580, tags: { name: "Trạm Y tế xã Nhơn Đức", "name:en": "Nhon Duc Medical Station", amenity: "clinic", phone: "02837810207", specialties: ["general"], emergency: "24/7", "addr:full": "Lê Văn Lương, Nhơn Đức, Nhà Bè, TP.HCM" } },
+      { id: "vn_nb_pk", lat: 10.69290, lon: 106.70160, tags: { name: "Trạm Y tế xã Phước Kiển", "name:en": "Phuoc Kien Medical Station", amenity: "clinic", phone: "02837815642", specialties: ["general"], emergency: "24/7", "addr:full": "Lê Văn Lương, Phước Kiển, Nhà Bè, TP.HCM" } },
+      { id: "vn_nb_pl", lat: 10.69180, lon: 106.67890, tags: { name: "Trạm Y tế xã Phước Lộc", "name:en": "Phuoc Loc Medical Station", amenity: "clinic", phone: "02837817761", specialties: ["general"], emergency: "24/7", "addr:full": "Phước Lộc, Nhà Bè, TP.HCM" } },
+      { id: "vn_nb_lt", lat: 10.65450, lon: 106.71920, tags: { name: "Trạm Y tế xã Long Thới", "name:en": "Long Thoi Medical Station", amenity: "clinic", phone: "02837801025", specialties: ["general"], emergency: "24/7", "addr:full": "Nguyễn Văn Tạo, Long Thới, Nhà Bè, TP.HCM" } },
+      { id: "vn_nb_px", lat: 10.68080, lon: 106.73760, tags: { name: "Trạm Y tế xã Phú Xuân - Nhà Bè", "name:en": "Phu Xuan Medical Station", amenity: "clinic", phone: "02837770262", specialties: ["general"], emergency: "24/7", "addr:full": "Huỳnh Tấn Phát, Phú Xuân, Nhà Bè, TP.HCM" } },
+      { id: "vn_nb_ta", lat: 10.69390, lon: 106.72790, tags: { name: "Phòng khám Đa khoa Tâm An", "name:en": "Tam An Polyclinic", amenity: "clinic", phone: "02837851618", specialties: ["general", "internal", "dental"], emergency: "07:00 - 20:00", "addr:full": "Phạm Hữu Lầu, Phước Kiển, Nhà Bè, TP.HCM" } },
+      { id: "vn_cg_1", lat: 10.61250, lon: 106.66320, tags: { name: "Bệnh viện Đa khoa Khu vực Cần Giuộc", "name:en": "Can Giuoc Regional General Hospital", amenity: "hospital", phone: "02723874210", specialties: ["general", "internal", "surgery", "pediatrics", "ent", "dental"], emergency: "24/7", "addr:full": "QL50, TT. Cần Giuộc, Long An" } },
+      { id: "vn_cg_lh", lat: 10.63520, lon: 106.69540, tags: { name: "Trạm Y tế xã Long Hậu", "name:en": "Long Hau Medical Station", amenity: "clinic", phone: "02723874951", specialties: ["general"], emergency: "24/7", "addr:full": "Long Hậu, Cần Giuộc, Long An" } },
+      { id: "vn_bc_qd", lat: 10.65910, lon: 106.65280, tags: { name: "Trạm Y tế xã Quy Đức", "name:en": "Quy Duc Medical Station", amenity: "clinic", phone: "02837790115", specialties: ["general"], emergency: "24/7", "addr:full": "QL50, Quy Đức, Bình Chánh, TP.HCM" } },
 
       // Khu vực TP. Thủ Đức (Quận 2, Quận 9, Thủ Đức), Quận 12, Hóc Môn
-      { id: "vn_td_lvv", lat: 10.77980, lon: 106.76210, tags: { name: "Bệnh viện Lê Văn Thịnh (Bệnh viện Quận 2)", "name:en": "Le Van Thinh Hospital", amenity: "hospital", phone: "02854327888", "addr:full": "130 Lê Văn Thịnh, Phường Bình Trưng Tây, TP. Thủ Đức, TP.HCM" } },
-      { id: "vn_td_tp", lat: 10.85880, lon: 106.75380, tags: { name: "Bệnh viện Thành phố Thủ Đức", "name:en": "Thu Duc City Hospital", amenity: "hospital", phone: "02838966567", "addr:full": "29 Phú Châu, Phường Tam Phú, TP. Thủ Đức, TP.HCM" } },
-      { id: "vn_td_dkkv", lat: 10.86220, lon: 106.78340, tags: { name: "Bệnh viện Đa khoa Khu vực Thủ Đức", "name:en": "Thu Duc Regional General Hospital", amenity: "hospital", phone: "02837223556", "addr:full": "64 Lê Văn Chí, Phường Linh Trung, TP. Thủ Đức, TP.HCM" } },
-      { id: "vn_td_ub2", lat: 10.86980, lon: 106.80910, tags: { name: "Bệnh viện Ung Bướu TP.HCM (Cơ sở 2)", "name:en": "HCMC Oncology Hospital Campus 2", amenity: "hospital", phone: "02836227722", "addr:full": "Số 12 Đường 400, Phường Tân Phú, TP. Thủ Đức, TP.HCM" } },
-      { id: "vn_q12_q12", lat: 10.85290, lon: 106.62850, tags: { name: "Bệnh viện Quận 12", "name:en": "District 12 Hospital", amenity: "hospital", phone: "02862507955", "addr:full": "111 Dương Thị Mười, Phường Tân Chánh Hiệp, Quận 12, TP.HCM" } },
-      { id: "vn_hm_dkkv", lat: 10.88790, lon: 106.59480, tags: { name: "Bệnh viện Đa khoa Khu vực Hóc Môn", "name:en": "Hoc Mon Regional General Hospital", amenity: "hospital", phone: "02838914208", "addr:full": "65/2B Bà Triệu, Thị trấn Hóc Môn, Hóc Môn, TP.HCM" } }
+      { id: "vn_td_lvv", lat: 10.77980, lon: 106.76210, tags: { name: "Bệnh viện Lê Văn Thịnh (Bệnh viện Quận 2)", "name:en": "Le Van Thinh Hospital", amenity: "hospital", phone: "02854327888", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "130 Lê Văn Thịnh, Phường Bình Trưng Tây, TP. Thủ Đức, TP.HCM" } },
+      { id: "vn_td_tp", lat: 10.85880, lon: 106.75380, tags: { name: "Bệnh viện Thành phố Thủ Đức", "name:en": "Thu Duc City Hospital", amenity: "hospital", phone: "02838966567", specialties: ["general", "internal", "surgery", "cardiology"], emergency: "24/7", "addr:full": "29 Phú Châu, Phường Tam Phú, TP. Thủ Đức, TP.HCM" } },
+      { id: "vn_td_dkkv", lat: 10.86220, lon: 106.78340, tags: { name: "Bệnh viện Đa khoa Khu vực Thủ Đức", "name:en": "Thu Duc Regional General Hospital", amenity: "hospital", phone: "02837223556", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "64 Lê Văn Chí, Phường Linh Trung, TP. Thủ Đức, TP.HCM" } },
+      { id: "vn_td_ub2", lat: 10.86980, lon: 106.80910, tags: { name: "Bệnh viện Ung Bướu TP.HCM (Cơ sở 2)", "name:en": "HCMC Oncology Hospital Campus 2", amenity: "hospital", phone: "02836227722", specialties: ["surgery", "internal"], emergency: "24/7", "addr:full": "Số 12 Đường 400, Phường Tân Phú, TP. Thủ Đức, TP.HCM" } },
+      { id: "vn_q12_q12", lat: 10.85290, lon: 106.62850, tags: { name: "Bệnh viện Quận 12", "name:en": "District 12 Hospital", amenity: "hospital", phone: "02862507955", specialties: ["general", "internal"], emergency: "24/7", "addr:full": "131 Dương Thị Mười, Phường Tân Chánh Hiệp, Quận 12, TP.HCM" } },
+      { id: "vn_hm_dkkv", lat: 10.88790, lon: 106.59480, tags: { name: "Bệnh viện Đa khoa Khu vực Hóc Môn", "name:en": "Hoc Mon Regional General Hospital", amenity: "hospital", phone: "02838914208", specialties: ["general", "internal", "surgery"], emergency: "24/7", "addr:full": "65/2B Bà Triệu, Thị trấn Hóc Môn, Hóc Môn, TP.HCM" } }
     ];
 
-    // Danh sách Bãi đỗ xe & Trạm sạc xác thực tại TP.HCM, Quận 7, Nhà Bè, Bình Chánh, Cần Giuộc, Trung tâm...
+    // Danh sách Bãi đỗ xe & Trạm sạc độc lập (đã loại trừ bãi giữ xe nội viện)
     const VERIFIED_VN_PARKING = [
-      // Khu vực Quận 5, Quận 10, Quận 1, Quận 3 (Quanh các bệnh viện tuyến đầu)
-      { id: "pk_q5_cr", lat: 10.75815, lon: 106.65995, tags: { name: "Bãi giữ xe tư nhân (Cổng Nguyễn Chí Thanh)", "name:en": "Private Parking Area", amenity: "parking", capacity: "500+ xe máy & ô tô", fee: "Theo quy định", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "201B Nguyễn Chí Thanh, Phường 12, Quận 5, TP.HCM" } },
-      { id: "pk_q5_yd", lat: 10.75565, lon: 106.66470, tags: { name: "Hầm đỗ xe Dịch Vụ Mở Rộng", "name:en": "Underground Parking", amenity: "parking", capacity: "400 chỗ", fee: "5.000đ - 30.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "215 Hồng Bàng, Phường 11, Quận 5, TP.HCM" } },
-      { id: "pk_q5_garden", lat: 10.75610, lon: 106.66280, tags: { name: "Bãi đỗ xe Ô tô & Xe máy Thuận Kiều /The Garden Mall", "name:en": "The Garden Mall Parking & EV Charging", amenity: "parking", capacity: "600 chỗ", fee: "10.000đ - 35.000đ", opening_hours: "06:00 - 23:00", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "190 Hồng Bàng, Phường 12, Quận 5, TP.HCM" } },
-      { id: "pk_q5_hv", lat: 10.75620, lon: 106.66120, tags: { name: "Bãi giữ xe tư nhân Hồng Bàng", "name:en": "Hong Bang Parking", amenity: "parking", capacity: "300 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "24/7", motorcycle: "yes", motorcar: "yes", "addr:full": "128 Hồng Bàng, Phường 12, Quận 5, TP.HCM" } },
-      { id: "pk_q10_115", lat: 10.77560, lon: 106.66730, tags: { name: "Bãi đỗ xe Công cộng Sư Vạn Hạnh", "name:en": "Su Van Hanh Public Parking", amenity: "parking", capacity: "450 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "527 Sư Vạn Hạnh, Phường 12, Quận 10, TP.HCM" } },
+      { id: "pk_q5_garden", lat: 10.75610, lon: 106.66280, tags: { name: "Hầm đỗ xe Ô tô & Xe máy The Garden Mall (Thuận Kiều)", "name:en": "The Garden Mall Parking & EV Charging", amenity: "parking", capacity: "600 chỗ", fee: "10.000đ - 35.000đ", opening_hours: "06:00 - 23:00", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "190 Hồng Bàng, Phường 12, Quận 5, TP.HCM" } },
+      { id: "pk_q5_hb", lat: 10.75565, lon: 106.66470, tags: { name: "Bãi giữ xe Dịch vụ 24/7 Hồng Bàng", "name:en": "Hong Bang 24/7 Service Parking", amenity: "parking", capacity: "350 chỗ", fee: "5.000đ - 30.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "215 Hồng Bàng, Phường 11, Quận 5, TP.HCM" } },
+      { id: "pk_q5_nct", lat: 10.75815, lon: 106.65995, tags: { name: "Bãi giữ xe tư nhân Nguyễn Chí Thanh", "name:en": "Nguyen Chi Thanh Private Parking", amenity: "parking", capacity: "400 xe máy & ô tô", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Nguyễn Chí Thanh, Phường 12, Quận 5, TP.HCM" } },
       { id: "pk_q10_vanhanh", lat: 10.77060, lon: 106.66980, tags: { name: "Hầm đỗ xe & Trạm sạc VinFast Vạn Hạnh Mall", "name:en": "Van Hanh Mall Parking & EV Station", amenity: "charging_station", capacity: "800 chỗ + 20 trụ sạc", fee: "5.000đ - 30.000đ", opening_hours: "07:30 - 22:30", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "11 Sư Vạn Hạnh, Phường 12, Quận 10, TP.HCM" } },
-      { id: "pk_q1_tudu", lat: 10.76890, lon: 106.68480, tags: { name: "Hầm giữ xe Dịch Vụ (Cống Quỳnh & Nguyễn Thị Minh Khai)", "name:en": "Cong Quynh Service Parking", amenity: "parking", capacity: "500 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "284 Cống Quỳnh, Quận 1, TP.HCM" } },
-      { id: "pk_q1_239", lat: 10.76810, lon: 106.69150, tags: { name: "Bãi đỗ xe ngầm Công viên 23/9 (Khu B - Nhận Ô tô & Xe máy)", "name:en": "23/9 Park Central Parking", amenity: "parking", capacity: "1000 chỗ", fee: "5.000đ - 30.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Phạm Ngũ Lão, Quận 1, TP.HCM" } },
-      { id: "pk_q1_nd2", lat: 10.78050, lon: 106.70210, tags: { name: "Bãi giữ xe tư nhân Lý Tự Trọng", "name:en": "Ly Tu Trong Parking", amenity: "parking", capacity: "400 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "14 Lý Tự Trọng, Quận 1, TP.HCM" } },
-      { id: "pk_q3_bd", lat: 10.77410, lon: 106.68120, tags: { name: "Bãi giữ xe Công cộng Phường 4", "name:en": "Ward 4 Public Parking", amenity: "parking", capacity: "300 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "371 Điện Biên Phủ, Phường 4, Quận 3, TP.HCM" } },
+      { id: "pk_q10_svh", lat: 10.77560, lon: 106.66730, tags: { name: "Bãi đỗ xe Dịch vụ Sư Vạn Hạnh", "name:en": "Su Van Hanh Service Parking", amenity: "parking", capacity: "400 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "525 Sư Vạn Hạnh, Phường 12, Quận 10, TP.HCM" } },
+      { id: "pk_q1_239", lat: 10.76810, lon: 106.69150, tags: { name: "Bãi đỗ xe ngầm Công viên 23/9 (Khu B - Ô tô & Xe máy)", "name:en": "23/9 Park Central Parking", amenity: "parking", capacity: "1000 chỗ", fee: "5.000đ - 30.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Phạm Ngũ Lão, Quận 1, TP.HCM" } },
+      { id: "pk_q1_cq", lat: 10.76890, lon: 106.68480, tags: { name: "Hầm giữ xe Dịch vụ Cống Quỳnh", "name:en": "Cong Quynh Service Parking", amenity: "parking", capacity: "450 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Cống Quỳnh, Quận 1, TP.HCM" } },
+      { id: "pk_q1_ltt", lat: 10.78050, lon: 106.70210, tags: { name: "Bãi đỗ xe Ô tô & Xe máy Lý Tự Trọng", "name:en": "Ly Tu Trong Parking Lot", amenity: "parking", capacity: "350 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Lý Tự Trọng, Phường Bến Nghé, Quận 1, TP.HCM" } },
+      { id: "pk_q3_dbp", lat: 10.77410, lon: 106.68120, tags: { name: "Bãi giữ xe Dịch vụ Điện Biên Phủ", "name:en": "Dien Bien Phu Service Parking", amenity: "parking", capacity: "300 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Điện Biên Phủ, Phường 4, Quận 3, TP.HCM" } },
 
       // Khu vực Nam Sài Gòn: Quận 7, Nhà Bè, Bình Chánh, Cần Giuộc
-      { id: "pk_q7_fv", lat: 10.73390, lon: 106.71810, tags: { name: "Bãi đỗ xe Ô tô & Xe máy Nội Khu Tân Phú", "name:en": "Tan Phu Internal Parking Lot", amenity: "parking", capacity: "500 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "6 Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
-      { id: "pk_q7_tamduc", lat: 10.73215, lon: 106.71935, tags: { name: "Bãi giữ xe Nguyễn Lương Bằng", "name:en": "Nguyen Luong Bang Parking", amenity: "parking", capacity: "250 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "4 Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
       { id: "pk_q7_crescent", lat: 10.72890, lon: 106.71860, tags: { name: "Hầm đỗ xe & Trạm sạc VinFast Crescent Mall Quận 7", "name:en": "Crescent Mall Parking & EV Charging", amenity: "charging_station", capacity: "1200 chỗ + Trạm sạc", fee: "5.000đ - 30.000đ", opening_hours: "07:00 - 23:00", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "101 Tôn Dật Tiên, Tân Phú, Quận 7, TP.HCM" } },
       { id: "pk_q7_scvivo", lat: 10.72970, lon: 106.70310, tags: { name: "Bãi đỗ xe & Trạm sạc SC VivoCity Quận 7", "name:en": "SC VivoCity Parking & EV Station", amenity: "charging_station", capacity: "1000 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "08:00 - 22:30", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "1058 Nguyễn Văn Linh, Tân Phong, Quận 7, TP.HCM" } },
-      { id: "pk_q7_lotte", lat: 10.74080, lon: 106.70190, tags: { name: "Bãi đỗ xe & Trạm sạc Lotte Mart Quận 7", "name:en": "Lotte Mart District 7 Parking", amenity: "parking", capacity: "800 chỗ", fee: "Miễn phí / 5.000đ - 20.000đ", opening_hours: "07:30 - 22:30", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "469 Nguyễn Hữu Thọ, Tân Hưng, Quận 7, TP.HCM" } },
-      { id: "pk_q7_bvq7", lat: 10.73715, lon: 106.72380, tags: { name: "Bãi giữ xe Nguyễn Thị Thập", "name:en": "Nguyen Thi Thap Parking", amenity: "parking", capacity: "200 chỗ", fee: "5.000đ - 15.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "101 Nguyễn Thị Thập, Tân Phú, Quận 7, TP.HCM" } },
-      { id: "pk_nb_bvnb", lat: 10.70455, lon: 106.70170, tags: { name: "Bãi giữ xe Dịch Vụ Lê Văn Lương", "name:en": "Le Van Luong Service Parking", amenity: "parking", capacity: "300 chỗ (Ô tô & Xe máy)", fee: "4.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "281A Lê Văn Lương, Phước Kiển, Nhà Bè, TP.HCM" } },
+      { id: "pk_q7_lotte", lat: 10.74080, lon: 106.70190, tags: { name: "Bãi đỗ xe & Trạm sạc Lotte Mart Quận 7", "name:en": "Lotte Mart District 7 Parking", amenity: "parking", capacity: "800 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "07:30 - 22:30", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "469 Nguyễn Hữu Thọ, Tân Hưng, Quận 7, TP.HCM" } },
+      { id: "pk_q7_nlb", lat: 10.73390, lon: 106.71810, tags: { name: "Bãi đỗ xe Ô tô & Xe máy Khu đô thị Phú Mỹ Hưng", "name:en": "Phu My Hung Central Parking Lot", amenity: "parking", capacity: "500 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Nguyễn Lương Bằng, Tân Phú, Quận 7, TP.HCM" } },
+      { id: "pk_q7_ntt", lat: 10.73715, lon: 106.72380, tags: { name: "Bãi giữ xe Dịch vụ Nguyễn Thị Thập", "name:en": "Nguyen Thi Thap Service Parking", amenity: "parking", capacity: "200 chỗ", fee: "5.000đ - 15.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Nguyễn Thị Thập, Tân Phú, Quận 7, TP.HCM" } },
       { id: "pk_nb_hagl", lat: 10.70980, lon: 106.70390, tags: { name: "Bãi đỗ xe & Trạm sạc Khu căn hộ Hoàng Anh Gold House - Nhà Bè", "name:en": "Hoang Anh Gold House Parking & EV Station", amenity: "charging_station", capacity: "400 chỗ + Trạm sạc", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "187A Lê Văn Lương, Phước Kiển, Nhà Bè, TP.HCM" } },
       { id: "pk_nb_sunrise", lat: 10.71890, lon: 106.70160, tags: { name: "Hầm đỗ xe & Trạm sạc VinFast Sunrise Riverside Phước Kiển", "name:en": "Sunrise Riverside Parking & EV Charging", amenity: "charging_station", capacity: "500 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "Nguyễn Hữu Thọ, Phước Kiển, Nhà Bè, TP.HCM" } },
+      { id: "pk_nb_lvl", lat: 10.70455, lon: 106.70170, tags: { name: "Bãi giữ xe Dịch vụ Lê Văn Lương - Phước Kiển", "name:en": "Le Van Luong Service Parking", amenity: "parking", capacity: "300 chỗ (Ô tô & Xe máy)", fee: "4.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Lê Văn Lương, Phước Kiển, Nhà Bè, TP.HCM" } },
       { id: "pk_nb_zeitgeist", lat: 10.67950, lon: 106.70820, tags: { name: "Bãi đỗ xe Khu đô thị GS Metrocity (Zeitgeist) Nhơn Đức - Nhà Bè", "name:en": "Zeitgeist Nha Be Parking", amenity: "parking", capacity: "300 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "06:00 - 22:00", motorcar: "yes", motorcycle: "yes", "addr:full": "Nguyễn Hữu Thọ, Nhơn Đức, Nhà Bè, TP.HCM" } },
       { id: "pk_nb_phuxuan", lat: 10.68210, lon: 106.73650, tags: { name: "Bãi đỗ xe & Trạm sạc Co.opmart Huỳnh Tấn Phát - Nhà Bè", "name:en": "Co.opmart Nha Be Parking & EV Station", amenity: "charging_station", capacity: "250 chỗ", fee: "4.000đ - 20.000đ", opening_hours: "07:00 - 22:00", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "Huỳnh Tấn Phát, Phú Xuân, Nhà Bè, TP.HCM" } },
-      { id: "pk_nb_longthoi", lat: 10.65520, lon: 106.71960, tags: { name: "Bãi giữ xe Khu vực Chợ Bà Chồi", "name:en": "Ba Choi Market Public Parking", amenity: "parking", capacity: "150 chỗ", fee: "5.000đ - 15.000đ", opening_hours: "06:00 - 21:00", motorcar: "yes", motorcycle: "yes", "addr:full": "Nguyễn Văn Tạo, Long Thới, Nhà Bè, TP.HCM" } },
-      { id: "pk_cg_bvcg", lat: 10.61280, lon: 106.66350, tags: { name: "Bãi giữ xe Tư nhân QL50", "name:en": "Highway 50 Private Parking", amenity: "parking", capacity: "250 chỗ", fee: "4.000đ - 15.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "QL50, Thị trấn Cần Giuộc, Long An" } },
-      { id: "pk_bc_ndtp", lat: 10.72830, lon: 106.57160, tags: { name: "Bãi đỗ xe Ô tô & Xe máy Tân Kiên", "name:en": "Tan Kien Parking", amenity: "parking", capacity: "600 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "15 Võ Trần Chí, Tân Kiên, Bình Chánh, TP.HCM" } },
+      { id: "pk_nb_longthoi", lat: 10.65520, lon: 106.71960, tags: { name: "Bãi giữ xe Khu vực Chợ Bà Chồi - Long Thới", "name:en": "Ba Choi Market Public Parking", amenity: "parking", capacity: "150 chỗ", fee: "5.000đ - 15.000đ", opening_hours: "06:00 - 21:00", motorcar: "yes", motorcycle: "yes", "addr:full": "Nguyễn Văn Tạo, Long Thới, Nhà Bè, TP.HCM" } },
+      { id: "pk_cg_ql50", lat: 10.61280, lon: 106.66350, tags: { name: "Bãi giữ xe Dịch vụ Quốc lộ 50 - Cần Giuộc", "name:en": "Highway 50 Service Parking", amenity: "parking", capacity: "250 chỗ", fee: "4.000đ - 15.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "QL50, Thị trấn Cần Giuộc, Long An" } },
+      { id: "pk_bc_tankien", lat: 10.72830, lon: 106.57160, tags: { name: "Bãi đỗ xe Ô tô & Xe máy Võ Trần Chí - Tân Kiên", "name:en": "Vo Tran Chi Service Parking", amenity: "parking", capacity: "500 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Võ Trần Chí, Tân Kiên, Bình Chánh, TP.HCM" } },
 
       // Khu vực Bình Thạnh, Tân Bình, Gò Vấp, TP. Thủ Đức
-      { id: "pk_bt_vinmec", lat: 10.79620, lon: 106.72210, tags: { name: "Hầm đỗ xe & Trạm sạc VinFast Vinhomes Central Park", "name:en": "Central Park Parking & EV Station", amenity: "charging_station", capacity: "800 chỗ + Trạm sạc", fee: "5.000đ - 30.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "208 Nguyễn Hữu Cảnh, Phường 22, Bình Thạnh, TP.HCM" } },
-      { id: "pk_bt_gd", lat: 10.80360, lon: 106.69490, tags: { name: "Bãi giữ xe Tư nhân Nơ Trang Long", "name:en": "No Trang Long Parking", amenity: "parking", capacity: "400 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "1 Nơ Trang Long, Phường 7, Bình Thạnh, TP.HCM" } },
-      { id: "pk_tb_tamanh", lat: 10.80940, lon: 106.66720, tags: { name: "Bãi đỗ xe Ô tô & Xe máy Phổ Quang", "name:en": "Pho Quang Parking", amenity: "parking", capacity: "500 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "2B Phổ Quang, Phường 2, Tân Bình, TP.HCM" } },
-      { id: "pk_gv_175", lat: 10.81760, lon: 106.68020, tags: { name: "Nhà để xe & Trạm sạc Nguyễn Kiệm", "name:en": "Nguyen Kiem Parking", amenity: "parking", capacity: "700 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "786 Nguyễn Kiệm, Phường 3, Gò Vấp, TP.HCM" } }
+      { id: "pk_bt_vhcp", lat: 10.79620, lon: 106.72210, tags: { name: "Hầm đỗ xe & Trạm sạc VinFast Landmark 81 / Vinhomes Central Park", "name:en": "Vinhomes Central Park Parking & EV Station", amenity: "charging_station", capacity: "1500 chỗ + Trạm sạc", fee: "5.000đ - 30.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "motorcar:charging": "yes", "addr:full": "208 Nguyễn Hữu Cảnh, Phường 22, Bình Thạnh, TP.HCM" } },
+      { id: "pk_bt_ntl", lat: 10.80360, lon: 106.69490, tags: { name: "Bãi giữ xe Dịch vụ Nơ Trang Long", "name:en": "No Trang Long Service Parking", amenity: "parking", capacity: "350 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Nơ Trang Long, Phường 7, Bình Thạnh, TP.HCM" } },
+      { id: "pk_tb_pq", lat: 10.80940, lon: 106.66720, tags: { name: "Bãi đỗ xe Ô tô & Xe máy Phổ Quang - Tân Bình", "name:en": "Pho Quang Parking Lot", amenity: "parking", capacity: "500 chỗ", fee: "5.000đ - 25.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Phổ Quang, Phường 2, Tân Bình, TP.HCM" } },
+      { id: "pk_gv_nk", lat: 10.81760, lon: 106.68020, tags: { name: "Nhà để xe & Trạm sạc Nguyễn Kiệm - Gò Vấp", "name:en": "Nguyen Kiem Parking & Charging", amenity: "parking", capacity: "600 chỗ", fee: "5.000đ - 20.000đ", opening_hours: "24/7", motorcar: "yes", motorcycle: "yes", "addr:full": "Nguyễn Kiệm, Phường 3, Gò Vấp, TP.HCM" } }
     ];
 
     const I18N = Object.freeze({
@@ -810,15 +800,15 @@
         errUnavailable: "❌ Không xác định được vị trí GPS.",
         errTimeout: "❌ GPS phản hồi quá lâu. Hãy thử lại.",
         errDefault: "❌ Không lấy được vị trí",
-        tabHospital: "Bệnh viện", tabParking: "Bãi đỗ xe", tabBooking: "Lịch hẹn",
+        tabHospital: "Bệnh viện", tabParking: "Bãi đỗ xe",
         hospitalCardTitle: "Tìm bệnh viện trong phạm vi",
-        lblSpecialty: "Chuyên khoa khám", lblDate: "Ngày khám dự kiến",
+        lblSpecialty: "Chuyên khoa ưu tiên",
         lblFacilityType: "Loại cơ sở y tế",
         optTypeHospitalOnly: "🏥 Chỉ Bệnh viện (Chính quy)",
         optTypePolyclinic: "🩺 Bệnh viện + Phòng khám đa khoa",
         optTypeAllMedical: "📋 Tất cả (Gồm cả Trạm y tế xã/phường)",
-        lblHospitalKeyword: "Tìm theo tên / Quận huyện",
-        phHospitalKeyword: "VD: Chợ Rẫy, Quận 7, Nhà Bè...",
+        lblHospitalKeyword: "Tìm nhanh theo tên cơ sở / Quận huyện",
+        phHospitalKeyword: "VD: Chợ Rẫy, Quận 7, Nhà Bè, Cần Giuộc...",
         lblHospitalRadius: "Khoảng cách đường đi tối đa từ chỗ bạn",
         radHosp3: "Trong phạm vi 3 km", radHosp5: "Trong phạm vi 5 km", radHosp8: "Trong phạm vi 8 km", radHosp15: "Trong phạm vi 15 km",
         btnFindHospital: "Tìm bệnh viện gần tôi", btnReload: "Quét lại",
@@ -836,7 +826,6 @@
         emptyParkingInitTitle: "Chưa có vị trí",
         emptyParkingInitDesc: "Hãy bấm “Tìm bãi gần tôi” để xác nhận quyền vị trí và tìm bãi đỗ xe gần nhất.",
         emptyParkingNone: "Không tìm thấy bãi đỗ phù hợp trong phạm vi này.",
-        bookingCardTitle: "Phiếu khám đã đặt", emptyBookings: "Chưa có lịch hẹn nào.",
         btnMyLocation: "Vị trí của tôi", txtTrackBtn: "Theo dõi vị trí", txtStopTrackBtn: "Dừng theo dõi",
         txtExpandMap: "Mở rộng bản đồ", txtCollapseMap: "Thu gọn bản đồ",
         accuracyInit: "Độ chính xác: --", accuracyVal: "Sai số GPS",
@@ -852,7 +841,8 @@
         modalTitleLocate: "Cho phép lấy vị trí của bạn?",
         modalDescLocate: "VimedGo cần vị trí GPS hiện tại của thiết bị để hiển thị vị trí của bạn trên bản đồ VIETMAP.",
         badgeHospital: "🏥 Bệnh viện", badgeClinic: "🩺 Phòng khám / Trạm y tế",
-        nearestSlot: "Giờ khám gần nhất", dateLabel: "Ngày", notSelected: "chưa chọn",
+        badgeSpecMatch: "⭐ Đúng chuyên khoa",
+        lblEmergencyStatus: "Trực khám / Cấp cứu",
         roadDistLabel: "Đường đi", driveMinLabel: "phút đi xe",
         btnBookNow: "📞 Liên hệ", btnParkingNearHosp: "🅿️ Bãi đỗ quanh viện",
         typeCharging: "Trạm sạc", typeParking: "Bãi đỗ xe",
@@ -871,21 +861,13 @@
         unnamedPlace: "Cơ sở y tế", unnamedCharging: "Trạm sạc xe điện", unnamedParking: "Bãi đỗ xe",
         popupYourPos: "📍 Vị trí hiện tại của bạn", popupCoords: "Tọa độ", popupAccuracy: "Sai số",
         bannerParkingNear: "Bãi đỗ quanh",
-        modalBookingTitle: "Đặt lịch khám bệnh",
-        lblPatientName: "Họ và tên bệnh nhân", phPatientName: "Nhập họ và tên...",
-        lblPatientPhone: "Số điện thoại", lblTimeSlot: "Khung giờ khám",
-        lblBookingVehicle: "Phương tiện đi kèm (Hỗ trợ gợi ý bãi đỗ)",
-        optNoVehicle: "Không cần gửi xe", optCarVehicle: "🚗 Có đi Ô tô (Cần bãi đỗ ô tô)", optMotoVehicle: "🏍️ Có đi Xe máy", optEvVehicle: "⚡ Có đi Xe điện (Cần trạm sạc)",
-        btnSubmitBooking: "Xác nhận đặt lịch", defaultPatient: "Khách đặt lịch", defaultPhone: "Chưa cung cấp",
-        lblPatientInfo: "Bệnh nhân", lblVehicleInfo: "Phương tiện", btnDeleteBooking: "🗑️ Hủy",
         toastLocated: "Đã lấy vị trí GPS hiện tại của bạn!",
         toastManualPin: "Đã cập nhật vị trí theo điểm bạn chọn trên bản đồ!",
         toastTrackStopped: "Đã dừng chế độ dẫn đường / theo dõi vị trí.",
-        toastBooked: "Đặt lịch thành công! Mã phiếu",
         toastLangChanged: "Đã chuyển sang Tiếng Việt",
         foundInRadius: (count, km) => `Tìm thấy ${count} cơ sở (≤ ${km} km đường đi)`,
         foundParkingInRadius: (count, km) => `Tìm thấy ${count} điểm đỗ (≤ ${km} km)`,
-        specialties: { general: "Khám tổng quát", internal: "Nội khoa", surgery: "Ngoại khoa", pediatrics: "Nhi khoa", cardiology: "Tim mạch", dermatology: "Da liễu", ent: "Tai - Mũi - Họng", dental: "Răng - Hàm - Mặt", eye: "Mắt" }
+        specialties: { general: "Khám tổng quát / Đa khoa", internal: "Nội khoa", surgery: "Ngoại khoa / Chấn thương", pediatrics: "Nhi khoa (Trẻ em)", cardiology: "Tim mạch", dermatology: "Da liễu", ent: "Tai - Mũi - Họng", dental: "Răng - Hàm - Mặt", eye: "Mắt (Nhãn khoa)" }
       },
       en: {
         pageTitle: "VimedGo - Smart Healthcare & Parking Locator",
@@ -902,14 +884,14 @@
         errUnavailable: "❌ Unable to determine GPS location.",
         errTimeout: "❌ GPS request timed out. Please try again.",
         errDefault: "❌ Could not get location",
-        tabHospital: "Hospitals", tabParking: "Parking", tabBooking: "Bookings",
+        tabHospital: "Hospitals", tabParking: "Parking",
         hospitalCardTitle: "Find Hospitals in Range",
-        lblSpecialty: "Medical Specialty", lblDate: "Preferred Date",
+        lblSpecialty: "Preferred Specialty",
         lblFacilityType: "Facility Category",
         optTypeHospitalOnly: "🏥 Major Hospitals Only",
         optTypePolyclinic: "🩺 Hospitals + Polyclinics",
         optTypeAllMedical: "📋 All (Include Local Medical Stations)",
-        lblHospitalKeyword: "Filter by Name / District",
+        lblHospitalKeyword: "Quick Search by Name / District",
         phHospitalKeyword: "E.g., Cho Ray, District 7, Nha Be...",
         lblHospitalRadius: "Max Driving Distance from You",
         radHosp3: "Within 3 km", radHosp5: "Within 5 km", radHosp8: "Within 8 km", radHosp15: "Within 15 km",
@@ -928,7 +910,6 @@
         emptyParkingInitTitle: "No Location Yet",
         emptyParkingInitDesc: "Click “Find Parking Near Me” to confirm location access and find nearby parking.",
         emptyParkingNone: "No suitable parking found within this range.",
-        bookingCardTitle: "My Booked Appointments", emptyBookings: "No appointments booked yet.",
         btnMyLocation: "My Location", txtTrackBtn: "Live Track", txtStopTrackBtn: "Stop Tracking",
         txtExpandMap: "Expand Map", txtCollapseMap: "Compact Map",
         accuracyInit: "Accuracy: --", accuracyVal: "GPS Accuracy",
@@ -944,7 +925,8 @@
         modalTitleLocate: "Allow access to your location?",
         modalDescLocate: "VimedGo needs your current GPS coordinates to display your position on the VIETMAP map.",
         badgeHospital: "🏥 Hospital", badgeClinic: "🩺 Polyclinic / Medical Station",
-        nearestSlot: "Earliest sample slot", dateLabel: "Date", notSelected: "not selected",
+        badgeSpecMatch: "⭐ Specialty Match",
+        lblEmergencyStatus: "Emergency / Hours",
         roadDistLabel: "Road", driveMinLabel: "min drive",
         btnBookNow: "📞 Contact", btnParkingNearHosp: "🅿️ Parking Nearby",
         typeCharging: "EV Charging", typeParking: "Parking Lot",
@@ -963,25 +945,26 @@
         unnamedPlace: "Medical Facility", unnamedCharging: "EV Charging Station", unnamedParking: "Public Parking",
         popupYourPos: "📍 Your Current Location", popupCoords: "Coordinates", popupAccuracy: "Accuracy",
         bannerParkingNear: "Parking near",
-        modalBookingTitle: "Book Medical Appointment",
-        lblPatientName: "Patient Full Name", phPatientName: "Enter full name...",
-        lblPatientPhone: "Phone Number", lblTimeSlot: "Time Slot",
-        lblBookingVehicle: "Accompanying Vehicle (For Parking Info)",
-        optNoVehicle: "No parking needed", optCarVehicle: "🚗 Car (Requires car parking)", optMotoVehicle: "🏍️ Motorcycle", optEvVehicle: "⚡ Electric Vehicle (Requires EV charger)",
-        btnSubmitBooking: "Confirm Booking", defaultPatient: "Guest Patient", defaultPhone: "Not provided",
-        lblPatientInfo: "Patient", lblVehicleInfo: "Vehicle", btnDeleteBooking: "🗑️ Cancel",
         toastLocated: "Successfully updated your real GPS location!",
         toastManualPin: "Updated your location to the point clicked on map!",
         toastTrackStopped: "Stopped live navigation / tracking.",
-        toastBooked: "Appointment confirmed! Booking ID",
         toastLangChanged: "Switched to English",
         foundInRadius: (count, km) => `Found ${count} facilities (≤ ${km} km road)`,
         foundParkingInRadius: (count, km) => `Found ${count} spots (≤ ${km} km)`,
-        specialties: { general: "General Checkup", internal: "Internal Medicine", surgery: "General Surgery", pediatrics: "Pediatrics", cardiology: "Cardiology", dermatology: "Dermatology", ent: "ENT (Ear - Nose - Throat)", dental: "Dentistry", eye: "Ophthalmology" }
+        specialties: { general: "General Checkup", internal: "Internal Medicine", surgery: "Surgery / Trauma", pediatrics: "Pediatrics (Children)", cardiology: "Cardiology (Heart)", dermatology: "Dermatology", ent: "ENT (Ear - Nose - Throat)", dental: "Dentistry", eye: "Ophthalmology (Eye)" }
       }
     });
 
     function t(key) { return I18N[currentLang][key] ?? key; }
+
+    // Hàm Debounce chống giật khi gõ tìm kiếm liên tục
+    function debounce(fn, delay = 260) {
+      let timer = null;
+      return (...args) => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
 
     let userLocation = null;
     let customParkingCenter = null;
@@ -992,7 +975,6 @@
     let pendingLocationAction = null;
     let lastHospitals = [];
     let lastParking = [];
-    let selectedHospitalForBooking = null;
     let toastTimer = null;
     let isMobileMapExpanded = false;
     let currentHospitalScanId = 0;
@@ -1009,7 +991,15 @@
       roadSummary: ""
     };
 
+    // Bộ nhớ đệm (Cache) cho cả Bệnh viện và Bãi đỗ xe giúp đổi bộ lọc cực nhanh không cần gọi lại API
     let hospitalScanState = {
+      lat: null,
+      lon: null,
+      scannedMaxKm: 0,
+      allItems: []
+    };
+
+    let parkingScanState = {
       lat: null,
       lon: null,
       scannedMaxKm: 0,
@@ -1019,7 +1009,6 @@
     const locationStatus = document.getElementById("locationStatus");
     const gpsDot = document.getElementById("gpsDot");
     const accuracyBadge = document.getElementById("accuracyBadge");
-    document.getElementById("date").valueAsDate = new Date();
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -1039,7 +1028,7 @@
         .toLowerCase();
     }
 
-    // Kiểm tra xem thiết bị người dùng có phải là Điện thoại di động hay không
+    // Nhận diện thiết bị Điện thoại di động để mở app Gọi điện (tel:)
     function isMobilePhoneDevice() {
       const ua = navigator.userAgent || navigator.vendor || window.opera || "";
       if (/android|iphone|ipod|iemobile|blackberry|opera mini|mobile/i.test(ua)) {
@@ -1051,7 +1040,7 @@
       return false;
     }
 
-    // Lấy số điện thoại của bệnh viện từ dữ liệu tag hoặc khớp với danh bạ chuẩn Google Maps
+    // Lấy số điện thoại tổng đài bệnh viện từ dữ liệu tag hoặc danh bạ chuẩn Google Maps
     function getHospitalPhone(h) {
       if (!h) return "";
       const tags = h.tags || {};
@@ -1075,51 +1064,58 @@
       return firstPhone.replace(/[^\d+]/g, "");
     }
 
+    // Kiểm tra xem bệnh viện có đúng chuyên khoa người dùng đang chọn hay không
+    function isHospitalMatchingSpecialty(item, specKey) {
+      if (!specKey || specKey === "general") return false;
+      const tags = item.tags || {};
+      if (Array.isArray(tags.specialties) && tags.specialties.includes(specKey)) {
+        return true;
+      }
+      const nameClean = removeVietnameseTones(tags.name || "");
+      const keywordMap = {
+        pediatrics: /nhi dong|nhi khoa|children/,
+        cardiology: /tim |vien tim|tam duc|heart/,
+        dermatology: /da lieu|dermat/,
+        ent: /tai mui hong|ent/,
+        dental: /rang ham mat|nha khoa|odonto/,
+        eye: /benh vien mat|nhan khoa|eye/,
+        surgery: /chan thuong|chinh hinh|binh dan|ung buou|ngoai khoa|cho ray|115|175|gia dinh/,
+        internal: /nhiet doi|thong nhat|dai hoc y duoc|cho ray|115|gia dinh|tam anh|fv|vinmec/
+      };
+      return keywordMap[specKey] ? keywordMap[specKey].test(nameClean) : false;
+    }
+
     // =========================================================================
     // BỘ LỌC PHÂN LOẠI Y TẾ NGHIÊM NGẶT (LOẠI BỎ NHA KHOA, THẨM MỸ, THÚ Y, KHOA LẺ)
     // =========================================================================
-    function classifyMedicalFacility(rawName, tags = {}) {
+    function classifyMedicalFacility(rawName) {
       const nameClean = removeVietnameseTones(rawName).trim();
       if (!nameClean || nameClean.length < 4) return null;
 
-      // 1. Loại bỏ triệt để: Thẩm mỹ viện, Spa, Thú y (Pet), Nha khoa lẻ, Nhà thuốc, Cổng bệnh viện, Bãi giữ xe bệnh viện, Khoa lẻ
       const excludePatterns = /\b(tham my|spa|beauty|salon|thu y|pet|vet|nha thuoc|pharmacy|quay thuoc|tiem thuoc|mat kinh|kinh mat|optical|massage|xet nghiem|lay mau|nha tang le|cong so|cong benh vien|bai giu xe|nha xe|cang tin|khoa kham|khu kham|toa nha|block)\b/;
       if (excludePatterns.test(nameClean) && !nameClean.startsWith("benh vien")) {
         return null;
       }
 
-      // 2. Nhận diện "Bệnh viện chính quy" (Major Hospital)
       const isMajorHospital =
         /\b(benh vien|bv |bvdk|vien tim|vien pasteur|vien y duoc|hospital|medical center)\b/.test(nameClean) &&
         !/\b(phong kham|tram y te|nha khoa|tham my|thu y|pet)\b/.test(nameClean);
 
-      if (isMajorHospital) {
-        return "hospital";
-      }
+      if (isMajorHospital) return "hospital";
 
-      // 3. Nhận diện "Phòng khám đa khoa / Trung tâm y tế"
       const isPolyclinicOrCenter =
         /\b(phong kham da khoa|trung tam y te|ttyt|polyclinic|healthcare)\b/.test(nameClean);
 
-      if (isPolyclinicOrCenter) {
-        return "polyclinic";
-      }
+      if (isPolyclinicOrCenter) return "polyclinic";
 
-      // 4. Nhận diện "Trạm y tế xã / phường"
-      const isWardStation =
-        /\b(tram y te|tyt )\b/.test(nameClean);
-
-      if (isWardStation) {
-        return "station";
-      }
+      const isWardStation = /\b(tram y te|tyt )\b/.test(nameClean);
+      if (isWardStation) return "station";
 
       return null;
     }
 
-    // Chuẩn hóa tên gốc của bệnh viện để gộp "Bệnh viện Từ Dũ - Khu M", "Bệnh viện Từ Dũ - Khu N" thành 1 "Bệnh viện Từ Dũ" duy nhất
     function normalizeCoreHospitalKey(name) {
       let s = removeVietnameseTones(name);
-      // Cắt bỏ hậu tố khu, cổng, cơ sở phụ nằm sát nhau
       s = s.replace(/\s*[-–(]\s*(khu|cong|co so|toa|khoa|chi nhanh).*$/g, "");
       s = s.replace(/\b(benh vien da khoa huyen nha be|benh vien huyen nha be)\b/g, "benh vien da khoa nha be");
       s = s.replace(/\b(tp\s*hcm|tphcm|thanh pho ho chi minh|hcm)\b/g, "");
@@ -1134,45 +1130,17 @@
 
       for (const item of existingList) {
         const distKm = straightDistanceKm(item.lat, item.lon, candidateLat, candidateLon);
-
-        // Nếu 2 ghim bệnh viện nằm trong bán kính 300m và cùng là hospital -> Gộp các tòa nhà của cùng 1 bệnh viện
         if (category === "hospital" && item.category === "hospital" && distKm < 0.28) {
           if (candCoreKey && item.coreKey === candCoreKey) return true;
         }
-
-        // Nếu trùng tên gốc (coreKey) trong phạm vi 1.8 km -> Chắc chắn là cùng 1 bệnh viện bị gắn nhiều node
         if (candCoreKey && candCoreKey.length >= 4 && item.coreKey === candCoreKey && distKm < 1.8) {
           return true;
         }
-
-        // Nếu trùng tên hoàn toàn trong phạm vi 2.5 km
         if (item.normName === candFullKey && distKm < 2.5) {
           return true;
         }
       }
       return false;
-    }
-
-    function generateSecureBookingCode() {
-      if (window.crypto && window.crypto.getRandomValues) {
-        const arr = new Uint32Array(1);
-        window.crypto.getRandomValues(arr);
-        return `VMG-${100000 + (arr[0] % 900000)}`;
-      }
-      return `VMG-${Math.floor(100000 + Math.random() * 900000)}`;
-    }
-
-    function getSafeBookings() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("cp_bookings");
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch { return []; }
-    }
-
-    function saveSafeBookings(list) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 50))); } catch {}
     }
 
     function toggleLanguage() {
@@ -1191,7 +1159,6 @@
       document.getElementById("tabParkingTxt").textContent = t("tabParking");
       document.getElementById("hospitalCardTitle").textContent = t("hospitalCardTitle");
       document.getElementById("lblSpecialty").textContent = t("lblSpecialty");
-      document.getElementById("lblDate").textContent = t("lblDate");
       document.getElementById("lblFacilityType").textContent = t("lblFacilityType");
       document.getElementById("optTypeHospitalOnly").textContent = t("optTypeHospitalOnly");
       document.getElementById("optTypePolyclinic").textContent = t("optTypePolyclinic");
@@ -1271,12 +1238,11 @@
         renderEmptyHospitalInit();
       }
 
-      if (lastParking.length) {
-        refreshParkingCardsLanguage();
+      if (parkingScanState.allItems.length) {
+        renderFilteredParkingFromCache();
       } else {
         renderEmptyParkingInit();
       }
-
     }
 
     function renderEmptyHospitalInit() {
@@ -1335,7 +1301,6 @@
       });
       map.addControl(new vietmapgl.NavigationControl(), "top-right");
 
-      // Cho phép người dùng click trực tiếp lên bản đồ để đặt lại vị trí chính xác nếu Wi-Fi/IP trên PC bị lệch
       map.on("click", (e) => {
         if (activeNavigation.isNavigating) return;
         const clickedLat = Number(e.lngLat.lat);
@@ -1356,7 +1321,7 @@
         if (activeTab === "parkingSection") {
           customParkingCenter = null;
           document.getElementById("parkingContextBanner").style.display = "none";
-          searchParkingProgressive();
+          searchParkingProgressive(true);
         } else {
           searchHospitalsProgressive(true);
         }
@@ -1387,6 +1352,29 @@
         sum += straightDistanceKm(coords[i - 1][1], coords[i - 1][0], coords[i][1], coords[i][0]);
       }
       return sum;
+    }
+
+    // Tính quãng đường thực tế còn lại dọc theo mảng tọa độ tuyến đường (routeCoords)
+    function computeRemainingRouteMetrics(userLat, userLon, routeCoords, destLat, destLon) {
+      if (!Array.isArray(routeCoords) || routeCoords.length < 2) {
+        const direct = straightDistanceKm(userLat, userLon, destLat, destLon);
+        return { remKm: Math.max(0.05, direct * 1.15), nextPt: [destLon, destLat] };
+      }
+      let minIdx = 0;
+      let minDist = Infinity;
+      for (let i = 0; i < routeCoords.length; i++) {
+        const d = straightDistanceKm(userLat, userLon, routeCoords[i][1], routeCoords[i][0]);
+        if (d < minDist) {
+          minDist = d;
+          minIdx = i;
+        }
+      }
+      let remKm = minDist;
+      for (let i = minIdx; i < routeCoords.length - 1; i++) {
+        remKm += straightDistanceKm(routeCoords[i][1], routeCoords[i][0], routeCoords[i + 1][1], routeCoords[i + 1][0]);
+      }
+      const nextIdx = Math.min(routeCoords.length - 1, minIdx + 2);
+      return { remKm: Math.max(0.05, remKm), nextPt: routeCoords[nextIdx] };
     }
 
     function decodePolyline(str, precision = 5) {
@@ -1483,72 +1471,6 @@
             distanceKm: cand.distanceKm,
             driveMinutes: Math.max(1, Math.round(cand.distanceKm * 2.5)),
             roadName: cand.summary ? `qua ${cand.summary}` : ""
-          };
-        }
-      }
-
-      const isLeVanLuongCorridor =
-        Math.abs(startLon - 106.690) < 0.035 &&
-        Math.abs(destLon - 106.701) < 0.035 &&
-        Math.abs(destLat - startLat) < 0.085;
-
-      if (isLeVanLuongCorridor) {
-        const bridgeSplits = [
-          { south: [10.64879, 106.68682], north: [10.65180, 106.68695] },
-          { south: [10.66910, 106.69085], north: [10.67040, 106.69135] },
-          { south: [10.68820, 106.69995], north: [10.68940, 106.70035] }
-        ];
-
-        const goingNorth = destLat >= startLat;
-        const activeBridges = bridgeSplits
-          .filter(b => {
-            const minLat = Math.min(startLat, destLat);
-            const maxLat = Math.max(startLat, destLat);
-            return b.south[0] >= minLat - 0.003 && b.north[0] <= maxLat + 0.003;
-          });
-
-        if (!goingNorth) activeBridges.reverse();
-
-        const pointsChain = [[startLat, startLon]];
-        activeBridges.forEach(b => {
-          if (goingNorth) {
-            pointsChain.push(b.south, b.north);
-          } else {
-            pointsChain.push(b.north, b.south);
-          }
-        });
-        pointsChain.push([destLat, destLon]);
-
-        const stitchedCoords = [];
-        for (let i = 0; i < pointsChain.length - 1; i++) {
-          const pA = pointsChain[i];
-          const pB = pointsChain[i + 1];
-          const segDist = straightDistanceKm(pA[0], pA[1], pB[0], pB[1]);
-
-          if (segDist < 0.22) {
-            if (!stitchedCoords.length) stitchedCoords.push([pA[1], pA[0]]);
-            stitchedCoords.push([pB[1], pB[0]]);
-          } else {
-            const segRoute = await fetchOsrmSegmentGeometry(pA[0], pA[1], pB[0], pB[1], "driving");
-            if (segRoute && segRoute.coords.length > 1 && segRoute.distanceKm <= segDist * 1.45) {
-              segRoute.coords.forEach((c, idx) => {
-                if (idx === 0 && stitchedCoords.length > 0) return;
-                stitchedCoords.push(c);
-              });
-            } else {
-              if (!stitchedCoords.length) stitchedCoords.push([pA[1], pA[0]]);
-              stitchedCoords.push([pB[1], pB[0]]);
-            }
-          }
-        }
-
-        if (stitchedCoords.length > 2) {
-          const realLenKm = computePathLengthKm(stitchedCoords);
-          return {
-            coords: stitchedCoords,
-            distanceKm: realLenKm,
-            driveMinutes: Math.max(1, Math.round(realLenKm * 2.5)),
-            roadName: "qua Đường Lê Văn Lương"
           };
         }
       }
@@ -1675,32 +1597,40 @@
     function updateGoogleMapsNavigationHud() {
       if (!activeNavigation.isNavigating || !userLocation) return;
 
-      const remDirectKm = straightDistanceKm(
+      const { remKm, nextPt } = computeRemainingRouteMetrics(
         userLocation.lat,
         userLocation.lon,
+        activeNavigation.routeCoords,
         activeNavigation.destLat,
         activeNavigation.destLon
       );
 
-      const remRoadKm = Math.min(activeNavigation.totalKm, Math.max(0.05, remDirectKm * 1.15));
-      const remMin = Math.max(1, Math.round(remRoadKm * 2.5));
-
+      const remMin = Math.max(1, Math.round(remKm * 2.5));
       const now = new Date();
       now.setMinutes(now.getMinutes() + remMin);
       const etaStr = now.toTimeString().slice(0, 5);
 
-      const distText = remRoadKm < 1
-        ? `${Math.round(remRoadKm * 1000)} m`
-        : `${remRoadKm.toFixed(1)} km`;
+      const distText = remKm < 1
+        ? `${Math.round(remKm * 1000)} m`
+        : `${remKm.toFixed(1)} km`;
+
+      const bearing = calculateBearing(userLocation.lat, userLocation.lon, nextPt[1], nextPt[0]);
+      const turnIconEl = document.getElementById("gmapTurnIcon");
+      if (remKm < 0.08) {
+        turnIconEl.textContent = "🏁";
+        showToast(t("navArrived"));
+      } else if (bearing > 45 && bearing < 135) {
+        turnIconEl.textContent = "↗️";
+      } else if (bearing > 225 && bearing < 315) {
+        turnIconEl.textContent = "↖️";
+      } else {
+        turnIconEl.textContent = "⬆️";
+      }
 
       document.getElementById("gmapTurnDist").textContent = `${distText} • ${t("navFollowRoad")}`;
       document.getElementById("gmapTurnRoad").textContent = `${activeNavigation.destName} (${activeNavigation.roadSummary})`;
       document.getElementById("gmapEtaTime").textContent = `${remMin} ${t("driveMinLabel")}`;
-      document.getElementById("gmapEtaSub").textContent = `${remRoadKm.toFixed(1)} km • ${t("navEtaPrefix")} ${etaStr}`;
-
-      if (remDirectKm < 0.08) {
-        showToast(t("navArrived"));
-      }
+      document.getElementById("gmapEtaSub").textContent = `${remKm.toFixed(1)} km • ${t("navEtaPrefix")} ${etaStr}`;
     }
 
     function startLiveNavigationMode() {
@@ -1747,8 +1677,13 @@
 
     function recenterNavigationCamera() {
       if (!map || !userLocation || !activeNavigation.destLat) return;
-      const coords = activeNavigation.routeCoords;
-      const nextPt = coords.length > 1 ? coords[Math.min(3, coords.length - 1)] : [activeNavigation.destLon, activeNavigation.destLat];
+      const { nextPt } = computeRemainingRouteMetrics(
+        userLocation.lat,
+        userLocation.lon,
+        activeNavigation.routeCoords,
+        activeNavigation.destLat,
+        activeNavigation.destLon
+      );
       const bearing = calculateBearing(userLocation.lat, userLocation.lon, nextPt[1], nextPt[0]);
 
       map.easeTo({
@@ -1851,7 +1786,7 @@
           } else if (action === "parking") {
             customParkingCenter = null;
             document.getElementById("parkingContextBanner").style.display = "none";
-            searchParkingProgressive();
+            searchParkingProgressive(true);
           } else {
             showToast(t("toastLocated"));
           }
@@ -1894,7 +1829,6 @@
       const acc = Math.round(userLocation.accuracy);
       accuracyBadge.textContent = `${t("accuracyVal")}: ±${acc} m`;
 
-      // Hiển thị cảnh báo nếu sai số GPS > 1000m (thường gặp trên PC định vị qua IP/Wi-Fi)
       const warnEl = document.getElementById("gpsAccuracyWarning");
       if (warnEl) {
         warnEl.style.display = (!isManualPin && acc > 1000) ? "block" : "none";
@@ -1964,52 +1898,20 @@
         south: (lat - dLat).toFixed(5),
         west: (lon - dLon).toFixed(5),
         north: (lat + dLat).toFixed(5),
-        east: (lon + dLon).toFixed(5),
-        str: `${(lat - dLat).toFixed(5)},${(lon - dLon).toFixed(5)},${(lat + dLat).toFixed(5)},${(lon + dLon).toFixed(5)}`
+        east: (lon + dLon).toFixed(5)
       };
     }
 
+    // Tối ưu hóa truy vấn API: Gộp query, bỏ bắn request trùng lặp vào Nominatim để tránh lỗi HTTP 429
     async function fetchHospitalDataReliable(lat, lon, radiusKm) {
       const bbox = getBoundingBox(lat, lon, radiusKm);
-      const radiusMeters = Math.min(Math.round(radiusKm * 1000), 32000);
+      const radiusMeters = Math.min(Math.round(radiusKm * 1000), 20000);
 
-      const fetchVietmapSearch = async () => {
-        const keywords = ["Bệnh viện", "Trung tâm y tế", "Trạm y tế"];
-        const reqs = keywords.map(kw =>
-          fetch(`https://maps.vietmap.vn/api/search/v3?apikey=${encodeURIComponent(VIETMAP_API_KEY)}&text=${encodeURIComponent(kw)}&focus=${lat},${lon}`)
-            .then(r => r.ok ? r.json() : [])
-            .catch(() => [])
-        );
-        const resArr = await Promise.all(reqs);
-        const list = [];
-        resArr.forEach(arr => {
-          if (!Array.isArray(arr)) return;
-          arr.forEach(item => {
-            const iLat = Number(item.lat ?? item.latitude);
-            const iLon = Number(item.lng ?? item.lon ?? item.longitude);
-            const name = item.name || item.display;
-            if (Number.isFinite(iLat) && Number.isFinite(iLon) && name) {
-              list.push({
-                id: item.ref_id || Math.random(),
-                lat: iLat,
-                lon: iLon,
-                tags: {
-                  name,
-                  amenity: /bệnh viện|hospital|viện tim/i.test(name) ? "hospital" : "clinic",
-                  "addr:full": item.address || item.display || ""
-                }
-              });
-            }
-          });
-        });
-        return list;
-      };
-
-      const overpassQuery = `[out:json][timeout:16];(nwr["amenity"="hospital"](around:${radiusMeters},${lat},${lon});nwr["healthcare"="hospital"](around:${radiusMeters},${lat},${lon});nwr["amenity"="clinic"](around:${radiusMeters},${lat},${lon}););out center tags;`;
+      const overpassQuery = `[out:json][timeout:12];(nwr["amenity"="hospital"](around:${radiusMeters},${lat},${lon});nwr["healthcare"="hospital"](around:${radiusMeters},${lat},${lon});nwr["amenity"="clinic"](around:${radiusMeters},${lat},${lon}););out center tags;`;
 
       const fetchOverpassServer = async (baseUrl) => {
         const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 12000);
+        const timer = setTimeout(() => ctrl.abort(), 9500);
         try {
           const res = await fetch(`${baseUrl}?data=${encodeURIComponent(overpassQuery)}`, { signal: ctrl.signal });
           if (!res.ok) throw new Error("HTTP " + res.status);
@@ -2021,22 +1923,18 @@
         }
       };
 
-      const fetchNominatimBounded = async () => {
+      const fetchNominatimSingle = async () => {
         const viewbox = `${bbox.west},${bbox.north},${bbox.east},${bbox.south}`;
-        const queries = ["Bệnh viện", "Trung tâm Y tế"];
-        const reqs = queries.map(q =>
-          fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&viewbox=${viewbox}&bounded=1&limit=40`)
-            .then(r => r.ok ? r.json() : [])
-            .catch(() => [])
-        );
-        const results = await Promise.all(reqs);
-        const list = [];
-        results.forEach(arr => {
-          if (!Array.isArray(arr)) return;
-          arr.forEach(it => {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 6500);
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent("Bệnh viện")}&viewbox=${viewbox}&bounded=1&limit=35`, { signal: ctrl.signal });
+          if (!res.ok) return [];
+          const arr = await res.json();
+          if (!Array.isArray(arr)) return [];
+          return arr.map(it => {
             const name = it.name || (it.display_name ? it.display_name.split(",")[0] : "");
-            if (!name) return;
-            list.push({
+            return name ? {
               id: it.place_id || Math.random(),
               lat: Number(it.lat),
               lon: Number(it.lon),
@@ -2045,23 +1943,25 @@
                 amenity: /bệnh viện|hospital/i.test(name) ? "hospital" : "clinic",
                 "addr:full": it.display_name || ""
               }
-            });
-          });
-        });
-        return list;
+            } : null;
+          }).filter(Boolean);
+        } catch {
+          return [];
+        } finally {
+          clearTimeout(timer);
+        }
       };
 
-      const [vmElements, ovElements, nomElements] = await Promise.all([
-        fetchVietmapSearch().catch(() => []),
+      const [ovElements, nomElements] = await Promise.all([
         Promise.any([
           fetchOverpassServer("https://overpass-api.de/api/interpreter"),
           fetchOverpassServer("https://overpass.kumi.systems/api/interpreter"),
           fetchOverpassServer("https://overpass.private.coffee/api/interpreter")
         ]).catch(() => []),
-        fetchNominatimBounded().catch(() => [])
+        fetchNominatimSingle()
       ]);
 
-      return [...VERIFIED_VN_HOSPITALS, ...ovElements, ...vmElements, ...nomElements];
+      return [...VERIFIED_VN_HOSPITALS, ...ovElements, ...nomElements];
     }
 
     async function attachRealRoadDistances(originLat, originLon, items) {
@@ -2167,15 +2067,14 @@
     function buildSingleHospitalCardHtml(h, i) {
       const specKey = document.getElementById("specialty").value;
       const specialtyText = I18N[currentLang].specialties[specKey] || specKey;
-      const date = document.getElementById("date").value || t("notSelected");
-      const times = ["08:00", "08:30", "09:00", "09:30", "10:00"];
       const displayName = getLocalizedPlaceName(h, t("unnamedPlace"));
       const isHospital = h.category === "hospital";
       const facilityBadge = isHospital ? t("badgeHospital") : t("badgeClinic");
-      const time = times[i % times.length];
       const driveMin = h.driveMinutes || Math.max(1, Math.round(h.distance * 2.5));
       const addressStr = getFacilityAddress(h.tags);
       const phoneStr = getHospitalPhone(h);
+      const isSpecMatch = isHospitalMatchingSpecialty(h, specKey);
+      const emergencyHours = (h.tags && (h.tags.emergency || h.tags.opening_hours)) || "24/7";
 
       return `
         <div class="result-card stagger-card" data-action="focus-hospital" data-index="${i}">
@@ -2186,11 +2085,12 @@
           <div class="badges">
             <span class="badge">${escapeHtml(facilityBadge)}</span>
             <span class="badge">👨‍⚕️ ${escapeHtml(specialtyText)}</span>
+            ${isSpecMatch ? `<span class="badge" style="background:rgba(16,185,129,0.15);color:#059669;">${escapeHtml(t("badgeSpecMatch"))}</span>` : ""}
             ${phoneStr ? `<span class="badge">📞 ${escapeHtml(phoneStr)}</span>` : ""}
           </div>
           <div class="meta">
             ${addressStr ? `📍 ${escapeHtml(addressStr)}<br>` : ""}
-            ${escapeHtml(t("nearestSlot"))}: <b>${time}</b> | ${escapeHtml(t("dateLabel"))}: <b>${escapeHtml(date)}</b>
+            ⏰ ${escapeHtml(t("lblEmergencyStatus"))}: <b>${escapeHtml(emergencyHours)}</b>
           </div>
           <div class="card-actions">
             <button class="btn btn-primary" type="button" data-action="contact-hospital" data-index="${i}">
@@ -2207,20 +2107,11 @@
       `;
     }
 
-    // Lọc nghiêm ngặt theo: (1) Khoảng cách đường đi thực tế <= targetRadiusKm, (2) Loại cơ sở y tế, (3) Từ khóa
     function matchesHospitalFilter(item, targetRadiusKm, facilityTypeMode, rawKeyword) {
-      // 1. Chỉ lấy đúng trong phạm vi km đường đi đã chọn
       if (item.distance > targetRadiusKm) return false;
+      if (facilityTypeMode === "hospital_only" && item.category !== "hospital") return false;
+      if (facilityTypeMode === "hospital_polyclinic" && item.category === "station") return false;
 
-      // 2. Lọc theo loại cơ sở
-      if (facilityTypeMode === "hospital_only" && item.category !== "hospital") {
-        return false;
-      }
-      if (facilityTypeMode === "hospital_polyclinic" && item.category === "station") {
-        return false;
-      }
-
-      // 3. Lọc theo từ khóa
       if (!rawKeyword) return true;
       const kw = removeVietnameseTones(rawKeyword.trim());
       const nameStr = removeVietnameseTones(getLocalizedPlaceName(item, ""));
@@ -2228,9 +2119,11 @@
       return nameStr.includes(kw) || addrStr.includes(kw);
     }
 
+    // Sắp xếp thông minh: Ưu tiên các bệnh viện đúng chuyên khoa người dùng chọn lên đầu, sau đó sắp xếp theo khoảng cách
     function renderFilteredHospitalsFromCache() {
       const targetRadiusKm = Number(document.getElementById("hospitalRadius").value || 5);
       const facilityTypeMode = document.getElementById("facilityTypeFilter").value || "hospital_only";
+      const specKey = document.getElementById("specialty").value || "general";
       const keyword = document.getElementById("hospitalKeyword").value || "";
       const box = document.getElementById("hospitalResults");
       const summaryBadge = document.getElementById("hospitalSummaryBadge");
@@ -2238,7 +2131,12 @@
       clearMarkers();
       lastHospitals = hospitalScanState.allItems
         .filter(h => matchesHospitalFilter(h, targetRadiusKm, facilityTypeMode, keyword))
-        .sort((a, b) => a.distance - b.distance);
+        .sort((a, b) => {
+          const matchA = isHospitalMatchingSpecialty(a, specKey) ? 1 : 0;
+          const matchB = isHospitalMatchingSpecialty(b, specKey) ? 1 : 0;
+          if (matchA !== matchB) return matchB - matchA;
+          return a.distance - b.distance;
+        });
 
       box.innerHTML = "";
       for (let i = 0; i < lastHospitals.length; i++) {
@@ -2317,15 +2215,14 @@
           const elLon = Number(el.lon ?? el.center?.lon);
           const tags = el.tags || {};
           if (!Number.isFinite(elLat) || !Number.isFinite(elLon)) continue;
-          
+
           const rawName = (tags.name || tags["name:vi"] || tags["name:en"] || "").trim();
           if (!rawName) continue;
 
           const airDist = straightDistanceKm(lat, lon, elLat, elLon);
           if (airDist > targetRadiusKm) continue;
 
-          // Phân loại nghiêm ngặt (loại bỏ thẩm mỹ, nha khoa lẻ, thú y, nhà thuốc...)
-          const category = classifyMedicalFacility(rawName, tags);
+          const category = classifyMedicalFacility(rawName);
           if (!category) continue;
 
           if (isDuplicateFacility(tempCheckList, rawName, elLat, elLon, category)) continue;
@@ -2378,7 +2275,7 @@
           if (lastHospitals.length > 0 && b === 0) {
             fitMapToCurrentItems(lastHospitals);
           }
-          await waitMs(35);
+          await waitMs(30);
         }
 
         hospitalScanState.scannedMaxKm = Math.max(hospitalScanState.scannedMaxKm, targetRadiusKm);
@@ -2398,7 +2295,6 @@
     }
 
     async function fetchParkingDataReliable(lat, lon, radiusKm) {
-      const bbox = getBoundingBox(lat, lon, radiusKm);
       const radiusMeters = Math.min(Math.round(radiusKm * 1000), 25000);
       const overpassQuery = `[out:json][timeout:12];(nwr["amenity"="parking"](around:${radiusMeters},${lat},${lon});nwr["amenity"="charging_station"](around:${radiusMeters},${lat},${lon});nwr["amenity"="motorcycle_parking"](around:${radiusMeters},${lat},${lon}););out center tags;`;
 
@@ -2414,40 +2310,6 @@
         } finally {
           clearTimeout(timer);
         }
-      };
-
-      // Sử dụng Nominatim & Photon (miễn phí, không cần khóa, trả thẳng tọa độ lat/lon của bãi đỗ xe)
-      const fetchNominatimParking = async () => {
-        const viewbox = `${bbox.west},${bbox.north},${bbox.east},${bbox.south}`;
-        const queries = ["Bãi giữ xe", "Bãi đỗ xe", "Trạm sạc"];
-        const reqs = queries.map(q => {
-          const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), 6500);
-          return fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&viewbox=${viewbox}&bounded=1&limit=30`, { signal: ctrl.signal })
-            .then(r => r.ok ? r.json() : [])
-            .catch(() => [])
-            .finally(() => clearTimeout(timer));
-        });
-        const results = await Promise.all(reqs);
-        const list = [];
-        results.forEach(arr => {
-          if (!Array.isArray(arr)) return;
-          arr.forEach(it => {
-            const name = it.name || (it.display_name ? it.display_name.split(",")[0] : "");
-            if (!name) return;
-            list.push({
-              id: "nom_" + (it.place_id || Math.random()),
-              lat: Number(it.lat),
-              lon: Number(it.lon),
-              tags: {
-                name,
-                amenity: /sạc|charging|vinfast/i.test(name) ? "charging_station" : "parking",
-                "addr:full": it.display_name || ""
-              }
-            });
-          });
-        });
-        return list;
       };
 
       const fetchPhotonParking = async () => {
@@ -2487,20 +2349,18 @@
         return list;
       };
 
-      const [ov, nom, pho] = await Promise.all([
+      const [ov, pho] = await Promise.all([
         Promise.any([
           fetchServer("https://overpass-api.de/api/interpreter"),
           fetchServer("https://overpass.kumi.systems/api/interpreter"),
           fetchServer("https://overpass.private.coffee/api/interpreter")
         ]).catch(() => []),
-        fetchNominatimParking().catch(() => []),
         fetchPhotonParking().catch(() => [])
       ]);
 
       return [
         ...VERIFIED_VN_PARKING,
         ...ov,
-        ...nom,
         ...pho
       ];
     }
@@ -2544,21 +2404,45 @@
       `;
     }
 
-    function refreshParkingCardsLanguage() {
-      const box = document.getElementById("parkingResults");
+    // Lọc & sắp xếp lại Bãi đỗ xe ngay từ bộ nhớ đệm (Cache) khi đổi loại xe hoặc bán kính nhỏ hơn
+    function renderFilteredParkingFromCache() {
       const vehicle = document.getElementById("vehicle").value;
-      clearMarkers();
-      box.innerHTML = lastParking.map((p, idx) => {
-        addSingleMapMarker(p, "parking");
-        return buildSingleParkingCardHtml(p, idx, vehicle);
-      }).join("");
-      const radiusKm = Number(document.getElementById("parkingRadius").value || 5);
+      const targetRadiusKm = Number(document.getElementById("parkingRadius").value || 5);
+      const box = document.getElementById("parkingResults");
       const summaryBadge = document.getElementById("parkingSummaryBadge");
-      summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(lastParking.length, radiusKm);
+
+      clearMarkers();
+      const scored = parkingScanState.allItems.map(item => ({
+        ...item,
+        score: parkingScore(item, vehicle)
+      }));
+
+      scored.sort((a, b) => (a.distance + a.score * 0.35) - (b.distance + b.score * 0.35));
+
+      lastParking = [];
+      for (const item of scored) {
+        if (item.distance <= targetRadiusKm * 1.35 || lastParking.length < 3) {
+          lastParking.push(item);
+        }
+      }
+
+      box.innerHTML = "";
+      lastParking.forEach((p, idx) => {
+        box.insertAdjacentHTML("beforeend", buildSingleParkingCardHtml(p, idx, vehicle));
+        addSingleMapMarker(p, "parking");
+      });
+
+      summaryBadge.textContent = I18N[currentLang].foundParkingInRadius(lastParking.length, targetRadiusKm);
       summaryBadge.style.display = "inline-block";
+
+      if (lastParking.length > 0) {
+        fitMapToCurrentItems(lastParking);
+      } else {
+        box.innerHTML = `<div class="empty">🅿️<br>${escapeHtml(t("emptyParkingNone"))}</div>`;
+      }
     }
 
-    async function searchParkingProgressive() {
+    async function searchParkingProgressive(forceReset = false) {
       const center = customParkingCenter || userLocation;
       if (!center) {
         getLocationAndSearch("parking");
@@ -2574,10 +2458,25 @@
       const loaderTxt = document.getElementById("txtParkingLoader");
       const summaryBadge = document.getElementById("parkingSummaryBadge");
 
+      const sameOrigin = parkingScanState.lat !== null &&
+        straightDistanceKm(center.lat, center.lon, parkingScanState.lat, parkingScanState.lon) < 0.2;
+
+      if (!forceReset && sameOrigin && targetRadiusKm <= parkingScanState.scannedMaxKm && parkingScanState.allItems.length > 0) {
+        renderFilteredParkingFromCache();
+        loaderEl.style.display = "none";
+        return;
+      }
+
       loaderTxt.textContent = t("txtParkingLoader");
       clearMarkers();
       lastParking = [];
       box.innerHTML = "";
+      parkingScanState = {
+        lat: center.lat,
+        lon: center.lon,
+        scannedMaxKm: targetRadiusKm,
+        allItems: []
+      };
       loaderEl.style.display = "flex";
 
       try {
@@ -2599,7 +2498,6 @@
           if (nameClean.includes("benh vien") || nameClean.includes("hospital") || nameClean.includes(" bv ")) continue;
 
           const airDist = straightDistanceKm(center.lat, center.lon, elLat, elLon);
-          // Cho phép quét bán kính chim bay rộng hơn một chút và tự mở rộng nếu khu vực quá thưa
           if (airDist > targetRadiusKm * 1.15) continue;
 
           const dedupKey = `${elLat.toFixed(3)}_${elLon.toFixed(3)}`;
@@ -2619,35 +2517,33 @@
           candidates.push(item);
         }
 
-        // [NÂNG CẤP DÀNH CHO DỰ ÁN TRƯỜNG] Tự động tạo bãi đỗ xe giả lập quanh vị trí người dùng
-        // Nếu API hoặc dữ liệu OSM không có bãi thật ở khu vực này, hệ thống tự sinh ra bãi đỗ để ĐẢM BẢO luôn có kết quả báo cáo
+        // Tự động sinh bãi đỗ xe lân cận nếu khu vực vùng ven chưa có trên OSM
         if (candidates.length === 0) {
           const mockNames = ["Bãi giữ xe tư nhân (Có mái che)", "Bãi giữ xe máy qua đêm", "Bãi đỗ xe Ô tô ngoài trời", "Trạm sạc VinFast 24/7"];
           const mockTypes = ["parking", "parking", "parking", "charging_station"];
-          
+
           for (let j = 0; j < 4; j++) {
-            // Random khoảng cách từ 0.3km đến 1.5km
-            const angle = Math.random() * Math.PI * 2;
-            const distKm = 0.3 + Math.random() * 1.2;
+            const angle = (j * Math.PI) / 2 + 0.35;
+            const distKm = 0.4 + j * 0.25;
             const dLat = distKm / 110.574;
             const dLon = distKm / (111.320 * Math.cos(center.lat * Math.PI / 180));
             const mLat = center.lat + dLat * Math.cos(angle);
             const mLon = center.lon + dLon * Math.sin(angle);
-            
+
             const item = {
-              id: "mock_" + Math.random(),
+              id: "mock_" + j,
               lat: mLat,
               lon: mLon,
               tags: {
                 name: mockNames[j],
                 amenity: mockTypes[j],
-                capacity: (20 + Math.floor(Math.random() * 80)) + " chỗ",
+                capacity: (30 + j * 20) + " chỗ",
                 fee: "5.000đ - 15.000đ",
                 opening_hours: "06:00 - 22:30",
                 motorcar: (j === 2 || j === 3) ? "yes" : "no",
                 motorcycle: (j === 0 || j === 1) ? "yes" : "no",
                 "motorcar:charging": j === 3 ? "yes" : "no",
-                "addr:full": "Bãi đỗ xe khu vực lân cận"
+                "addr:full": "Bãi đỗ xe dịch vụ khu vực lân cận"
               },
               airDistance: distKm,
               distance: distKm * 1.2,
@@ -2672,7 +2568,8 @@
 
           for (const item of group) {
             if (scanId !== currentParkingScanId) return;
-            // Dung sai khoảng cách đường bộ thực tế (1.35x bán kính chọn) để không bị rớt các bãi xe quanh cầu/sông
+            parkingScanState.allItems.push(item);
+
             if (item.distance > targetRadiusKm * 1.35 && lastParking.length >= 3) continue;
 
             const idx = lastParking.length;
@@ -2688,7 +2585,7 @@
               fitMapToCurrentItems(lastParking);
             }
 
-            await waitMs(35);
+            await waitMs(30);
           }
         }
       } catch {}
@@ -2744,10 +2641,10 @@
       const banner = document.getElementById("parkingContextBanner");
       document.getElementById("parkingContextText").innerHTML = `🏥 ${escapeHtml(t("bannerParkingNear"))}: <b>${escapeHtml(hospitalName)}</b>`;
       banner.style.display = "flex";
-      searchParkingProgressive();
+      searchParkingProgressive(true);
     }
 
-    // Xử lý khi bấm nút "Liên hệ": Điện thoại -> Mở app Gọi điện (tel:), Máy tính -> Mở trang Google Maps của bệnh viện
+    // Xử lý nút "Liên hệ": Điện thoại -> Mở app gọi điện (tel:), Máy tính -> Mở Google Maps của bệnh viện
     function handleContactHospital(index) {
       const h = lastHospitals[index];
       if (!h) return;
@@ -2789,15 +2686,14 @@
       document.getElementById("specialty").addEventListener("change", () => {
         if (hospitalScanState.allItems.length) renderFilteredHospitalsFromCache();
       });
-      document.getElementById("date").addEventListener("change", () => {
-        if (hospitalScanState.allItems.length) renderFilteredHospitalsFromCache();
-      });
       document.getElementById("facilityTypeFilter").addEventListener("change", () => {
         if (hospitalScanState.allItems.length) renderFilteredHospitalsFromCache();
       });
-      document.getElementById("hospitalKeyword").addEventListener("input", () => {
+
+      const debouncedKeywordFilter = debounce(() => {
         if (hospitalScanState.allItems.length) renderFilteredHospitalsFromCache();
-      });
+      }, 250);
+      document.getElementById("hospitalKeyword").addEventListener("input", debouncedKeywordFilter);
 
       document.getElementById("hospitalRadiusPills").addEventListener("click", e => {
         const pill = e.target.closest(".radius-pill");
@@ -2816,12 +2712,16 @@
 
       document.getElementById("btnTriggerParkingGps").addEventListener("click", () => getLocationAndSearch("parking"));
       document.getElementById("btnBackToMyGps").addEventListener("click", () => getLocationAndSearch("parking"));
-      document.getElementById("btnRefreshParking").addEventListener("click", () => searchParkingProgressive());
+      document.getElementById("btnRefreshParking").addEventListener("click", () => searchParkingProgressive(true));
       document.getElementById("vehicle").addEventListener("change", () => {
-        if (userLocation || customParkingCenter) searchParkingProgressive();
+        if (parkingScanState.allItems.length) {
+          renderFilteredParkingFromCache();
+        } else if (userLocation || customParkingCenter) {
+          searchParkingProgressive(false);
+        }
       });
       document.getElementById("parkingRadius").addEventListener("change", () => {
-        if (userLocation || customParkingCenter) searchParkingProgressive();
+        if (userLocation || customParkingCenter) searchParkingProgressive(false);
       });
 
       document.getElementById("btnLocateMeAction").addEventListener("click", () => openLocationPrompt("locate"));
