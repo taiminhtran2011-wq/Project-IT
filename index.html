@@ -1,169 +1,3 @@
-<!DOCTYPE html>
-<html lang="vi" data-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="theme-color" content="#0284c7">
-  <meta name="description" content="VimedGo - Hệ thống Định vị Y tế & Tìm bãi đỗ xe Thông minh tích hợp dẫn đường trực tiếp">
-
-  <title>VimedGo - Hệ thống Y tế & Đỗ xe Thông minh</title>
-
-  <link rel="preconnect" href="https://maps.vietmap.vn" crossorigin>
-  <link rel="preconnect" href="https://router.project-osrm.org" crossorigin>
-  <link rel="preconnect" href="https://routing.openstreetmap.de" crossorigin>
-  <link rel="preconnect" href="https://overpass-api.de" crossorigin>
-  <link rel="preconnect" href="https://photon.komoot.io" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Favicon Logo VimedGo -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M32 9C21.5 9 13 17.3 13 27.6c0 12.4 15.8 25.8 17.6 27.3a2.2 2.2 0 0 0 2.8 0C35.2 53.4 51 40 51 27.6 51 17.3 42.5 9 32 9z' fill='%23fff'/%3E%3Cpath d='M29 18h6v6h6v6h-6v6h-6v-6h-6v-6h6v-6z' fill='url(%23g)'/%3E%3C/svg%3E">
-  
-  <!-- VIETMAP GL JS -->
-  <link rel="stylesheet" href="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.css" crossorigin="anonymous" />
-  <script src="https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.js" defer crossorigin="anonymous"></script>
-
-  <style>
-    :root {
-      --primary: #0284c7; --primary-dark: #0369a1; --primary-light: #e0f2fe;
-      --secondary: #0d9488; --secondary-light: #ccfbf1;
-      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-      --bg-body: #f1f5f9; --bg-surface: #ffffff; --bg-elevated: #f8fafc;
-      --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
-      --shadow-sm: 0 2px 8px rgba(15,23,42,0.05); --shadow-lg: 0 20px 40px -10px rgba(15,23,42,0.14);
-      --radius-lg: 18px;
-    }
-    [data-theme="dark"] {
-      --primary: #38bdf8; --primary-dark: #0284c7; --primary-light: rgba(56,189,248,0.15);
-      --secondary: #2dd4bf; --secondary-light: rgba(45,212,191,0.15);
-      --bg-body: #0b1120; --bg-surface: #1e293b; --bg-elevated: #0f172a;
-      --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155;
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; background: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
-    .ico { width: 16px; height: 16px; fill: currentColor; display: inline-block; vertical-align: -0.18em; flex-shrink: 0; }
-    
-    /* Navbar */
-    .navbar { background: var(--bg-surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
-    .nav-wrap { max-width: 1400px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
-    .brand-logo { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .brand-text h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.4px; display: flex; align-items: center; }
-    .brand-highlight { background: linear-gradient(135deg, #0284c7, #0d9488); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .brand-text p { margin: 2px 0 0; font-size: 12.5px; color: var(--text-muted); }
-
-    /* GPS Bar */
-    .gps-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-elevated); border: 1px solid var(--border); padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; max-width: 520px; flex: 1; min-width: 200px; }
-    .gps-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warning); flex-shrink: 0; }
-    .gps-dot.active { background: var(--success); box-shadow: 0 0 0 4px rgba(16,185,129,0.2); }
-    .gps-dot.error { background: var(--danger); }
-    .gps-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .nav-actions { display: flex; align-items: center; gap: 8px; }
-    .icon-btn { border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-main); height: 40px; padding: 0 13px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 13px; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
-    .icon-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .lang-badge { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 6px; font-size: 11px; font-weight: 800; }
-
-    /* Workspace */
-    .workspace { max-width: 1400px; width: 100%; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 520px 1fr; gap: 22px; align-items: start; flex: 1; }
-    .left-panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-    .tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-surface); padding: 6px; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); gap: 6px; }
-    .tab { border: 0; padding: 11px 10px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 13.5px; background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; white-space: nowrap; }
-    .tab.active { background: linear-gradient(135deg, #0284c7, #0d9488); color: white; box-shadow: 0 4px 12px rgba(2,132,199,0.25); }
-
-    .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); }
-    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; flex-wrap: wrap; }
-    .card-header h2 { margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .result-summary-badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--primary-light); color: var(--primary); display: none; }
-
-    .section { display: none; }
-    .section.active { display: block; }
-    .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .field label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 6px; }
-    select, input { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; background: var(--bg-elevated); color: var(--text-main); font-size: 14px; font-family: inherit; font-weight: 600; outline: none; }
-    select:focus, input:focus { border-color: var(--primary); }
-
-    .radius-pills { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 14px; }
-    .radius-pill { border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-main); padding: 9px 4px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; }
-    .radius-pill.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
-
-    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-    .btn { border: 0; border-radius: 11px; padding: 12px 16px; cursor: pointer; font-weight: 700; font-size: 13.5px; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 7px; text-decoration: none; }
-    .btn-primary { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; flex: 1; box-shadow: 0 4px 12px rgba(2,132,199,0.22); }
-    .btn-secondary { background: var(--primary-light); color: var(--primary); }
-    .btn-teal { background: linear-gradient(135deg, #0d9488, #0f766e); color: white; }
-    .btn-start-nav { background: linear-gradient(135deg, #059669, #10b981); color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
-
-    .gps-accuracy-warning {
-      display: none;
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #b45309;
-      padding: 9px 12px;
-      border-radius: 10px;
-      font-size: 12.5px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      line-height: 1.45;
-    }
-    [data-theme="dark"] .gps-accuracy-warning { color: #fbbf24; }
-
-    .results-list { max-height: 540px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 12px; }
-    .result-card { border: 1px solid var(--border); background: var(--bg-elevated); border-radius: 14px; padding: 15px; cursor: pointer; transition: border-color 0.15s; }
-    .result-card:hover, .result-card.active-route { border-color: var(--primary); background: var(--bg-surface); box-shadow: 0 6px 18px rgba(2,132,199,0.12); }
-
-    .stagger-card { animation: cardSlideIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-    @keyframes cardSlideIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .result-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
-    .result-card h3 { margin: 0; font-size: 15.5px; font-weight: 700; line-height: 1.35; }
-    .distance-pill { background: var(--primary-light); color: var(--primary); padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
-    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 6px; background: var(--secondary-light); color: var(--secondary); font-size: 11.5px; font-weight: 700; }
-    .meta { color: var(--text-muted); font-size: 13px; line-height: 1.55; margin-bottom: 12px; }
-    .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .card-actions .btn { padding: 9px 12px; font-size: 12.5px; border-radius: 9px; flex: 1; min-width: 110px; }
-
-    /* Map Panel & In-App Route Navigation Box */
-    .right-panel { position: sticky; top: 82px; min-width: 0; }
-    .map-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); }
-    .map-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-    .map-toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .btn-expand-map { display: none; }
-
-    .route-panel {
-      display: none;
-      background: var(--bg-elevated);
-      border: 1.5px solid var(--primary);
-      border-radius: 14px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
-      animation: cardSlideIn 0.22s ease-out;
-    }
-    .route-panel.show { display: block; }
-    .route-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .route-title {
-      font-weight: 800;
-      font-size: 14.5px;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .route-metrics {
-      display: flex;
       align-items: center;
       gap: 8px;
       margin-top: 8px;
@@ -2284,6 +2118,11 @@
           const elLon = Number(el.lon ?? el.center?.lon);
           const tags = el.tags || {};
           if (!Number.isFinite(elLat) || !Number.isFinite(elLon)) continue;
+
+          // Bộ lọc: Loại bỏ các bãi đỗ xe thuộc về bệnh viện
+          const rawName = tags.name || tags["name:en"] || tags["name:vi"] || "";
+          const nameClean = removeVietnameseTones(rawName).toLowerCase();
+          if (nameClean.includes("benh vien") || nameClean.includes("hospital") || nameClean.includes(" bv ")) continue;
           const rawName = (tags.name || tags["name:vi"] || tags["name:en"] || "").trim();
           if (!rawName) continue;
 
@@ -2361,31 +2200,6 @@
         summaryBadge.style.display = "inline-block";
         box.innerHTML = `<div class="empty">🏥<br>${escapeHtml(t("emptyHospitalNone"))}</div>`;
       }
-    }
-
-    // Tự động tạo điểm giữ xe nội viện cho mọi bệnh viện trong danh sách đã xác thực
-    function getHospitalInternalParkingList() {
-      return VERIFIED_VN_HOSPITALS.map(h => {
-        const hNameVi = h.tags.name || "Bệnh viện";
-        const hNameEn = h.tags["name:en"] || "Hospital";
-        return {
-          id: "hosp_pk_" + h.id,
-          lat: Number((h.lat + 0.00022).toFixed(6)),
-          lon: Number((h.lon + 0.00022).toFixed(6)),
-          tags: {
-            name: `Bãi giữ xe ${hNameVi}`,
-            "name:en": `${hNameEn} Parking`,
-            amenity: "parking",
-            capacity: "Ô tô & Xe máy (Nội viện)",
-            fee: "4.000đ - 20.000đ",
-            opening_hours: "24/7",
-            motorcar: "yes",
-            motorcycle: "yes",
-            bicycle: "yes",
-            "addr:full": h.tags["addr:full"] || ""
-          }
-        };
-      });
     }
 
     async function fetchParkingDataReliable(lat, lon, radiusKm) {
@@ -2490,7 +2304,6 @@
 
       return [
         ...VERIFIED_VN_PARKING,
-        ...getHospitalInternalParkingList(),
         ...ov,
         ...nom,
         ...pho
@@ -2584,6 +2397,11 @@
           const elLon = Number(el.lon ?? el.center?.lon);
           const tags = el.tags || {};
           if (!Number.isFinite(elLat) || !Number.isFinite(elLon)) continue;
+
+          // Bộ lọc: Loại bỏ các bãi đỗ xe thuộc về bệnh viện
+          const rawName = tags.name || tags["name:en"] || tags["name:vi"] || "";
+          const nameClean = removeVietnameseTones(rawName).toLowerCase();
+          if (nameClean.includes("benh vien") || nameClean.includes("hospital") || nameClean.includes(" bv ")) continue;
 
           const airDist = straightDistanceKm(center.lat, center.lon, elLat, elLon);
           // Cho phép quét bán kính chim bay rộng hơn một chút và tự mở rộng nếu khu vực quá thưa
